@@ -2,7 +2,7 @@
 
 ---
 ## 项目简介
-### <center>*在网络世界中随意啦史。*</center>
+### <div align="center">*在网络世界中随意啦史。*</div>
 ***<div align="right">—— 《 C--程序设计 》</div>***
 
 --- 
