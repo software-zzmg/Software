@@ -2,6 +2,7 @@ package com.zzmg.topicchannelplatform.service;
 
 import com.zzmg.topicchannelplatform.entity.Forum;
 import com.zzmg.topicchannelplatform.entity.ForumMember;
+import com.zzmg.topicchannelplatform.entity.ForumMember.ForumMemberId;
 import com.zzmg.topicchannelplatform.entity.OrdinaryUser;
 import com.zzmg.topicchannelplatform.repository.ForumMemberRepository;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ public class ForumMemberService {
         forum.setForumId(forumId);
         member.setForum(forum);
         member.setJoinTime(LocalDateTime.now());
+        member.setId(new ForumMemberId(userId, forumId));
         return forumMemberRepository.save(member);
     }
 
