@@ -1,6 +1,7 @@
 package com.zzmg.topicchannelplatform.service;
 
 import com.zzmg.topicchannelplatform.entity.Collect;
+import com.zzmg.topicchannelplatform.entity.Collect.CollectId;
 import com.zzmg.topicchannelplatform.entity.OrdinaryUser;
 import com.zzmg.topicchannelplatform.entity.ThemePost;
 import com.zzmg.topicchannelplatform.repository.CollectRepository;
@@ -27,6 +28,7 @@ public class CollectService {
         post.setThemePostId(postId);
         collect.setThemePost(post);
         collect.setCollectTime(LocalDateTime.now());
+        collect.setId(new CollectId(userId, postId));
         return collectRepository.save(collect);
     }
 
