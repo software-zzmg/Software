@@ -152,20 +152,46 @@ public class UserController {
         return "redirect:/user/info";
     }
 
+    @PostMapping("/password/forgot/send-code")
+    public String sendResetCode(@RequestParam String phoneNumber,
+                                HttpSession session,
+                                Model model) {
+        if (userService.findByPhone(phoneNumber).isEmpty()) {
+            model.addAttribute("error", "该手机号未注册");
+            return "user/userpsd-forget";
+        }
+        session.setAttribute("resetCode", "123456");
+        session.setAttribute("resetPhone", phoneNumber);
+        model.addAttribute("resetPhone", phoneNumber);
+        model.addAttribute("codeSent", true);
+        return "user/userpsd-forget";
+    }
+
     @PostMapping("/password/reset")
     public String resetPassword(@RequestParam String phoneNumber,
                                 @RequestParam String newPassword,
                                 @RequestParam String confirmPassword,
+                                @RequestParam String verificationCode,
+                                HttpSession session,
                                 Model model) {
         if (!newPassword.equals(confirmPassword)) {
             model.addAttribute("error", "两次输入的密码不一致");
             return "user/userpsd-forget";
         }
-        if (userService.findByPhone(phoneNumber).isEmpty()) {
-            model.addAttribute("error", "该手机号未注册");
+        String storedCode = (String) session.getAttribute("resetCode");
+        String storedPhone = (String) session.getAttribute("resetPhone");
+        if (storedCode == null || !storedCode.equals(verificationCode)) {
+            model.addAttribute("error", "验证码错误");
+            model.addAttribute("resetPhone", storedPhone);
+            return "user/userpsd-forget";
+        }
+        if (!phoneNumber.equals(storedPhone)) {
+            model.addAttribute("error", "手机号与发送验证码时不一致");
             return "user/userpsd-forget";
         }
         userService.resetPassword(phoneNumber, newPassword);
+        session.removeAttribute("resetCode");
+        session.removeAttribute("resetPhone");
         return "redirect:/user/login";
     }
 

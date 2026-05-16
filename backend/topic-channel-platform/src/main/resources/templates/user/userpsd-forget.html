@@ -8,10 +8,25 @@
 <body>
     <h1>忘记密码</h1>
     <p th:if="${error}" style="color:red" th:text="${error}"></p>
-    <form method="post" th:action="@{/user/password/reset}">
+
+    <form method="post" th:action="@{/user/password/forgot/send-code}">
         <div>
             <label>手机号：</label>
             <input type="text" name="phoneNumber" required>
+        </div>
+        <div>
+            <button type="submit">发送验证码</button>
+            <a th:href="@{/user/login}">返回登录</a>
+        </div>
+    </form>
+
+    <p th:if="${codeSent}" style="color:green">验证码已发送（模拟：123456）</p>
+
+    <form th:if="${codeSent}" method="post" th:action="@{/user/password/reset}">
+        <input type="hidden" name="phoneNumber" th:value="${resetPhone}">
+        <div>
+            <label>验证码：</label>
+            <input type="text" name="verificationCode" required>
         </div>
         <div>
             <label>新密码：</label>
@@ -23,7 +38,6 @@
         </div>
         <div>
             <button type="submit">重置密码</button>
-            <a th:href="@{/user/login}">返回登录</a>
         </div>
     </form>
 </body>
