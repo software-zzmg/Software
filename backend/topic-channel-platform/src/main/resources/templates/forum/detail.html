@@ -13,13 +13,28 @@
     <p><strong>审核状态：</strong><span th:text="${forum.auditState}"></span></p>
     <p><strong>创建时间：</strong><span th:text="${forum.createTime}"></span></p>
 
-    <div th:if="${session.userId != null && session.userId == forum.creator.userId}">
+    <div th:if="${isCreator}">
         <a th:href="@{/forum/edit/{id}(id=${forum.forumId})}">编辑频道</a>
         <form method="post" th:action="@{/forum/dismiss}" style="display:inline">
             <input type="hidden" name="forumId" th:value="${forum.forumId}">
             <button type="submit" onclick="return confirm('确定要解散该频道吗？')">解散频道</button>
         </form>
     </div>
+
+    <div th:if="${session.userId != null && !isCreator}">
+        <form th:if="${!isMember}" method="post" th:action="@{/forum-member/join}" style="display:inline">
+            <input type="hidden" name="forumId" th:value="${forum.forumId}">
+            <button type="submit">加入频道</button>
+        </form>
+        <form th:if="${isMember}" method="post" th:action="@{/forum-member/leave}" style="display:inline">
+            <input type="hidden" name="forumId" th:value="${forum.forumId}">
+            <button type="submit" onclick="return confirm('确定要退出该频道吗？')">退出频道</button>
+        </form>
+    </div>
+
+    <p th:if="${session.userId == null}">
+        <a th:href="@{/user/login}">登录后即可加入频道</a>
+    </p>
 
     <div>
         <a th:href="@{/forum/list}">返回频道列表</a>

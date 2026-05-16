@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的频道</title>
+</head>
+<body>
+    <h1>我的频道</h1>
+
+    <div th:if="${#lists.isEmpty(memberships)}">
+        <p>你还没有加入任何频道</p>
+    </div>
+
+    <table th:if="${!#lists.isEmpty(memberships)}">
+        <thead>
+            <tr>
+                <th>频道名称</th>
+                <th>频道简介</th>
+                <th>加入时间</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="m : ${memberships}">
+                <td>
+                    <a th:href="@{/forum/detail/{id}(id=${m.forum.forumId})}" th:text="${m.forum.forumName}"></a>
+                </td>
+                <td th:text="${m.forum.content}"></td>
+                <td th:text="${m.joinTime}"></td>
+                <td>
+                    <form method="post" th:action="@{/forum-member/leave}" style="display:inline">
+                        <input type="hidden" name="forumId" th:value="${m.forum.forumId}">
+                        <button type="submit" onclick="return confirm('确定要退出该频道吗？')">退出</button>
+                    </form>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div>
+        <a th:href="@{/forum/list}">浏览更多频道</a>
+        <a th:href="@{/}">返回首页</a>
+    </div>
+</body>
+</html>

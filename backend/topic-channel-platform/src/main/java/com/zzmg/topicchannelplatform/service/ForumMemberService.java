@@ -1,10 +1,10 @@
 package com.zzmg.topicchannelplatform.service;
 
-import com.zzmg.topicchannelplatform.entity.Forum;
 import com.zzmg.topicchannelplatform.entity.ForumMember;
 import com.zzmg.topicchannelplatform.entity.ForumMember.ForumMemberId;
-import com.zzmg.topicchannelplatform.entity.OrdinaryUser;
 import com.zzmg.topicchannelplatform.repository.ForumMemberRepository;
+import com.zzmg.topicchannelplatform.repository.ForumRepository;
+import com.zzmg.topicchannelplatform.repository.OrdinaryUserRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -14,21 +14,23 @@ import java.util.List;
 public class ForumMemberService {
 
     private final ForumMemberRepository forumMemberRepository;
+    private final OrdinaryUserRepository userRepository;
+    private final ForumRepository forumRepository;
 
-    public ForumMemberService(ForumMemberRepository forumMemberRepository) {
+    public ForumMemberService(ForumMemberRepository forumMemberRepository,
+                              OrdinaryUserRepository userRepository,
+                              ForumRepository forumRepository) {
         this.forumMemberRepository = forumMemberRepository;
+        this.userRepository = userRepository;
+        this.forumRepository = forumRepository;
     }
 
     public ForumMember join(String userId, String forumId) {
         ForumMember member = new ForumMember();
-        OrdinaryUser user = new OrdinaryUser();
-        user.setUserId(userId);
-        member.setUser(user);
-        Forum forum = new Forum();
-        forum.setForumId(forumId);
-        member.setForum(forum);
+        member.setId(new ForumMemberId());
+        member.setUser(userRepository.getReferenceById(userId));
+        member.setForum(forumRepository.getReferenceById(forumId));
         member.setJoinTime(LocalDateTime.now());
-        member.setId(new ForumMemberId(userId, forumId));
         return forumMemberRepository.save(member);
     }
 

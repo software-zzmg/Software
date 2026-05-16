@@ -2,6 +2,7 @@ package com.zzmg.topicchannelplatform.controller;
 
 import com.zzmg.topicchannelplatform.entity.Forum;
 import com.zzmg.topicchannelplatform.entity.OrdinaryUser;
+import com.zzmg.topicchannelplatform.service.ForumMemberService;
 import com.zzmg.topicchannelplatform.service.ForumService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
@@ -19,9 +20,11 @@ import java.util.List;
 public class ForumController {
 
     private final ForumService forumService;
+    private final ForumMemberService forumMemberService;
 
-    public ForumController(ForumService forumService) {
+    public ForumController(ForumService forumService, ForumMemberService forumMemberService) {
         this.forumService = forumService;
+        this.forumMemberService = forumMemberService;
     }
 
     @GetMapping("/list")
@@ -38,9 +41,14 @@ public class ForumController {
     }
 
     @GetMapping("/detail/{forumId}")
-    public String detail(@PathVariable String forumId, Model model) {
+    public String detail(@PathVariable String forumId, HttpSession session, Model model) {
         return forumService.findById(forumId).map(forum -> {
             model.addAttribute("forum", forum);
+            String userId = (String) session.getAttribute("userId");
+            if (userId != null) {
+                model.addAttribute("isMember", forumMemberService.isMember(userId, forumId));
+                model.addAttribute("isCreator", userId.equals(forum.getCreator().getUserId()));
+            }
             return "forum/detail";
         }).orElse("redirect:/forum/list");
     }
