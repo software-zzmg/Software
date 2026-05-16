@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Optional;
 
 @Controller
@@ -121,11 +122,15 @@ public class UserController {
         user.setGender(gender);
         user.setIdNumber(idNumber);
         try {
-            user.setBirthday(LocalDateTime.parse(birthday, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-        } catch (Exception e) {
-            model.addAttribute("error", "日期格式不正确");
-            userService.findById(userId).ifPresent(u -> model.addAttribute("user", u));
-            return "user/userinfo-edit";
+            user.setBirthday(LocalDateTime.parse(birthday, DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+        } catch (DateTimeParseException ex) {
+            try {
+                user.setBirthday(LocalDateTime.parse(birthday, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            } catch (DateTimeParseException ex2) {
+                model.addAttribute("error", "日期格式不正确");
+                userService.findById(userId).ifPresent(u -> model.addAttribute("user", u));
+                return "user/userinfo-edit";
+            }
         }
         userService.updateInfo(user);
         return "redirect:/user/info";
