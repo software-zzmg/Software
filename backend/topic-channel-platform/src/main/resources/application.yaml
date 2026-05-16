@@ -1,11 +1,11 @@
 spring:
   application:
-    name: topic-channel-platform
+    name: OrionDB
 
   datasource:
-    url: jdbc:mysql://localhost:3306/topic_channel_platform?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://localhost:3306/topic_channel_platform?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
     username: root
-    password: root
+    password: 1234
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
