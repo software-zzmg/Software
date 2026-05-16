@@ -7,5 +7,12 @@
 </head>
 <body>
     <h1>欢迎来到主题频道交流平台</h1>
+    <div th:if="${session.userId}">
+        <a th:href="@{/user/info}">个人信息</a>
+    </div>
+    <div th:unless="${session.userId}">
+        <a th:href="@{/user/login}">登录</a>
+        <a th:href="@{/user/register}">注册</a>
+    </div>
 </body>
 </html>
