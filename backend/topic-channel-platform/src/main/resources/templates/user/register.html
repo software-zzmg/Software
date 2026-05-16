@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>注册</title>
+</head>
+<body>
+    <h1>用户注册</h1>
+    <p th:if="${error}" style="color:red" th:text="${error}"></p>
+    <form method="post" th:action="@{/user/register}">
+        <div>
+            <label>手机号：</label>
+            <input type="text" name="phoneNumber" required>
+        </div>
+        <div>
+            <label>用户名：</label>
+            <input type="text" name="userName" required>
+        </div>
+        <div>
+            <label>密码：</label>
+            <input type="password" name="userPassword" required>
+        </div>
+        <div>
+            <label>确认密码：</label>
+            <input type="password" name="confirmPassword" required>
+        </div>
+        <div>
+            <button type="submit">注册</button>
+            <a th:href="@{/user/login}">返回登录</a>
+        </div>
+    </form>
+</body>
+</html>

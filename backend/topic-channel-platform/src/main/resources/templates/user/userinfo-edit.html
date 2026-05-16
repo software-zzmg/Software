@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>编辑个人信息</title>
+</head>
+<body>
+    <h1>编辑个人信息</h1>
+    <p th:if="${error}" style="color:red" th:text="${error}"></p>
+    <form method="post" th:action="@{/user/info/update}" th:if="${user}">
+        <div>
+            <label>用户名：</label>
+            <input type="text" name="userName" th:value="${user.userName}" required>
+        </div>
+        <div>
+            <label>真实姓名：</label>
+            <input type="text" name="realName" th:value="${user.realName}">
+        </div>
+        <div>
+            <label>性别：</label>
+            <input type="text" name="gender" th:value="${user.gender}">
+        </div>
+        <div>
+            <label>生日：</label>
+            <input type="text" name="birthday" th:value="${user.birthday}">
+        </div>
+        <div>
+            <label>身份证号：</label>
+            <input type="text" name="idNumber" th:value="${user.idNumber}">
+        </div>
+        <div>
+            <button type="submit">保存</button>
+            <a th:href="@{/user/info}">取消</a>
+        </div>
+    </form>
+</body>
+</html>

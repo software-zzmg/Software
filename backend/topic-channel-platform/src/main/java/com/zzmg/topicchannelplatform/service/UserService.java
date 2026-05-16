@@ -16,15 +16,17 @@ public class UserService {
     }
 
     public boolean register(OrdinaryUser user) {
-        if (userRepository.existsById(user.getUserId())) {
+        if (userRepository.existsByPhoneNumber(user.getPhoneNumber())) {
             return false;
         }
+        user.setUserId(java.util.UUID.randomUUID().toString());
+        user.setRegisterTime(java.time.LocalDateTime.now());
         userRepository.save(user);
         return true;
     }
 
     public Optional<OrdinaryUser> login(String phone, String password) {
-        return userRepository.findById(phone)
+        return userRepository.findByPhoneNumber(phone)
                 .filter(u -> u.getUserPassword().equals(password));
     }
 
@@ -33,7 +35,7 @@ public class UserService {
     }
 
     public Optional<OrdinaryUser> findByPhone(String phone) {
-        return userRepository.findById(phone);
+        return userRepository.findByPhoneNumber(phone);
     }
 
     public void updateInfo(OrdinaryUser user) {

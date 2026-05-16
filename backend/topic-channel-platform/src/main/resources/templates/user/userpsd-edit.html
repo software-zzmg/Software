@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>修改密码</title>
+</head>
+<body>
+    <h1>修改密码</h1>
+    <p th:if="${error}" style="color:red" th:text="${error}"></p>
+    <form method="post" th:action="@{/user/password/change}">
+        <div>
+            <label>原密码：</label>
+            <input type="password" name="oldPassword" required>
+        </div>
+        <div>
+            <label>新密码：</label>
+            <input type="password" name="newPassword" required>
+        </div>
+        <div>
+            <label>确认新密码：</label>
+            <input type="password" name="confirmPassword" required>
+        </div>
+        <div>
+            <button type="submit">确认修改</button>
+            <a th:href="@{/user/info}">取消</a>
+        </div>
+    </form>
+</body>
+</html>

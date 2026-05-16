@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人信息</title>
+</head>
+<body>
+    <h1>个人信息</h1>
+    <table th:if="${user}">
+        <tr><td>用户名：</td><td th:text="${user.userName}"></td></tr>
+        <tr><td>手机号：</td><td th:text="${user.phoneNumber}"></td></tr>
+        <tr><td>真实姓名：</td><td th:text="${user.realName}"></td></tr>
+        <tr><td>性别：</td><td th:text="${user.gender}"></td></tr>
+        <tr><td>生日：</td><td th:text="${user.birthday}"></td></tr>
+        <tr><td>身份证号：</td><td th:text="${user.idNumber}"></td></tr>
+        <tr><td>注册时间：</td><td th:text="${user.registerTime}"></td></tr>
+    </table>
+    <div>
+        <a th:href="@{/user/info/edit}">编辑信息</a>
+        <a th:href="@{/user/password/change}">修改密码</a>
+        <a th:href="@{/}">返回首页</a>
+    </div>
+    <form method="post" th:action="@{/user/delete}" style="margin-top:20px">
+        <button type="submit" onclick="return confirm('确认注销账号？此操作不可恢复。')">注销账号</button>
+    </form>
+</body>
+</html>
