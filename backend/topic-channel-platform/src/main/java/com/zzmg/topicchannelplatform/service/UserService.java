@@ -19,7 +19,8 @@ public class UserService {
         if (userRepository.existsByPhoneNumber(user.getPhoneNumber())) {
             return false;
         }
-        user.setUserId(java.util.UUID.randomUUID().toString());
+        String userId = String.format("%09d", new java.util.Random().nextInt(1_000_000_000));
+        user.setUserId(userId);
         user.setRegisterTime(java.time.LocalDateTime.now());
         userRepository.save(user);
         return true;
