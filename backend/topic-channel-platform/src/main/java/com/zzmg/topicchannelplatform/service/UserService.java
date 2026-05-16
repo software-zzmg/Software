@@ -60,7 +60,7 @@ public class UserService {
     }
 
     public void resetPassword(String phone, String newPassword) {
-        userRepository.findById(phone).ifPresent(u -> {
+        userRepository.findByPhoneNumber(phone).ifPresent(u -> {
             u.setUserPassword(newPassword);
             userRepository.save(u);
         });
