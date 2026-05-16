@@ -18,6 +18,16 @@ public class ForumService {
     }
 
     public Forum create(Forum forum) {
+        if (forum.getForumId() == null || forum.getForumId().isEmpty()) {
+            int nextId = forumRepository.findAll().stream()
+                    .map(Forum::getForumId)
+                    .mapToInt(id -> {
+                        try { return Integer.parseInt(id); } catch (NumberFormatException e) { return 0; }
+                    })
+                    .max()
+                    .orElse(0) + 1;
+            forum.setForumId(String.valueOf(nextId));
+        }
         forum.setCreateTime(LocalDateTime.now());
         forum.setAuditState("待审核");
         return forumRepository.save(forum);

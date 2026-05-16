@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>创建主题频道</title>
+</head>
+<body>
+    <h1>创建主题频道</h1>
+
+    <p th:if="${error}" style="color:red" th:text="${error}"></p>
+
+    <form method="post" th:action="@{/forum/create}">
+        <div>
+            <label>频道名称：</label>
+            <input type="text" name="forumName" required>
+        </div>
+        <div>
+            <label>频道简介：</label>
+            <textarea name="content" rows="5" required></textarea>
+        </div>
+        <div>
+            <button type="submit">提交创建</button>
+            <a th:href="@{/forum/list}">取消</a>
+        </div>
+    </form>
+</body>
+</html>

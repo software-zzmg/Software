@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${forum.forumName} + ' - 频道详情'">频道详情</title>
+</head>
+<body>
+    <h1 th:text="${forum.forumName}">频道名称</h1>
+
+    <p><strong>简介：</strong><span th:text="${forum.content}"></span></p>
+    <p><strong>创建者：</strong><span th:text="${forum.creator.userName}"></span></p>
+    <p><strong>审核状态：</strong><span th:text="${forum.auditState}"></span></p>
+    <p><strong>创建时间：</strong><span th:text="${forum.createTime}"></span></p>
+
+    <div th:if="${session.userId != null && session.userId == forum.creator.userId}">
+        <a th:href="@{/forum/edit/{id}(id=${forum.forumId})}">编辑频道</a>
+        <form method="post" th:action="@{/forum/dismiss}" style="display:inline">
+            <input type="hidden" name="forumId" th:value="${forum.forumId}">
+            <button type="submit" onclick="return confirm('确定要解散该频道吗？')">解散频道</button>
+        </form>
+    </div>
+
+    <div>
+        <a th:href="@{/forum/list}">返回频道列表</a>
+    </div>
+</body>
+</html>
