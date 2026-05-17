@@ -28,6 +28,40 @@
 
 --- 
 ## 技术架构
+## 本地开发环境配置
+
+### 前置条件
+- JDK 17+
+- MySQL 8.0+
+- Maven（项目自带 Maven Wrapper，无需手动安装）
+
+### 数据库配置
+1. 复制示例配置：`cp src/main/resources/application.example.yaml src/main/resources/application.yaml`
+2. 修改 `application.yaml` 中的 MySQL 用户名和密码，或设置环境变量：
+   ```bash
+   export DB_USERNAME=your_mysql_user
+   export DB_PASSWORD=your_mysql_password
+   ```
+3. 首次启动时 JPA 会自动建表，无需手动执行 SQL
+
+### 启动项目
+```bash
+cd backend/topic-channel-platform
+./mvnw spring-boot:run
+```
+访问 `http://localhost:8080`
+
+### 默认账号
+| 角色 | 账号 | 密码 |
+|---|---|---|
+| 管理员 | admin | admin123 |
+| 测试用户 | 13800000000 | 123456 |
+
+首次启动时由 `DataInitializer` 自动创建，后续启动不会重复插入。
+
+---
+## 技术架构
+
 本项目采用前后端分离的B/S架构和原生移动端开发。
 
 | 端          | 技术栈                            | 开发环境            |

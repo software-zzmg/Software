@@ -1,0 +1,45 @@
+# =============================================
+# 主题频道交流平台 — 本地开发配置模板
+# =============================================
+# 使用方式：
+#   1. 复制本文件为 application.yaml
+#   2. 按注释修改数据库连接信息
+#   3. 或设置环境变量覆盖敏感值
+# =============================================
+
+spring:
+  application:
+    name: topic-channel-platform
+
+  datasource:
+    # 本地 MySQL 连接，首次启动会自动创建数据库
+    url: jdbc:mysql://localhost:3306/topic_channel_platform?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
+    # 替换为你的 MySQL 用户名与密码，或通过环境变量设置：
+    #   export DB_USERNAME=your_user
+    #   export DB_PASSWORD=your_password
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:your_password}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      # 开发期用 update，生产环境建议改为 validate
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    # 开发期关闭缓存，方便修改模板后即时刷新
+    cache: false
+
+# =============================================
+# 默认管理员账号（首次启动自动创建）
+#   账号: admin
+#   密码: admin123
+# 该初始化逻辑位于 config/DataInitializer.java
+# =============================================
