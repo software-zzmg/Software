@@ -1,7 +1,10 @@
 package com.zzmg.topicchannelplatform.controller;
 
+import com.zzmg.topicchannelplatform.entity.Comment;
 import com.zzmg.topicchannelplatform.entity.OrdinaryUser;
 import com.zzmg.topicchannelplatform.entity.ThemePost;
+import com.zzmg.topicchannelplatform.service.CommentService;
+import com.zzmg.topicchannelplatform.service.ForumMemberService;
 import com.zzmg.topicchannelplatform.service.ForumService;
 import com.zzmg.topicchannelplatform.service.ThemePostService;
 import jakarta.servlet.http.HttpSession;
@@ -21,10 +24,15 @@ public class ThemePostController {
 
     private final ThemePostService postService;
     private final ForumService forumService;
+    private final CommentService commentService;
+    private final ForumMemberService forumMemberService;
 
-    public ThemePostController(ThemePostService postService, ForumService forumService) {
+    public ThemePostController(ThemePostService postService, ForumService forumService,
+                               CommentService commentService, ForumMemberService forumMemberService) {
         this.postService = postService;
         this.forumService = forumService;
+        this.commentService = commentService;
+        this.forumMemberService = forumMemberService;
     }
 
     @GetMapping("/list/{forumId}")
@@ -42,7 +50,11 @@ public class ThemePostController {
         return postService.findById(postId).map(post -> {
             model.addAttribute("post", post);
             String userId = (String) session.getAttribute("userId");
+            model.addAttribute("currentUserId", userId);
             model.addAttribute("isAuthor", userId != null && userId.equals(post.getAuthor().getUserId()));
+            model.addAttribute("isMember", userId != null && forumMemberService.isMember(userId, post.getForum().getForumId()));
+            List<Comment> comments = commentService.findByThemePostId(postId);
+            model.addAttribute("comments", comments);
             return "post/detail";
         }).orElse("redirect:/forum/list");
     }

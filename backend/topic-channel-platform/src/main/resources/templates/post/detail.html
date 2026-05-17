@@ -29,6 +29,48 @@
         </form>
     </div>
 
+    <!-- Comments section -->
+    <h2>评论</h2>
+
+    <div th:if="${error}" style="color:red" th:text="${error}"></div>
+
+    <div th:if="${currentUserId != null && isMember}">
+        <form method="post" th:action="@{/comment/create}">
+            <input type="hidden" name="postId" th:value="${post.themePostId}">
+            <div>
+                <textarea name="content" rows="3" placeholder="写下你的评论..." required></textarea>
+            </div>
+            <div>
+                <button type="submit">发表评论</button>
+            </div>
+        </form>
+    </div>
+
+    <p th:if="${currentUserId != null && !isMember}">
+        需要加入频道后才能评论
+    </p>
+    <p th:if="${currentUserId == null}">
+        <a th:href="@{/user/login}">登录后即可评论</a>
+    </p>
+
+    <div th:if="${#lists.isEmpty(comments)}">
+        <p>暂无评论</p>
+    </div>
+
+    <div th:each="c : ${comments}">
+        <p>
+            <strong th:text="${c.author.userName}"></strong>
+            <span th:text="${c.publishTime}"></span>
+        </p>
+        <p th:text="${c.content}"></p>
+        <form th:if="${currentUserId != null && (currentUserId == c.author.userId || isAuthor)}"
+              method="post" th:action="@{/comment/delete}" style="display:inline">
+            <input type="hidden" name="commentId" th:value="${c.commentId}">
+            <button type="submit" onclick="return confirm('确定要删除该评论吗？')">删除</button>
+        </form>
+        <hr>
+    </div>
+
     <div>
         <a th:href="@{/post/list/{id}(id=${post.forum.forumId})}">返回帖子列表</a>
     </div>

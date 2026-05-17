@@ -1,0 +1,68 @@
+package com.zzmg.topicchannelplatform.controller;
+
+import com.zzmg.topicchannelplatform.entity.Comment;
+import com.zzmg.topicchannelplatform.entity.OrdinaryUser;
+import com.zzmg.topicchannelplatform.repository.CommentRepository;
+import com.zzmg.topicchannelplatform.repository.ThemePostRepository;
+import com.zzmg.topicchannelplatform.service.CommentService;
+import jakarta.servlet.http.HttpSession;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
+@Controller
+@RequestMapping("/comment")
+public class CommentController {
+
+    private final CommentService commentService;
+    private final ThemePostRepository postRepository;
+    private final CommentRepository commentRepository;
+
+    public CommentController(CommentService commentService,
+                             ThemePostRepository postRepository,
+                             CommentRepository commentRepository) {
+        this.commentService = commentService;
+        this.postRepository = postRepository;
+        this.commentRepository = commentRepository;
+    }
+
+    @PostMapping("/create")
+    public String create(@RequestParam String postId,
+                         @RequestParam String content,
+                         HttpSession session,
+                         Model model) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return "redirect:/user/login";
+        }
+        Comment comment = new Comment();
+        comment.setThemePost(postRepository.getReferenceById(postId));
+        comment.setContent(content);
+        OrdinaryUser author = new OrdinaryUser();
+        author.setUserId(userId);
+        comment.setAuthor(author);
+        try {
+            commentService.publish(comment, userId);
+        } catch (IllegalStateException e) {
+            model.addAttribute("error", e.getMessage());
+        }
+        return "redirect:/post/detail/" + postId;
+    }
+
+    @PostMapping("/delete")
+    public String delete(@RequestParam String commentId, HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return "redirect:/user/login";
+        }
+        String postId = commentRepository.findById(commentId)
+                .map(c -> c.getThemePost().getThemePostId())
+                .orElse(null);
+        if (postId != null && commentService.canDelete(userId, commentId)) {
+            commentService.deleteById(commentId);
+        }
+        return postId != null ? "redirect:/post/detail/" + postId : "redirect:/forum/list";
+    }
+}
