@@ -10,7 +10,6 @@ import com.zzmg.topicchannelplatform.repository.CommentRepository;
 import com.zzmg.topicchannelplatform.repository.ForumRepository;
 import com.zzmg.topicchannelplatform.repository.OrdinaryUserRepository;
 import com.zzmg.topicchannelplatform.repository.ThemePostRepository;
-import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -35,17 +34,6 @@ public class AdministratorService {
         this.forumRepository = forumRepository;
         this.postRepository = postRepository;
         this.commentRepository = commentRepository;
-    }
-
-    // TODO: 开发期方案。后续应改为从配置文件或环境变量读取管理员账号
-    @PostConstruct
-    public void initDefaultAdmin() {
-        if (adminRepository.findById("admin").isEmpty()) {
-            Administrator admin = new Administrator();
-            admin.setUserId("admin");
-            admin.setUserPassword("admin123");
-            adminRepository.save(admin);
-        }
     }
 
     public Optional<Administrator> login(String userId, String password) {
