@@ -76,7 +76,7 @@ PK: user_id
 ### 字段
 | 字段 | 类型 | 约束 | 说明 |
 |---|---|---|---|
-| user_id | bigint | PK | 用户ID |
+| user_id | bigint | PK | 用户ID，9位随机整数 |
 | phone_number | varchar | UNIQUE | 手机号 |
 | user_password | varchar | NOT NULL | 密码 |
 | user_name | varchar |  | 用户名 |
@@ -116,7 +116,7 @@ FK: user_id -> user.user_id
 | 字段 | 类型 | 约束 | 说明 |
 |---|---|---|---|
 |---|---|---|
-| forum_id | bigint | PK | 频道ID |
+| forum_id | bigint | PK | 频道ID，从1开始的整数 |
 | user_id | bigint | FK | 创建者ID |
 | forum_name | varchar | NOT NULL | 频道名称 |
 | content | text |  | 频道简介 |
@@ -170,7 +170,7 @@ FK: user_id -> user.user_id
 ### 字段
 | 字段 | 类型 | 说明 |
 |---|---|---|
-| theme_post_id | bigint | PK | 帖子ID |
+| theme_post_id | bigint | PK | 帖子ID，从1开始的整数 |
 | forum_id | bigint | FK | 所属频道 |
 | user_id | bigint | FK | 作者ID |
 | title | varchar | NOT NULL | 标题 |
@@ -201,7 +201,7 @@ FK: user_id -> user.user_id
 ### 字段
 | 字段 | 类型 | 说明 |
 |---|---|---|
-| comment_id | bigint | PK | 评论ID |
+| comment_id | bigint | PK | 评论ID，从1开始的整数 |
 | theme_post_id | bigint | FK | 帖子ID |
 | user_id | bigint | FK | 评论用户ID |
 | content | text | NOT NULL | 评论内容 |
