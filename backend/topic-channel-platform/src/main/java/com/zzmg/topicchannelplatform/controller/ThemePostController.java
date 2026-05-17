@@ -3,6 +3,7 @@ package com.zzmg.topicchannelplatform.controller;
 import com.zzmg.topicchannelplatform.entity.Comment;
 import com.zzmg.topicchannelplatform.entity.OrdinaryUser;
 import com.zzmg.topicchannelplatform.entity.ThemePost;
+import com.zzmg.topicchannelplatform.service.CollectService;
 import com.zzmg.topicchannelplatform.service.CommentService;
 import com.zzmg.topicchannelplatform.service.ForumMemberService;
 import com.zzmg.topicchannelplatform.service.ForumService;
@@ -26,13 +27,16 @@ public class ThemePostController {
     private final ForumService forumService;
     private final CommentService commentService;
     private final ForumMemberService forumMemberService;
+    private final CollectService collectService;
 
     public ThemePostController(ThemePostService postService, ForumService forumService,
-                               CommentService commentService, ForumMemberService forumMemberService) {
+                               CommentService commentService, ForumMemberService forumMemberService,
+                               CollectService collectService) {
         this.postService = postService;
         this.forumService = forumService;
         this.commentService = commentService;
         this.forumMemberService = forumMemberService;
+        this.collectService = collectService;
     }
 
     @GetMapping("/list/{forumId}")
@@ -53,6 +57,7 @@ public class ThemePostController {
             model.addAttribute("currentUserId", userId);
             model.addAttribute("isAuthor", userId != null && userId.equals(post.getAuthor().getUserId()));
             model.addAttribute("isMember", userId != null && forumMemberService.isMember(userId, post.getForum().getForumId()));
+            model.addAttribute("isCollected", userId != null && collectService.isCollected(userId, postId));
             List<Comment> comments = commentService.findByThemePostId(postId);
             model.addAttribute("comments", comments);
             return "post/detail";

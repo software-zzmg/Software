@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>我的收藏</title>
+</head>
+<body>
+    <h1>我的收藏</h1>
+
+    <div th:if="${#lists.isEmpty(collects)}">
+        <p>暂无收藏</p>
+    </div>
+
+    <table th:if="${!#lists.isEmpty(collects)}">
+        <thead>
+            <tr>
+                <th>帖子标题</th>
+                <th>所属频道</th>
+                <th>作者</th>
+                <th>收藏时间</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="c : ${collects}">
+                <td>
+                    <a th:href="@{/post/detail/{id}(id=${c.themePost.themePostId})}" th:text="${c.themePost.title}"></a>
+                </td>
+                <td>
+                    <a th:href="@{/forum/detail/{id}(id=${c.themePost.forum.forumId})}" th:text="${c.themePost.forum.forumName}"></a>
+                </td>
+                <td th:text="${c.themePost.author.userName}"></td>
+                <td th:text="${c.collectTime}"></td>
+                <td>
+                    <form method="post" th:action="@{/collect/cancel}" style="display:inline">
+                        <input type="hidden" name="postId" th:value="${c.themePost.themePostId}">
+                        <button type="submit" onclick="return confirm('确定要取消收藏吗？')">取消收藏</button>
+                    </form>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div>
+        <a th:href="@{/}">返回首页</a>
+    </div>
+</body>
+</html>

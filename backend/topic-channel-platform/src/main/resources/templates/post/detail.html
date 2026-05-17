@@ -21,6 +21,19 @@
     </div>
     <hr>
 
+    <div>
+        <form th:if="${currentUserId != null && !isCollected}" method="post" th:action="@{/collect/add}" style="display:inline">
+            <input type="hidden" name="postId" th:value="${post.themePostId}">
+            <button type="submit">收藏</button>
+        </form>
+        <form th:if="${currentUserId != null && isCollected}" method="post" th:action="@{/collect/cancel}" style="display:inline">
+            <input type="hidden" name="postId" th:value="${post.themePostId}">
+            <button type="submit" onclick="return confirm('确定要取消收藏吗？')">取消收藏</button>
+        </form>
+        <a th:if="${currentUserId == null}" th:href="@{/user/login}">登录后即可收藏</a>
+        <a th:href="@{/collect/my}">我的收藏</a>
+    </div>
+
     <div th:if="${isAuthor}">
         <a th:href="@{/post/edit/{id}(id=${post.themePostId})}">编辑帖子</a>
         <form method="post" th:action="@{/post/delete}" style="display:inline">
