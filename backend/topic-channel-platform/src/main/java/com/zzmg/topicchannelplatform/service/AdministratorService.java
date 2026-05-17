@@ -1,12 +1,16 @@
 package com.zzmg.topicchannelplatform.service;
 
 import com.zzmg.topicchannelplatform.entity.Administrator;
+import com.zzmg.topicchannelplatform.entity.Comment;
+import com.zzmg.topicchannelplatform.entity.Forum;
 import com.zzmg.topicchannelplatform.entity.OrdinaryUser;
+import com.zzmg.topicchannelplatform.entity.ThemePost;
 import com.zzmg.topicchannelplatform.repository.AdministratorRepository;
 import com.zzmg.topicchannelplatform.repository.CommentRepository;
 import com.zzmg.topicchannelplatform.repository.ForumRepository;
 import com.zzmg.topicchannelplatform.repository.OrdinaryUserRepository;
 import com.zzmg.topicchannelplatform.repository.ThemePostRepository;
+import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -33,6 +37,17 @@ public class AdministratorService {
         this.commentRepository = commentRepository;
     }
 
+    // TODO: 开发期方案。后续应改为从配置文件或环境变量读取管理员账号
+    @PostConstruct
+    public void initDefaultAdmin() {
+        if (adminRepository.findById("admin").isEmpty()) {
+            Administrator admin = new Administrator();
+            admin.setUserId("admin");
+            admin.setUserPassword("admin123");
+            adminRepository.save(admin);
+        }
+    }
+
     public Optional<Administrator> login(String userId, String password) {
         return adminRepository.findById(userId)
                 .filter(a -> a.getUserPassword().equals(password));
@@ -46,6 +61,24 @@ public class AdministratorService {
         return userRepository.findAll().stream()
                 .filter(u -> (u.getUserName() != null && u.getUserName().contains(keyword))
                         || (u.getPhoneNumber() != null && u.getPhoneNumber().contains(keyword)))
+                .toList();
+    }
+
+    public List<Forum> findPendingForums() {
+        return forumRepository.findAll().stream()
+                .filter(f -> "待审核".equals(f.getAuditState()))
+                .toList();
+    }
+
+    public List<ThemePost> findPendingPosts() {
+        return postRepository.findAll().stream()
+                .filter(p -> "待审核".equals(p.getAuditState()))
+                .toList();
+    }
+
+    public List<Comment> findPendingComments() {
+        return commentRepository.findAll().stream()
+                .filter(c -> "待审核".equals(c.getAuditState()))
                 .toList();
     }
 

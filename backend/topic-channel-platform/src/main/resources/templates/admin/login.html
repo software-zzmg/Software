@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>管理员登录</title>
+</head>
+<body>
+    <h1>管理员登录</h1>
+    <p th:if="${error}" style="color:red" th:text="${error}"></p>
+    <form method="post" th:action="@{/admin/login}">
+        <div>
+            <label>管理员账号：</label>
+            <input type="text" name="userId" required>
+        </div>
+        <div>
+            <label>密码：</label>
+            <input type="password" name="password" required>
+        </div>
+        <div>
+            <button type="submit">登录</button>
+            <a th:href="@{/}">返回首页</a>
+        </div>
+    </form>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>审核评论</title>
+</head>
+<body>
+    <h1>待审核评论</h1>
+
+    <div th:if="${#lists.isEmpty(comments)}">
+        <p>暂无待审核的评论</p>
+    </div>
+
+    <table th:if="${!#lists.isEmpty(comments)}">
+        <thead>
+            <tr>
+                <th>评论者</th>
+                <th>内容</th>
+                <th>所属帖子</th>
+                <th>时间</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="c : ${comments}">
+                <td th:text="${c.author.userName}"></td>
+                <td th:text="${c.content}"></td>
+                <td>
+                    <a th:href="@{/post/detail/{id}(id=${c.themePost.themePostId})}" th:text="${c.themePost.title}"></a>
+                </td>
+                <td th:text="${c.publishTime}"></td>
+                <td>
+                    <form method="post" th:action="@{/admin/comments/{id}/approve(id=${c.commentId})}" style="display:inline">
+                        <button type="submit">通过</button>
+                    </form>
+                    <form method="post" th:action="@{/admin/comments/{id}/reject(id=${c.commentId})}" style="display:inline">
+                        <button type="submit">驳回</button>
+                    </form>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <a th:href="@{/admin}">返回后台</a>
+</body>
+</html>
