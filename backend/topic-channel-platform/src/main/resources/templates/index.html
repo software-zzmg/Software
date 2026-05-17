@@ -6,13 +6,44 @@
     <title>主题频道交流平台</title>
 </head>
 <body>
-    <!-- Navigation bar -->
     <div th:replace="~{fragments/nav :: nav}"></div>
     <hr>
 
     <h1>欢迎来到主题频道交流平台</h1>
 
+    <!-- Forum list -->
+    <h2>频道列表</h2>
+    <p th:if="${session.userId}">
+        <a th:href="@{/forum/create}">创建频道</a>
+    </p>
+
+    <div th:if="${#lists.isEmpty(forums)}">
+        <p>暂无频道</p>
+    </div>
+
+    <table th:if="${!#lists.isEmpty(forums)}">
+        <thead>
+            <tr>
+                <th>频道名称</th>
+                <th>简介</th>
+                <th>创建时间</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="forum : ${forums}">
+                <td>
+                    <a th:href="@{/forum/detail/{id}(id=${forum.forumId})}" th:text="${forum.forumName}"></a>
+                </td>
+                <td th:text="${forum.content}"></td>
+                <td th:text="${forum.createTime}"></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <hr>
+
     <!-- Posts list -->
+    <h2>最新帖子</h2>
     <div th:if="${#lists.isEmpty(posts)}">
         <p>暂无帖子</p>
     </div>

@@ -40,22 +40,23 @@ public class ThemePostController {
     }
 
     @GetMapping("/list/{forumId}")
-    public String list(@PathVariable Long forumId, Model model) {
-        return forumService.findById(forumId).map(forum -> {
-            model.addAttribute("forum", forum);
-            List<ThemePost> posts = postService.findByForumId(forumId);
-            model.addAttribute("posts", posts);
-            return "post/list";
-        }).orElse("redirect:/forum/list");
+    public String list(@PathVariable Long forumId) {
+        return "redirect:/forum/detail/" + forumId;
     }
 
     @GetMapping("/detail/{postId}")
     public String detail(@PathVariable Long postId, HttpSession session, Model model) {
         return postService.findById(postId).map(post -> {
-            model.addAttribute("post", post);
             String userId = (String) session.getAttribute("userId");
+            boolean isAuthor = userId != null && userId.equals(post.getAuthor().getUserId());
+            boolean isForumCreator = userId != null && userId.equals(post.getForum().getCreator().getUserId());
+            boolean isAdmin = session.getAttribute("adminId") != null;
+            if (!"审核通过".equals(post.getAuditState()) && !isAuthor && !isForumCreator && !isAdmin) {
+                return "redirect:/forum/list";
+            }
+            model.addAttribute("post", post);
             model.addAttribute("currentUserId", userId);
-            model.addAttribute("isAuthor", userId != null && userId.equals(post.getAuthor().getUserId()));
+            model.addAttribute("isAuthor", isAuthor);
             model.addAttribute("isMember", userId != null && forumMemberService.isMember(userId, post.getForum().getForumId()));
             model.addAttribute("isCollected", userId != null && collectService.isCollected(userId, postId));
             List<Comment> comments = commentService.findByThemePostId(postId);
@@ -100,7 +101,7 @@ public class ThemePostController {
             forumService.findById(forumId).ifPresent(f -> model.addAttribute("forum", f));
             return "post/edit";
         }
-        return "redirect:/post/detail/" + post.getThemePostId();
+        return "redirect:/forum/detail/" + forumId;
     }
 
     @GetMapping("/edit/{postId}")
@@ -151,6 +152,6 @@ public class ThemePostController {
         if (postService.isAuthor(userId, postId)) {
             postService.deleteById(postId);
         }
-        return forumId != null ? "redirect:/post/list/" + forumId : "redirect:/forum/list";
+        return forumId != null ? "redirect:/forum/detail/" + forumId : "redirect:/forum/list";
     }
 }

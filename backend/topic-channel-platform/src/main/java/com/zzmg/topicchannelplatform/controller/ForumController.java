@@ -4,6 +4,7 @@ import com.zzmg.topicchannelplatform.entity.Forum;
 import com.zzmg.topicchannelplatform.entity.OrdinaryUser;
 import com.zzmg.topicchannelplatform.service.ForumMemberService;
 import com.zzmg.topicchannelplatform.service.ForumService;
+import com.zzmg.topicchannelplatform.service.ThemePostService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,41 +14,41 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.util.List;
-
 @Controller
 @RequestMapping("/forum")
 public class ForumController {
 
     private final ForumService forumService;
     private final ForumMemberService forumMemberService;
+    private final ThemePostService postService;
 
-    public ForumController(ForumService forumService, ForumMemberService forumMemberService) {
+    public ForumController(ForumService forumService,
+                           ForumMemberService forumMemberService,
+                           ThemePostService postService) {
         this.forumService = forumService;
         this.forumMemberService = forumMemberService;
+        this.postService = postService;
     }
 
     @GetMapping("/list")
-    public String list(@RequestParam(required = false) String keyword, Model model) {
-        List<Forum> forums;
-        if (keyword != null && !keyword.isEmpty()) {
-            forums = forumService.findByKeyword(keyword);
-            model.addAttribute("keyword", keyword);
-        } else {
-            forums = forumService.findAll();
-        }
-        model.addAttribute("forums", forums);
-        return "forum/list";
+    public String list() {
+        return "redirect:/";
     }
 
     @GetMapping("/detail/{forumId}")
     public String detail(@PathVariable Long forumId, HttpSession session, Model model) {
         return forumService.findById(forumId).map(forum -> {
-            model.addAttribute("forum", forum);
             String userId = (String) session.getAttribute("userId");
+            boolean isCreator = userId != null && userId.equals(forum.getCreator().getUserId());
+            boolean isAdmin = session.getAttribute("adminId") != null;
+            if (!"审核通过".equals(forum.getAuditState()) && !isCreator && !isAdmin) {
+                return "redirect:/forum/list";
+            }
+            model.addAttribute("forum", forum);
+            model.addAttribute("posts", postService.findByForumId(forumId));
             if (userId != null) {
                 model.addAttribute("isMember", forumMemberService.isMember(userId, forumId));
-                model.addAttribute("isCreator", userId.equals(forum.getCreator().getUserId()));
+                model.addAttribute("isCreator", isCreator);
             }
             return "forum/detail";
         }).orElse("redirect:/forum/list");

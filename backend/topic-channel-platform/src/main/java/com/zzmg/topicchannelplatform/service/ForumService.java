@@ -28,13 +28,13 @@ public class ForumService {
     }
 
     public List<Forum> findAll() {
-        return forumRepository.findAll();
+        return forumRepository.findAll().stream()
+                .filter(f -> "审核通过".equals(f.getAuditState()))
+                .toList();
     }
 
     public List<Forum> findByKeyword(String keyword) {
-        return forumRepository.findAll().stream()
-                .filter(f -> f.getForumName() != null && f.getForumName().contains(keyword))
-                .toList();
+        return forumRepository.searchApproved(keyword);
     }
 
     public void update(Forum forum) {

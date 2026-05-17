@@ -6,6 +6,9 @@
     <title>我的收藏</title>
 </head>
 <body>
+    <div th:replace="~{fragments/nav :: nav}"></div>
+    <hr>
+
     <h1>我的收藏</h1>
 
     <div th:if="${#lists.isEmpty(collects)}">
@@ -41,9 +44,5 @@
             </tr>
         </tbody>
     </table>
-
-    <div>
-        <a th:href="@{/}">返回首页</a>
-    </div>
 </body>
 </html>

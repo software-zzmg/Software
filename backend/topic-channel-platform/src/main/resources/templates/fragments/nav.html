@@ -3,7 +3,7 @@
 <body>
 <div th:fragment="nav">
     <a th:href="@{/}">首页</a>
-    <a th:href="@{/forum/list}">频道</a>
+    <a th:href="@{/}">频道</a>
     <a th:if="${session.userId}" th:href="@{/forum/create}">创建频道</a>
     <span th:if="${session.userId}">
         <a th:href="@{/collect/my}">我的收藏</a>
