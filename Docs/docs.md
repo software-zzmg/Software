@@ -283,27 +283,6 @@ FK: theme_post_id -> theme_post.theme_post_id
 
 ---
 
-# 6. 推荐后端结构（适合 Agent 生成代码）
-
-## 推荐目录结构
-
-```text
-src/main/java
-├── controller
-├── service
-├── service/impl
-├── repository
-├── entity
-├── dto
-├── vo
-├── config
-├── security
-├── common
-└── exception
-```
-
----
-
 # 7. 推荐数据库关系
 
 ## 关系说明

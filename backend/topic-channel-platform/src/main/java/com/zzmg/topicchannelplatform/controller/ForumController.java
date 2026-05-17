@@ -77,6 +77,7 @@ public class ForumController {
         creator.setUserId(userId);
         forum.setCreator(creator);
         forumService.create(forum);
+        forumMemberService.join(userId, forum.getForumId());
         return "redirect:/forum/detail/" + forum.getForumId();
     }
 

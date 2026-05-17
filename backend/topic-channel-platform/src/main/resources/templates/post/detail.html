@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${post.title} + ' - 帖子详情'">帖子详情</title>
+</head>
+<body>
+    <h1 th:text="${post.title}">帖子标题</h1>
+
+    <p><strong>作者：</strong><span th:text="${post.author.userName}"></span></p>
+    <p><strong>所属频道：</strong>
+        <a th:href="@{/forum/detail/{id}(id=${post.forum.forumId})}" th:text="${post.forum.forumName}"></a>
+    </p>
+    <p><strong>发布时间：</strong><span th:text="${post.publishTime}"></span></p>
+    <p><strong>审核状态：</strong><span th:text="${post.auditState}"></span></p>
+
+    <hr>
+    <div>
+        <p th:text="${post.content}"></p>
+    </div>
+    <hr>
+
+    <div th:if="${isAuthor}">
+        <a th:href="@{/post/edit/{id}(id=${post.themePostId})}">编辑帖子</a>
+        <form method="post" th:action="@{/post/delete}" style="display:inline">
+            <input type="hidden" name="postId" th:value="${post.themePostId}">
+            <button type="submit" onclick="return confirm('确定要删除该帖子吗？')">删除帖子</button>
+        </form>
+    </div>
+
+    <div>
+        <a th:href="@{/post/list/{id}(id=${post.forum.forumId})}">返回帖子列表</a>
+    </div>
+</body>
+</html>

@@ -37,6 +37,11 @@
     </p>
 
     <div>
+        <a th:href="@{/post/list/{id}(id=${forum.forumId})}">查看帖子</a>
+        <a th:if="${session.userId != null}" th:href="@{/post/create/{id}(id=${forum.forumId})}">发布新帖</a>
+    </div>
+
+    <div>
         <a th:href="@{/forum/list}">返回频道列表</a>
     </div>
 </body>
