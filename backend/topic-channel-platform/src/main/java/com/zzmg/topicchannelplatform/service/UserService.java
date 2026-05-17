@@ -1,6 +1,8 @@
 package com.zzmg.topicchannelplatform.service;
 
 import com.zzmg.topicchannelplatform.entity.OrdinaryUser;
+import com.zzmg.topicchannelplatform.repository.CollectRepository;
+import com.zzmg.topicchannelplatform.repository.ForumMemberRepository;
 import com.zzmg.topicchannelplatform.repository.OrdinaryUserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -12,10 +14,17 @@ public class UserService {
 
     private final OrdinaryUserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final CollectRepository collectRepository;
+    private final ForumMemberRepository forumMemberRepository;
 
-    public UserService(OrdinaryUserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(OrdinaryUserRepository userRepository,
+                       PasswordEncoder passwordEncoder,
+                       CollectRepository collectRepository,
+                       ForumMemberRepository forumMemberRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.collectRepository = collectRepository;
+        this.forumMemberRepository = forumMemberRepository;
     }
 
     public boolean register(OrdinaryUser user) {
@@ -26,12 +35,14 @@ public class UserService {
         user.setUserId(userId);
         user.setUserPassword(passwordEncoder.encode(user.getUserPassword()));
         user.setRegisterTime(java.time.LocalDateTime.now());
+        user.setStatus("normal");
         userRepository.save(user);
         return true;
     }
 
     public Optional<OrdinaryUser> login(String phone, String password) {
         return userRepository.findByPhoneNumber(phone)
+                .filter(u -> !"deleted".equals(u.getStatus()))
                 .filter(u -> passwordEncoder.matches(password, u.getUserPassword()));
     }
 
@@ -40,7 +51,8 @@ public class UserService {
     }
 
     public Optional<OrdinaryUser> findByPhone(String phone) {
-        return userRepository.findByPhoneNumber(phone);
+        return userRepository.findByPhoneNumber(phone)
+                .filter(u -> !"deleted".equals(u.getStatus()));
     }
 
     public void updateInfo(OrdinaryUser user) {
@@ -65,13 +77,24 @@ public class UserService {
     }
 
     public void resetPassword(String phone, String newPassword) {
-        userRepository.findByPhoneNumber(phone).ifPresent(u -> {
-            u.setUserPassword(passwordEncoder.encode(newPassword));
-            userRepository.save(u);
-        });
+        userRepository.findByPhoneNumber(phone)
+                .filter(u -> !"deleted".equals(u.getStatus()))
+                .ifPresent(u -> {
+                    u.setUserPassword(passwordEncoder.encode(newPassword));
+                    userRepository.save(u);
+                });
     }
 
     public void deleteUser(String userId) {
-        userRepository.deleteById(userId);
+        userRepository.findById(userId).ifPresent(user -> {
+            collectRepository.findAll().stream()
+                    .filter(c -> c.getUser().getUserId().equals(userId))
+                    .forEach(collectRepository::delete);
+            forumMemberRepository.findAll().stream()
+                    .filter(m -> m.getUser().getUserId().equals(userId))
+                    .forEach(forumMemberRepository::delete);
+            user.setStatus("deleted");
+            userRepository.save(user);
+        });
     }
 }

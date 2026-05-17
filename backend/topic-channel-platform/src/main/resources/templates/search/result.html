@@ -50,7 +50,7 @@
                     <td>
                         <a th:href="@{/post/detail/{id}(id=${post.themePostId})}" th:text="${post.title}"></a>
                     </td>
-                    <td th:text="${post.author.userName}"></td>
+                    <td th:text="${post.author.status == 'deleted'} ? '已注销用户' : ${post.author.userName}"></td>
                     <td>
                         <a th:href="@{/forum/detail/{id}(id=${post.forum.forumId})}" th:text="${post.forum.forumName}"></a>
                     </td>
@@ -77,7 +77,7 @@
                         <a th:href="@{/forum/detail/{id}(id=${forum.forumId})}" th:text="${forum.forumName}"></a>
                     </td>
                     <td th:text="${forum.content}"></td>
-                    <td th:text="${forum.creator.userName}"></td>
+                    <td th:text="${forum.creator.status == 'deleted'} ? '已注销用户' : ${forum.creator.userName}"></td>
                     <td th:text="${forum.createTime}"></td>
                 </tr>
             </tbody>
@@ -97,7 +97,7 @@
             <tbody>
                 <tr th:each="user : ${users}">
                     <td th:text="${user.userId}"></td>
-                    <td th:text="${user.userName}"></td>
+                    <td th:text="${user.status == 'deleted'} ? ${user.userName} + '(已注销)' : ${user.userName}"></td>
                     <td th:text="${user.registerTime}"></td>
                 </tr>
             </tbody>

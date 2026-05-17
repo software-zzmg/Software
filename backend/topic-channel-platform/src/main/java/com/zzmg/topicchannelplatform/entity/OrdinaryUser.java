@@ -30,6 +30,9 @@ public class OrdinaryUser extends User {
     @Column(name = "register_time")
     private LocalDateTime registerTime;
 
+    @Column(name = "status", nullable = false)
+    private String status = "normal";
+
     public String getPhoneNumber() {
         return phoneNumber;
     }
@@ -84,5 +87,13 @@ public class OrdinaryUser extends User {
 
     public void setRegisterTime(LocalDateTime registerTime) {
         this.registerTime = registerTime;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

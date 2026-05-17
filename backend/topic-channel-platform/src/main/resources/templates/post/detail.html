@@ -11,7 +11,7 @@
 
     <h1 th:text="${post.title}">帖子标题</h1>
 
-    <p><strong>作者：</strong><span th:text="${post.author.userName}"></span></p>
+    <p><strong>作者：</strong><span th:text="${post.author.status == 'deleted'} ? '已注销用户' : ${post.author.userName}"></span></p>
     <p><strong>所属频道：</strong>
         <a th:href="@{/forum/detail/{id}(id=${post.forum.forumId})}" th:text="${post.forum.forumName}"></a>
     </p>
@@ -75,7 +75,7 @@
 
     <div th:each="c : ${comments}">
         <p>
-            <strong th:text="${c.author.userName}"></strong>
+            <strong th:text="${c.author.status == 'deleted'} ? '已注销用户' : ${c.author.userName}"></strong>
             <span th:text="${c.publishTime}"></span>
         </p>
         <p th:text="${c.content}"></p>

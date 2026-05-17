@@ -12,7 +12,7 @@
     <h1 th:text="${forum.forumName}">频道名称</h1>
 
     <p><strong>简介：</strong><span th:text="${forum.content}"></span></p>
-    <p><strong>创建者：</strong><span th:text="${forum.creator.userName}"></span></p>
+    <p><strong>创建者：</strong><span th:text="${forum.creator.status == 'deleted'} ? '已注销用户' : ${forum.creator.userName}"></span></p>
     <p><strong>审核状态：</strong><span th:text="${forum.auditState}"></span></p>
     <p><strong>创建时间：</strong><span th:text="${forum.createTime}"></span></p>
 
@@ -64,7 +64,7 @@
                 <td>
                     <a th:href="@{/post/detail/{id}(id=${post.themePostId})}" th:text="${post.title}"></a>
                 </td>
-                <td th:text="${post.author.userName}"></td>
+                <td th:text="${post.author.status == 'deleted'} ? '已注销用户' : ${post.author.userName}"></td>
                 <td th:text="${post.publishTime}"></td>
             </tr>
         </tbody>
