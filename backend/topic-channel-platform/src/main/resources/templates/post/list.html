@@ -6,6 +6,9 @@
     <title th:text="${forum.forumName} + ' - 帖子列表'">帖子列表</title>
 </head>
 <body>
+    <div th:replace="~{fragments/nav :: nav}"></div>
+    <hr>
+
     <h1 th:text="${forum.forumName} + ' - 帖子列表'">帖子列表</h1>
 
     <div th:if="${session.userId != null}">

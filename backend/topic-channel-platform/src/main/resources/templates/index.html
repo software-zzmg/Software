@@ -7,18 +7,7 @@
 </head>
 <body>
     <!-- Navigation bar -->
-    <div>
-        <a th:href="@{/}">首页</a>
-        <a th:href="@{/forum/list}">搜索</a>
-        <span th:if="${session.userId}">
-            <a th:href="@{/collect/my}">我的收藏</a>
-            <a th:href="@{/user/info}">个人中心</a>
-        </span>
-        <span th:unless="${session.userId}">
-            <a th:href="@{/user/login}">登录</a>
-            <a th:href="@{/user/register}">注册</a>
-        </span>
-    </div>
+    <div th:replace="~{fragments/nav :: nav}"></div>
     <hr>
 
     <h1>欢迎来到主题频道交流平台</h1>

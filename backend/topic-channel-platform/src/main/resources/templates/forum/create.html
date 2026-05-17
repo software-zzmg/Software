@@ -6,6 +6,9 @@
     <title>创建主题频道</title>
 </head>
 <body>
+    <div th:replace="~{fragments/nav :: nav}"></div>
+    <hr>
+
     <h1>创建主题频道</h1>
 
     <p th:if="${error}" style="color:red" th:text="${error}"></p>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<body>
+<div th:fragment="nav">
+    <a th:href="@{/}">首页</a>
+    <a th:href="@{/forum/list}">频道</a>
+    <a th:if="${session.userId}" th:href="@{/forum/create}">创建频道</a>
+    <span th:if="${session.userId}">
+        <a th:href="@{/collect/my}">我的收藏</a>
+        <a th:href="@{/user/info}">个人中心</a>
+    </span>
+    <span th:unless="${session.userId}">
+        <a th:href="@{/user/login}">登录</a>
+        <a th:href="@{/user/register}">注册</a>
+    </span>
+    <form method="get" th:action="@{/search}" style="display:inline">
+        <input type="text" name="keyword" th:value="${keyword}" placeholder="搜索帖子、频道、用户" required>
+        <input type="hidden" name="type" value="post">
+        <button type="submit">搜索</button>
+    </form>
+</div>
+</body>
+</html>

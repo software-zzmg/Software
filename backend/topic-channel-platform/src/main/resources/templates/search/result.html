@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>搜索结果</title>
+</head>
+<body>
+    <div th:replace="~{fragments/nav :: nav}"></div>
+    <hr>
+
+    <h1>搜索结果</h1>
+    <p>
+        关键词：
+        <span th:if="${keyword != ''}" th:text="${keyword}"></span>
+        <span th:if="${keyword == ''}">请输入搜索关键词</span>
+    </p>
+
+    <div th:if="${keyword != ''}">
+        <form method="get" th:action="@{/search}" style="display:inline">
+            <input type="hidden" name="keyword" th:value="${keyword}">
+            <input type="hidden" name="type" value="post">
+            <button type="submit" th:disabled="${type == 'post'}">帖子</button>
+        </form>
+        <form method="get" th:action="@{/search}" style="display:inline">
+            <input type="hidden" name="keyword" th:value="${keyword}">
+            <input type="hidden" name="type" value="forum">
+            <button type="submit" th:disabled="${type == 'forum'}">频道</button>
+        </form>
+        <form method="get" th:action="@{/search}" style="display:inline">
+            <input type="hidden" name="keyword" th:value="${keyword}">
+            <input type="hidden" name="type" value="user">
+            <button type="submit" th:disabled="${type == 'user'}">用户</button>
+        </form>
+    </div>
+
+    <div th:if="${type == 'post'}">
+        <p th:if="${#lists.isEmpty(posts)}">暂无匹配的帖子</p>
+        <table th:if="${!#lists.isEmpty(posts)}">
+            <thead>
+                <tr>
+                    <th>标题</th>
+                    <th>作者</th>
+                    <th>所属频道</th>
+                    <th>发布时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="post : ${posts}">
+                    <td>
+                        <a th:href="@{/post/detail/{id}(id=${post.themePostId})}" th:text="${post.title}"></a>
+                    </td>
+                    <td th:text="${post.author.userName}"></td>
+                    <td>
+                        <a th:href="@{/forum/detail/{id}(id=${post.forum.forumId})}" th:text="${post.forum.forumName}"></a>
+                    </td>
+                    <td th:text="${post.publishTime}"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div th:if="${type == 'forum'}">
+        <p th:if="${#lists.isEmpty(forums)}">暂无匹配的频道</p>
+        <table th:if="${!#lists.isEmpty(forums)}">
+            <thead>
+                <tr>
+                    <th>频道名称</th>
+                    <th>简介</th>
+                    <th>创建者</th>
+                    <th>创建时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="forum : ${forums}">
+                    <td>
+                        <a th:href="@{/forum/detail/{id}(id=${forum.forumId})}" th:text="${forum.forumName}"></a>
+                    </td>
+                    <td th:text="${forum.content}"></td>
+                    <td th:text="${forum.creator.userName}"></td>
+                    <td th:text="${forum.createTime}"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div th:if="${type == 'user'}">
+        <p th:if="${#lists.isEmpty(users)}">暂无匹配的用户</p>
+        <table th:if="${!#lists.isEmpty(users)}">
+            <thead>
+                <tr>
+                    <th>用户ID</th>
+                    <th>用户名</th>
+                    <th>注册时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="user : ${users}">
+                    <td th:text="${user.userId}"></td>
+                    <td th:text="${user.userName}"></td>
+                    <td th:text="${user.registerTime}"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
