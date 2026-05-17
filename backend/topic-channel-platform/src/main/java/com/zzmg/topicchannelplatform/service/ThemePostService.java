@@ -74,6 +74,12 @@ public class ThemePostService {
         });
     }
 
+    public List<ThemePost> findApproved() {
+        return postRepository.findAll().stream()
+                .filter(p -> "审核通过".equals(p.getAuditState()))
+                .toList();
+    }
+
     public void deleteById(String postId) {
         postRepository.deleteById(postId);
     }

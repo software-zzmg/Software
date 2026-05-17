@@ -6,13 +6,49 @@
     <title>主题频道交流平台</title>
 </head>
 <body>
+    <!-- Navigation bar -->
+    <div>
+        <a th:href="@{/}">首页</a>
+        <a th:href="@{/forum/list}">搜索</a>
+        <span th:if="${session.userId}">
+            <a th:href="@{/collect/my}">我的收藏</a>
+            <a th:href="@{/user/info}">个人中心</a>
+        </span>
+        <span th:unless="${session.userId}">
+            <a th:href="@{/user/login}">登录</a>
+            <a th:href="@{/user/register}">注册</a>
+        </span>
+    </div>
+    <hr>
+
     <h1>欢迎来到主题频道交流平台</h1>
-    <div th:if="${session.userId}">
-        <a th:href="@{/user/info}">个人信息</a>
+
+    <!-- Posts list -->
+    <div th:if="${#lists.isEmpty(posts)}">
+        <p>暂无帖子</p>
     </div>
-    <div th:unless="${session.userId}">
-        <a th:href="@{/user/login}">登录</a>
-        <a th:href="@{/user/register}">注册</a>
-    </div>
+
+    <table th:if="${!#lists.isEmpty(posts)}">
+        <thead>
+            <tr>
+                <th>标题</th>
+                <th>作者</th>
+                <th>所属频道</th>
+                <th>发布时间</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="post : ${posts}">
+                <td>
+                    <a th:href="@{/post/detail/{id}(id=${post.themePostId})}" th:text="${post.title}"></a>
+                </td>
+                <td th:text="${post.author.userName}"></td>
+                <td>
+                    <a th:href="@{/forum/detail/{id}(id=${post.forum.forumId})}" th:text="${post.forum.forumName}"></a>
+                </td>
+                <td th:text="${post.publishTime}"></td>
+            </tr>
+        </tbody>
+    </table>
 </body>
 </html>
