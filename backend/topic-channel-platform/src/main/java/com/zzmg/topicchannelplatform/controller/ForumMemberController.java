@@ -23,7 +23,7 @@ public class ForumMemberController {
     }
 
     @PostMapping("/join")
-    public String join(@RequestParam String forumId, HttpSession session) {
+    public String join(@RequestParam Long forumId, HttpSession session) {
         String userId = (String) session.getAttribute("userId");
         if (userId == null) {
             return "redirect:/user/login";
@@ -38,7 +38,7 @@ public class ForumMemberController {
     }
 
     @PostMapping("/leave")
-    public String leave(@RequestParam String forumId, HttpSession session) {
+    public String leave(@RequestParam Long forumId, HttpSession session) {
         String userId = (String) session.getAttribute("userId");
         if (userId == null) {
             return "redirect:/user/login";

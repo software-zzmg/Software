@@ -41,7 +41,7 @@ public class ForumController {
     }
 
     @GetMapping("/detail/{forumId}")
-    public String detail(@PathVariable String forumId, HttpSession session, Model model) {
+    public String detail(@PathVariable Long forumId, HttpSession session, Model model) {
         return forumService.findById(forumId).map(forum -> {
             model.addAttribute("forum", forum);
             String userId = (String) session.getAttribute("userId");
@@ -64,8 +64,7 @@ public class ForumController {
     @PostMapping("/create")
     public String create(@RequestParam String forumName,
                          @RequestParam String content,
-                         HttpSession session,
-                         Model model) {
+                         HttpSession session) {
         String userId = (String) session.getAttribute("userId");
         if (userId == null) {
             return "redirect:/user/login";
@@ -82,7 +81,7 @@ public class ForumController {
     }
 
     @GetMapping("/edit/{forumId}")
-    public String editPage(@PathVariable String forumId, HttpSession session, Model model) {
+    public String editPage(@PathVariable Long forumId, HttpSession session, Model model) {
         String userId = (String) session.getAttribute("userId");
         if (userId == null) {
             return "redirect:/user/login";
@@ -97,7 +96,7 @@ public class ForumController {
     }
 
     @PostMapping("/edit")
-    public String edit(@RequestParam String forumId,
+    public String edit(@RequestParam Long forumId,
                        @RequestParam String forumName,
                        @RequestParam String content,
                        HttpSession session) {
@@ -116,7 +115,7 @@ public class ForumController {
     }
 
     @PostMapping("/dismiss")
-    public String dismiss(@RequestParam String forumId, HttpSession session) {
+    public String dismiss(@RequestParam Long forumId, HttpSession session) {
         String userId = (String) session.getAttribute("userId");
         if (userId == null) {
             return "redirect:/user/login";

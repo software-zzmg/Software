@@ -40,7 +40,7 @@ public class ThemePostController {
     }
 
     @GetMapping("/list/{forumId}")
-    public String list(@PathVariable String forumId, Model model) {
+    public String list(@PathVariable Long forumId, Model model) {
         return forumService.findById(forumId).map(forum -> {
             model.addAttribute("forum", forum);
             List<ThemePost> posts = postService.findByForumId(forumId);
@@ -50,7 +50,7 @@ public class ThemePostController {
     }
 
     @GetMapping("/detail/{postId}")
-    public String detail(@PathVariable String postId, HttpSession session, Model model) {
+    public String detail(@PathVariable Long postId, HttpSession session, Model model) {
         return postService.findById(postId).map(post -> {
             model.addAttribute("post", post);
             String userId = (String) session.getAttribute("userId");
@@ -65,7 +65,7 @@ public class ThemePostController {
     }
 
     @GetMapping("/create/{forumId}")
-    public String createPage(@PathVariable String forumId, HttpSession session, Model model) {
+    public String createPage(@PathVariable Long forumId, HttpSession session, Model model) {
         String userId = (String) session.getAttribute("userId");
         if (userId == null) {
             return "redirect:/user/login";
@@ -77,7 +77,7 @@ public class ThemePostController {
     }
 
     @PostMapping("/create")
-    public String create(@RequestParam String forumId,
+    public String create(@RequestParam Long forumId,
                          @RequestParam String title,
                          @RequestParam String content,
                          HttpSession session,
@@ -104,7 +104,7 @@ public class ThemePostController {
     }
 
     @GetMapping("/edit/{postId}")
-    public String editPage(@PathVariable String postId, HttpSession session, Model model) {
+    public String editPage(@PathVariable Long postId, HttpSession session, Model model) {
         String userId = (String) session.getAttribute("userId");
         if (userId == null) {
             return "redirect:/user/login";
@@ -120,7 +120,7 @@ public class ThemePostController {
     }
 
     @PostMapping("/edit")
-    public String edit(@RequestParam String postId,
+    public String edit(@RequestParam Long postId,
                        @RequestParam String title,
                        @RequestParam String content,
                        HttpSession session) {
@@ -140,12 +140,12 @@ public class ThemePostController {
     }
 
     @PostMapping("/delete")
-    public String delete(@RequestParam String postId, HttpSession session) {
+    public String delete(@RequestParam Long postId, HttpSession session) {
         String userId = (String) session.getAttribute("userId");
         if (userId == null) {
             return "redirect:/user/login";
         }
-        String forumId = postService.findById(postId)
+        Long forumId = postService.findById(postId)
                 .map(p -> p.getForum().getForumId())
                 .orElse(null);
         if (postService.isAuthor(userId, postId)) {

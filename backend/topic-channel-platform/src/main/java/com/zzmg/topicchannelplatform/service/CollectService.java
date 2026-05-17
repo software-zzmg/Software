@@ -25,7 +25,7 @@ public class CollectService {
         this.postRepository = postRepository;
     }
 
-    public Collect collect(String userId, String postId) {
+    public Collect collect(String userId, Long postId) {
         if (isCollected(userId, postId)) {
             return collectRepository.findAll().stream()
                     .filter(c -> c.getUser().getUserId().equals(userId)
@@ -40,7 +40,7 @@ public class CollectService {
         return collectRepository.save(collect);
     }
 
-    public void cancelCollect(String userId, String postId) {
+    public void cancelCollect(String userId, Long postId) {
         collectRepository.findAll().stream()
                 .filter(c -> c.getUser().getUserId().equals(userId)
                         && c.getThemePost().getThemePostId().equals(postId))
@@ -54,7 +54,7 @@ public class CollectService {
                 .toList();
     }
 
-    public boolean isCollected(String userId, String postId) {
+    public boolean isCollected(String userId, Long postId) {
         return collectRepository.findAll().stream()
                 .anyMatch(c -> c.getUser().getUserId().equals(userId)
                         && c.getThemePost().getThemePostId().equals(postId));

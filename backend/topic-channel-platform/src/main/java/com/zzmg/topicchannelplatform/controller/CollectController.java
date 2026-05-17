@@ -23,7 +23,7 @@ public class CollectController {
     }
 
     @PostMapping("/add")
-    public String add(@RequestParam String postId, HttpSession session) {
+    public String add(@RequestParam Long postId, HttpSession session) {
         String userId = (String) session.getAttribute("userId");
         if (userId == null) {
             return "redirect:/user/login";
@@ -33,7 +33,7 @@ public class CollectController {
     }
 
     @PostMapping("/cancel")
-    public String cancel(@RequestParam String postId, HttpSession session) {
+    public String cancel(@RequestParam Long postId, HttpSession session) {
         String userId = (String) session.getAttribute("userId");
         if (userId == null) {
             return "redirect:/user/login";

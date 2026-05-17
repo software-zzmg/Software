@@ -67,12 +67,12 @@ public class Collect {
     @Embeddable
     public static class CollectId implements Serializable {
         private String userId;
-        private String themePostId;
+        private Long themePostId;
 
         public CollectId() {
         }
 
-        public CollectId(String userId, String themePostId) {
+        public CollectId(String userId, Long themePostId) {
             this.userId = userId;
             this.themePostId = themePostId;
         }
@@ -85,11 +85,11 @@ public class Collect {
             this.userId = userId;
         }
 
-        public String getThemePostId() {
+        public Long getThemePostId() {
             return themePostId;
         }
 
-        public void setThemePostId(String themePostId) {
+        public void setThemePostId(Long themePostId) {
             this.themePostId = themePostId;
         }
 

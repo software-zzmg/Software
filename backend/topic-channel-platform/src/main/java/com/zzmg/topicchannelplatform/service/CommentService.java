@@ -24,51 +24,39 @@ public class CommentService {
     }
 
     public Comment publish(Comment comment, String userId) {
-        String forumId = comment.getThemePost().getForum().getForumId();
+        Long forumId = comment.getThemePost().getForum().getForumId();
         if (!forumMemberService.isMember(userId, forumId)) {
             throw new IllegalStateException("只有频道成员才能评论");
-        }
-        if (comment.getCommentId() == null || comment.getCommentId().isEmpty()) {
-            int nextId = commentRepository.findAll().stream()
-                    .map(Comment::getCommentId)
-                    .mapToInt(id -> {
-                        try { return Integer.parseInt(id); } catch (NumberFormatException e) { return 0; }
-                    })
-                    .max()
-                    .orElse(0) + 1;
-            comment.setCommentId(String.valueOf(nextId));
         }
         comment.setPublishTime(LocalDateTime.now());
         comment.setAuditState("待审核");
         return commentRepository.save(comment);
     }
 
-    public List<Comment> findByThemePostId(String postId) {
+    public List<Comment> findByThemePostId(Long postId) {
         return commentRepository.findAll().stream()
                 .filter(c -> c.getThemePost().getThemePostId().equals(postId)
                         && "审核通过".equals(c.getAuditState()))
                 .toList();
     }
 
-    public boolean canDelete(String userId, String commentId) {
+    public boolean canDelete(String userId, Long commentId) {
         return commentRepository.findById(commentId).map(comment -> {
-            // 评论作者可以删除
             if (comment.getAuthor().getUserId().equals(userId)) {
                 return true;
             }
-            // 帖子作者可以删除该帖下评论
-            String postId = comment.getThemePost().getThemePostId();
+            Long postId = comment.getThemePost().getThemePostId();
             return postRepository.findById(postId)
                     .map(p -> p.getAuthor().getUserId().equals(userId))
                     .orElse(false);
         }).orElse(false);
     }
 
-    public void deleteById(String commentId) {
+    public void deleteById(Long commentId) {
         commentRepository.deleteById(commentId);
     }
 
-    public void updateAuditState(String commentId, String auditState) {
+    public void updateAuditState(Long commentId, String auditState) {
         commentRepository.findById(commentId).ifPresent(c -> {
             c.setAuditState(auditState);
             commentRepository.save(c);

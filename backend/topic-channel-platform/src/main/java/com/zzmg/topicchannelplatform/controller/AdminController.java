@@ -57,7 +57,7 @@ public class AdminController {
     }
 
     @PostMapping("/forums/{id}/approve")
-    public String approveForum(@PathVariable String id, HttpSession session) {
+    public String approveForum(@PathVariable Long id, HttpSession session) {
         if (session.getAttribute("adminId") == null) {
             return "redirect:/admin/login";
         }
@@ -66,7 +66,7 @@ public class AdminController {
     }
 
     @PostMapping("/forums/{id}/reject")
-    public String rejectForum(@PathVariable String id, HttpSession session) {
+    public String rejectForum(@PathVariable Long id, HttpSession session) {
         if (session.getAttribute("adminId") == null) {
             return "redirect:/admin/login";
         }
@@ -84,7 +84,7 @@ public class AdminController {
     }
 
     @PostMapping("/posts/{id}/approve")
-    public String approvePost(@PathVariable String id, HttpSession session) {
+    public String approvePost(@PathVariable Long id, HttpSession session) {
         if (session.getAttribute("adminId") == null) {
             return "redirect:/admin/login";
         }
@@ -93,7 +93,7 @@ public class AdminController {
     }
 
     @PostMapping("/posts/{id}/reject")
-    public String rejectPost(@PathVariable String id, HttpSession session) {
+    public String rejectPost(@PathVariable Long id, HttpSession session) {
         if (session.getAttribute("adminId") == null) {
             return "redirect:/admin/login";
         }
@@ -111,7 +111,7 @@ public class AdminController {
     }
 
     @PostMapping("/comments/{id}/approve")
-    public String approveComment(@PathVariable String id, HttpSession session) {
+    public String approveComment(@PathVariable Long id, HttpSession session) {
         if (session.getAttribute("adminId") == null) {
             return "redirect:/admin/login";
         }
@@ -120,7 +120,7 @@ public class AdminController {
     }
 
     @PostMapping("/comments/{id}/reject")
-    public String rejectComment(@PathVariable String id, HttpSession session) {
+    public String rejectComment(@PathVariable Long id, HttpSession session) {
         if (session.getAttribute("adminId") == null) {
             return "redirect:/admin/login";
         }

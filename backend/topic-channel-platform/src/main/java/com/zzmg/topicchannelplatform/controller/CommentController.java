@@ -29,7 +29,7 @@ public class CommentController {
     }
 
     @PostMapping("/create")
-    public String create(@RequestParam String postId,
+    public String create(@RequestParam Long postId,
                          @RequestParam String content,
                          HttpSession session,
                          Model model) {
@@ -52,12 +52,12 @@ public class CommentController {
     }
 
     @PostMapping("/delete")
-    public String delete(@RequestParam String commentId, HttpSession session) {
+    public String delete(@RequestParam Long commentId, HttpSession session) {
         String userId = (String) session.getAttribute("userId");
         if (userId == null) {
             return "redirect:/user/login";
         }
-        String postId = commentRepository.findById(commentId)
+        Long postId = commentRepository.findById(commentId)
                 .map(c -> c.getThemePost().getThemePostId())
                 .orElse(null);
         if (postId != null && commentService.canDelete(userId, commentId)) {

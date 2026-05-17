@@ -28,26 +28,16 @@ public class ThemePostService {
         if (!forumMemberService.isMember(userId, post.getForum().getForumId())) {
             throw new IllegalStateException("只有频道成员才能发帖");
         }
-        if (post.getThemePostId() == null || post.getThemePostId().isEmpty()) {
-            int nextId = postRepository.findAll().stream()
-                    .map(ThemePost::getThemePostId)
-                    .mapToInt(id -> {
-                        try { return Integer.parseInt(id); } catch (NumberFormatException e) { return 0; }
-                    })
-                    .max()
-                    .orElse(0) + 1;
-            post.setThemePostId(String.valueOf(nextId));
-        }
         post.setPublishTime(LocalDateTime.now());
         post.setAuditState("待审核");
         return postRepository.save(post);
     }
 
-    public Optional<ThemePost> findById(String postId) {
+    public Optional<ThemePost> findById(Long postId) {
         return postRepository.findById(postId);
     }
 
-    public List<ThemePost> findByForumId(String forumId) {
+    public List<ThemePost> findByForumId(Long forumId) {
         return postRepository.findAll().stream()
                 .filter(p -> p.getForum().getForumId().equals(forumId)
                         && "审核通过".equals(p.getAuditState()))
@@ -62,17 +52,10 @@ public class ThemePostService {
         });
     }
 
-    public boolean isAuthor(String userId, String postId) {
+    public boolean isAuthor(String userId, Long postId) {
         return postRepository.findById(postId)
                 .map(p -> p.getAuthor().getUserId().equals(userId))
                 .orElse(false);
-    }
-
-    public void updateAuditState(String postId, String auditState) {
-        postRepository.findById(postId).ifPresent(p -> {
-            p.setAuditState(auditState);
-            postRepository.save(p);
-        });
     }
 
     public List<ThemePost> findApproved() {
@@ -81,7 +64,14 @@ public class ThemePostService {
                 .toList();
     }
 
-    public void deleteById(String postId) {
+    public void updateAuditState(Long postId, String auditState) {
+        postRepository.findById(postId).ifPresent(p -> {
+            p.setAuditState(auditState);
+            postRepository.save(p);
+        });
+    }
+
+    public void deleteById(Long postId) {
         postRepository.deleteById(postId);
     }
 }

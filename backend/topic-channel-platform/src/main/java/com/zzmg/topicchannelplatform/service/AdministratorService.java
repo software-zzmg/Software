@@ -70,21 +70,21 @@ public class AdministratorService {
                 .toList();
     }
 
-    public void auditForum(String forumId, boolean approved) {
+    public void auditForum(Long forumId, boolean approved) {
         forumRepository.findById(forumId).ifPresent(f -> {
             f.setAuditState(approved ? "审核通过" : "审核未通过");
             forumRepository.save(f);
         });
     }
 
-    public void auditThemePost(String postId, boolean approved) {
+    public void auditThemePost(Long postId, boolean approved) {
         postRepository.findById(postId).ifPresent(p -> {
             p.setAuditState(approved ? "审核通过" : "审核未通过");
             postRepository.save(p);
         });
     }
 
-    public void auditComment(String commentId, boolean approved) {
+    public void auditComment(Long commentId, boolean approved) {
         commentRepository.findById(commentId).ifPresent(c -> {
             c.setAuditState(approved ? "审核通过" : "审核未通过");
             commentRepository.save(c);

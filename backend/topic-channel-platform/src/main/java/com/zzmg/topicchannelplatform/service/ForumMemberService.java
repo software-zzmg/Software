@@ -25,7 +25,7 @@ public class ForumMemberService {
         this.forumRepository = forumRepository;
     }
 
-    public ForumMember join(String userId, String forumId) {
+    public ForumMember join(String userId, Long forumId) {
         boolean canJoin = forumRepository.findById(forumId).map(f -> {
             if ("审核通过".equals(f.getAuditState())) return true;
             return f.getCreator().getUserId().equals(userId);
@@ -41,7 +41,7 @@ public class ForumMemberService {
         return forumMemberRepository.save(member);
     }
 
-    public void leave(String userId, String forumId) {
+    public void leave(String userId, Long forumId) {
         forumMemberRepository.findAll().stream()
                 .filter(m -> m.getUser().getUserId().equals(userId)
                         && m.getForum().getForumId().equals(forumId))
@@ -55,7 +55,7 @@ public class ForumMemberService {
                 .toList();
     }
 
-    public boolean isMember(String userId, String forumId) {
+    public boolean isMember(String userId, Long forumId) {
         return forumMemberRepository.findAll().stream()
                 .anyMatch(m -> m.getUser().getUserId().equals(userId)
                         && m.getForum().getForumId().equals(forumId));

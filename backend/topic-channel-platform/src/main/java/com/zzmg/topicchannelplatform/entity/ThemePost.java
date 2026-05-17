@@ -2,6 +2,8 @@ package com.zzmg.topicchannelplatform.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -13,8 +15,9 @@ import java.time.LocalDateTime;
 public class ThemePost {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "theme_post_id")
-    private String themePostId;
+    private Long themePostId;
 
     @ManyToOne
     @JoinColumn(name = "forum_id", nullable = false)
@@ -36,11 +39,11 @@ public class ThemePost {
     @Column(name = "audit_state")
     private String auditState;
 
-    public String getThemePostId() {
+    public Long getThemePostId() {
         return themePostId;
     }
 
-    public void setThemePostId(String themePostId) {
+    public void setThemePostId(Long themePostId) {
         this.themePostId = themePostId;
     }
 

@@ -3,7 +3,10 @@ package com.zzmg.topicchannelplatform.config;
 import com.zzmg.topicchannelplatform.entity.Administrator;
 import com.zzmg.topicchannelplatform.entity.Forum;
 import com.zzmg.topicchannelplatform.entity.OrdinaryUser;
+import com.zzmg.topicchannelplatform.entity.ForumMember;
+import com.zzmg.topicchannelplatform.entity.ForumMember.ForumMemberId;
 import com.zzmg.topicchannelplatform.repository.AdministratorRepository;
+import com.zzmg.topicchannelplatform.repository.ForumMemberRepository;
 import com.zzmg.topicchannelplatform.repository.ForumRepository;
 import com.zzmg.topicchannelplatform.repository.OrdinaryUserRepository;
 import org.springframework.boot.CommandLineRunner;
@@ -17,13 +20,16 @@ public class DataInitializer implements CommandLineRunner {
     private final AdministratorRepository adminRepository;
     private final OrdinaryUserRepository userRepository;
     private final ForumRepository forumRepository;
+    private final ForumMemberRepository forumMemberRepository;
 
     public DataInitializer(AdministratorRepository adminRepository,
                            OrdinaryUserRepository userRepository,
-                           ForumRepository forumRepository) {
+                           ForumRepository forumRepository,
+                           ForumMemberRepository forumMemberRepository) {
         this.adminRepository = adminRepository;
         this.userRepository = userRepository;
         this.forumRepository = forumRepository;
+        this.forumMemberRepository = forumMemberRepository;
     }
 
     @Override
@@ -66,23 +72,18 @@ public class DataInitializer implements CommandLineRunner {
             return;
         }
         Forum forum = new Forum();
-        forum.setForumId(nextForumId());
         forum.setForumName("默认频道");
         forum.setContent("系统默认频道，欢迎加入交流");
         forum.setAuditState("审核通过");
         forum.setCreator(creator);
         forum.setCreateTime(LocalDateTime.now());
-        forumRepository.save(forum);
-    }
+        forum = forumRepository.save(forum);
 
-    private String nextForumId() {
-        int nextId = forumRepository.findAll().stream()
-                .map(Forum::getForumId)
-                .mapToInt(id -> {
-                    try { return Integer.parseInt(id); } catch (NumberFormatException e) { return 0; }
-                })
-                .max()
-                .orElse(0) + 1;
-        return String.valueOf(nextId);
+        ForumMember member = new ForumMember();
+        member.setId(new ForumMemberId());
+        member.setUser(creator);
+        member.setForum(forum);
+        member.setJoinTime(LocalDateTime.now());
+        forumMemberRepository.save(member);
     }
 }

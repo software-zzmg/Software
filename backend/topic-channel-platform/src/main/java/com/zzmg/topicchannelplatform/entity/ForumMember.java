@@ -67,12 +67,12 @@ public class ForumMember {
     @Embeddable
     public static class ForumMemberId implements Serializable {
         private String userId;
-        private String forumId;
+        private Long forumId;
 
         public ForumMemberId() {
         }
 
-        public ForumMemberId(String userId, String forumId) {
+        public ForumMemberId(String userId, Long forumId) {
             this.userId = userId;
             this.forumId = forumId;
         }
@@ -85,11 +85,11 @@ public class ForumMember {
             this.userId = userId;
         }
 
-        public String getForumId() {
+        public Long getForumId() {
             return forumId;
         }
 
-        public void setForumId(String forumId) {
+        public void setForumId(Long forumId) {
             this.forumId = forumId;
         }
 

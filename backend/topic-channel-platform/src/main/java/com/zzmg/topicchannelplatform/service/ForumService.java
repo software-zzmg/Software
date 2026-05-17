@@ -18,22 +18,12 @@ public class ForumService {
     }
 
     public Forum create(Forum forum) {
-        if (forum.getForumId() == null || forum.getForumId().isEmpty()) {
-            int nextId = forumRepository.findAll().stream()
-                    .map(Forum::getForumId)
-                    .mapToInt(id -> {
-                        try { return Integer.parseInt(id); } catch (NumberFormatException e) { return 0; }
-                    })
-                    .max()
-                    .orElse(0) + 1;
-            forum.setForumId(String.valueOf(nextId));
-        }
         forum.setCreateTime(LocalDateTime.now());
         forum.setAuditState("待审核");
         return forumRepository.save(forum);
     }
 
-    public Optional<Forum> findById(String forumId) {
+    public Optional<Forum> findById(Long forumId) {
         return forumRepository.findById(forumId);
     }
 
@@ -56,14 +46,14 @@ public class ForumService {
         });
     }
 
-    public void updateAuditState(String forumId, String auditState) {
+    public void updateAuditState(Long forumId, String auditState) {
         forumRepository.findById(forumId).ifPresent(f -> {
             f.setAuditState(auditState);
             forumRepository.save(f);
         });
     }
 
-    public void deleteById(String forumId) {
+    public void deleteById(Long forumId) {
         forumRepository.deleteById(forumId);
     }
 }
