@@ -22,10 +22,11 @@
     </div>
 
     <div th:if="${session.userId != null && !isCreator}">
-        <form th:if="${!isMember}" method="post" th:action="@{/forum-member/join}" style="display:inline">
+        <form th:if="${!isMember && forum.auditState == '审核通过'}" method="post" th:action="@{/forum-member/join}" style="display:inline">
             <input type="hidden" name="forumId" th:value="${forum.forumId}">
             <button type="submit">加入频道</button>
         </form>
+        <p th:if="${!isMember && forum.auditState != '审核通过'}">该频道尚未审核通过，暂不能加入</p>
         <form th:if="${isMember}" method="post" th:action="@{/forum-member/leave}" style="display:inline">
             <input type="hidden" name="forumId" th:value="${forum.forumId}">
             <button type="submit" onclick="return confirm('确定要退出该频道吗？')">退出频道</button>

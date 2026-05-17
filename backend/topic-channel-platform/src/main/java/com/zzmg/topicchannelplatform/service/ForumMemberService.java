@@ -26,6 +26,13 @@ public class ForumMemberService {
     }
 
     public ForumMember join(String userId, String forumId) {
+        boolean canJoin = forumRepository.findById(forumId).map(f -> {
+            if ("审核通过".equals(f.getAuditState())) return true;
+            return f.getCreator().getUserId().equals(userId);
+        }).orElse(false);
+        if (!canJoin) {
+            throw new IllegalStateException("该频道尚未审核通过，暂不能加入");
+        }
         ForumMember member = new ForumMember();
         member.setId(new ForumMemberId());
         member.setUser(userRepository.getReferenceById(userId));

@@ -45,7 +45,8 @@ public class CommentService {
 
     public List<Comment> findByThemePostId(String postId) {
         return commentRepository.findAll().stream()
-                .filter(c -> c.getThemePost().getThemePostId().equals(postId))
+                .filter(c -> c.getThemePost().getThemePostId().equals(postId)
+                        && "审核通过".equals(c.getAuditState()))
                 .toList();
     }
 

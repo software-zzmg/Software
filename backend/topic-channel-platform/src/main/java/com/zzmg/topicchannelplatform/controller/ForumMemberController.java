@@ -29,7 +29,10 @@ public class ForumMemberController {
             return "redirect:/user/login";
         }
         if (!forumMemberService.isMember(userId, forumId)) {
-            forumMemberService.join(userId, forumId);
+            try {
+                forumMemberService.join(userId, forumId);
+            } catch (IllegalStateException ignored) {
+            }
         }
         return "redirect:/forum/detail/" + forumId;
     }

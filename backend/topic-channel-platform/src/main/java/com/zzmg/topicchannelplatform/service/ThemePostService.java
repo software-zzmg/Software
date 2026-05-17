@@ -49,7 +49,8 @@ public class ThemePostService {
 
     public List<ThemePost> findByForumId(String forumId) {
         return postRepository.findAll().stream()
-                .filter(p -> p.getForum().getForumId().equals(forumId))
+                .filter(p -> p.getForum().getForumId().equals(forumId)
+                        && "审核通过".equals(p.getAuditState()))
                 .toList();
     }
 
