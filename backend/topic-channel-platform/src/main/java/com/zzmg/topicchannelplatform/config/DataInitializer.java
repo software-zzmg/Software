@@ -10,6 +10,7 @@ import com.zzmg.topicchannelplatform.repository.ForumMemberRepository;
 import com.zzmg.topicchannelplatform.repository.ForumRepository;
 import com.zzmg.topicchannelplatform.repository.OrdinaryUserRepository;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -21,15 +22,18 @@ public class DataInitializer implements CommandLineRunner {
     private final OrdinaryUserRepository userRepository;
     private final ForumRepository forumRepository;
     private final ForumMemberRepository forumMemberRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public DataInitializer(AdministratorRepository adminRepository,
                            OrdinaryUserRepository userRepository,
                            ForumRepository forumRepository,
-                           ForumMemberRepository forumMemberRepository) {
+                           ForumMemberRepository forumMemberRepository,
+                           PasswordEncoder passwordEncoder) {
         this.adminRepository = adminRepository;
         this.userRepository = userRepository;
         this.forumRepository = forumRepository;
         this.forumMemberRepository = forumMemberRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
@@ -45,7 +49,7 @@ public class DataInitializer implements CommandLineRunner {
         }
         Administrator admin = new Administrator();
         admin.setUserId("admin");
-        admin.setUserPassword("admin123");
+        admin.setUserPassword(passwordEncoder.encode("admin123"));
         adminRepository.save(admin);
     }
 
@@ -56,7 +60,7 @@ public class DataInitializer implements CommandLineRunner {
         OrdinaryUser user = new OrdinaryUser();
         user.setUserId(String.format("%09d", new java.util.Random().nextInt(1_000_000_000)));
         user.setPhoneNumber("13800000000");
-        user.setUserPassword("123456");
+        user.setUserPassword(passwordEncoder.encode("123456"));
         user.setUserName("test");
         user.setRegisterTime(LocalDateTime.now());
         return userRepository.save(user);

@@ -2,6 +2,7 @@ package com.zzmg.topicchannelplatform.service;
 
 import com.zzmg.topicchannelplatform.entity.OrdinaryUser;
 import com.zzmg.topicchannelplatform.repository.OrdinaryUserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -10,9 +11,11 @@ import java.util.Optional;
 public class UserService {
 
     private final OrdinaryUserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(OrdinaryUserRepository userRepository) {
+    public UserService(OrdinaryUserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public boolean register(OrdinaryUser user) {
@@ -21,6 +24,7 @@ public class UserService {
         }
         String userId = String.format("%09d", new java.util.Random().nextInt(1_000_000_000));
         user.setUserId(userId);
+        user.setUserPassword(passwordEncoder.encode(user.getUserPassword()));
         user.setRegisterTime(java.time.LocalDateTime.now());
         userRepository.save(user);
         return true;
@@ -28,7 +32,7 @@ public class UserService {
 
     public Optional<OrdinaryUser> login(String phone, String password) {
         return userRepository.findByPhoneNumber(phone)
-                .filter(u -> u.getUserPassword().equals(password));
+                .filter(u -> passwordEncoder.matches(password, u.getUserPassword()));
     }
 
     public Optional<OrdinaryUser> findById(String userId) {
@@ -52,8 +56,8 @@ public class UserService {
 
     public boolean changePassword(String userId, String oldPassword, String newPassword) {
         Optional<OrdinaryUser> opt = userRepository.findById(userId);
-        if (opt.isPresent() && opt.get().getUserPassword().equals(oldPassword)) {
-            opt.get().setUserPassword(newPassword);
+        if (opt.isPresent() && passwordEncoder.matches(oldPassword, opt.get().getUserPassword())) {
+            opt.get().setUserPassword(passwordEncoder.encode(newPassword));
             userRepository.save(opt.get());
             return true;
         }
@@ -62,7 +66,7 @@ public class UserService {
 
     public void resetPassword(String phone, String newPassword) {
         userRepository.findByPhoneNumber(phone).ifPresent(u -> {
-            u.setUserPassword(newPassword);
+            u.setUserPassword(passwordEncoder.encode(newPassword));
             userRepository.save(u);
         });
     }

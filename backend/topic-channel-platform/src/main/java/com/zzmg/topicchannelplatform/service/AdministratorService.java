@@ -10,6 +10,7 @@ import com.zzmg.topicchannelplatform.repository.CommentRepository;
 import com.zzmg.topicchannelplatform.repository.ForumRepository;
 import com.zzmg.topicchannelplatform.repository.OrdinaryUserRepository;
 import com.zzmg.topicchannelplatform.repository.ThemePostRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,22 +24,25 @@ public class AdministratorService {
     private final ForumRepository forumRepository;
     private final ThemePostRepository postRepository;
     private final CommentRepository commentRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public AdministratorService(AdministratorRepository adminRepository,
                                 OrdinaryUserRepository userRepository,
                                 ForumRepository forumRepository,
                                 ThemePostRepository postRepository,
-                                CommentRepository commentRepository) {
+                                CommentRepository commentRepository,
+                                PasswordEncoder passwordEncoder) {
         this.adminRepository = adminRepository;
         this.userRepository = userRepository;
         this.forumRepository = forumRepository;
         this.postRepository = postRepository;
         this.commentRepository = commentRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public Optional<Administrator> login(String userId, String password) {
         return adminRepository.findById(userId)
-                .filter(a -> a.getUserPassword().equals(password));
+                .filter(a -> passwordEncoder.matches(password, a.getUserPassword()));
     }
 
     public List<OrdinaryUser> findAllUsers() {
