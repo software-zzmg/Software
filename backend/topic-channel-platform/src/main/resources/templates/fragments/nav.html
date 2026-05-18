@@ -14,6 +14,7 @@
         <button type="submit" style="padding:4px 12px;">搜索</button>
     </form>
 
+    <div style="flex:1;" th:replace="~{fragments/toast :: toast}"></div>
     <div style="display:flex;align-items:center;gap:12px;font-size:14px;">
         <a th:href="@{/}" style="text-decoration:none;color:#333;">首页</a>
         <a th:if="${session.userId}" th:href="@{/forum/create}" style="text-decoration:none;color:#333;">创建频道</a>
@@ -24,6 +25,5 @@
     </div>
 
 </div>
-<div th:replace="~{fragments/toast :: toast}"></div>
 </body>
 </html>

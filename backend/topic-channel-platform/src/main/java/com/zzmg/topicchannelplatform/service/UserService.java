@@ -27,6 +27,7 @@ public class UserService {
         this.forumMemberRepository = forumMemberRepository;
     }
 
+    // TODO: 注册手机号检测允许与已注销用户重复
     public boolean register(OrdinaryUser user) {
         if (userRepository.existsByPhoneNumber(user.getPhoneNumber())) {
             return false;
