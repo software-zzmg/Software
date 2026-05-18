@@ -200,6 +200,12 @@ public class UserController {
         return "redirect:/user/login";
     }
 
+    @GetMapping("/logout")
+    public String logout(HttpSession session) {
+        session.invalidate();
+        return "redirect:/";
+    }
+
     @PostMapping("/delete")
     public String deleteUser(HttpSession session) {
         String userId = (String) session.getAttribute("userId");

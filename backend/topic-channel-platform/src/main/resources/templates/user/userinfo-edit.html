@@ -6,6 +6,9 @@
     <title>编辑个人信息</title>
 </head>
 <body>
+    <div th:replace="~{fragments/nav :: nav}"></div>
+    <hr>
+
     <h1>编辑个人信息</h1>
     <p th:if="${error}" style="color:red" th:text="${error}"></p>
     <form method="post" th:action="@{/user/info/update}" th:if="${user}">

@@ -11,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/comment")
@@ -32,7 +33,8 @@ public class CommentController {
     public String create(@RequestParam Long postId,
                          @RequestParam String content,
                          HttpSession session,
-                         Model model) {
+                         Model model,
+                         RedirectAttributes redirectAttributes) {
         String userId = (String) session.getAttribute("userId");
         if (userId == null) {
             return "redirect:/user/login";
@@ -48,6 +50,7 @@ public class CommentController {
         } catch (IllegalStateException e) {
             model.addAttribute("error", e.getMessage());
         }
+        redirectAttributes.addFlashAttribute("toast", "发布中，等待审核成功后可见");
         return "redirect:/post/detail/" + postId;
     }
 

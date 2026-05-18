@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
@@ -82,7 +83,8 @@ public class ThemePostController {
                          @RequestParam String title,
                          @RequestParam String content,
                          HttpSession session,
-                         Model model) {
+                         Model model,
+                         RedirectAttributes redirectAttributes) {
         String userId = (String) session.getAttribute("userId");
         if (userId == null) {
             return "redirect:/user/login";
@@ -101,6 +103,7 @@ public class ThemePostController {
             forumService.findById(forumId).ifPresent(f -> model.addAttribute("forum", f));
             return "post/edit";
         }
+        redirectAttributes.addFlashAttribute("toast", "发布中，等待审核成功后可见");
         return "redirect:/forum/detail/" + forumId;
     }
 

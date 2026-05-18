@@ -17,7 +17,7 @@
 
     <p><strong>简介：</strong><span th:text="${forum.content}"></span></p>
     <p><strong>创建者：</strong><span th:text="${forum.creator.status == 'deleted'} ? '已注销用户' : ${forum.creator.userName}"></span></p>
-    <p><strong>审核状态：</strong><span th:text="${forum.auditState}"></span></p>
+    <p th:if="${forum.auditState == '审核未通过'}"><strong>审核状态：</strong><span th:text="${forum.auditState}"></span></p>
     <p><strong>创建时间：</strong><span th:text="${forum.createTime}"></span></p>
 
     <div th:if="${isCreator}">
@@ -45,7 +45,8 @@
     </p>
 
     <div>
-        <a th:if="${session.userId != null}" th:href="@{/post/create/{id}(id=${forum.forumId})}">发布新帖</a>
+        <a th:if="${session.userId != null && forum.auditState == '审核通过'}" th:href="@{/post/create/{id}(id=${forum.forumId})}">发布新帖</a>
+        <a th:if="${session.userId != null && forum.auditState != '审核通过'}" href="#" onclick="alert('频道审核中，暂无法发帖');return false;">发布新帖</a>
     </div>
 
     <hr>

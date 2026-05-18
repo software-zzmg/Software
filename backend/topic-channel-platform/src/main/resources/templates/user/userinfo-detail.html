@@ -6,6 +6,9 @@
     <title>个人信息</title>
 </head>
 <body>
+    <div th:replace="~{fragments/nav :: nav}"></div>
+    <hr>
+
     <h1>个人信息</h1>
     <table th:if="${user}">
         <tr><td>用户名：</td><td th:text="${user.userName}"></td></tr>
@@ -19,7 +22,11 @@
     <div>
         <a th:href="@{/user/info/edit}">编辑信息</a>
         <a th:href="@{/user/password/change}">修改密码</a>
-        <a th:href="@{/}">返回首页</a>
+        <a th:href="@{/collect/my}">我的收藏</a>
+        <a th:href="@{/forum-member/my}">我加入的频道</a>
+    </div>
+    <div style="margin-top:10px">
+        <a th:href="@{/user/logout}">退出登录</a>
     </div>
     <form method="post" th:action="@{/user/delete}" style="margin-top:20px">
         <button type="submit" onclick="return confirm('确认注销账号？此操作不可恢复。')">注销账号</button>
