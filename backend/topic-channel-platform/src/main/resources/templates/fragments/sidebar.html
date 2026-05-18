@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<body>
+<div th:fragment="sidebar" style="width:210px;min-width:210px;padding:12px;background:#f8f9fa;border-right:1px solid #dee2e6;font-size:14px;">
+
+    <div style="font-weight:bold;margin-bottom:6px;">我加入的频道</div>
+    <th:block th:if="${sidebarJoinedForums == null}">
+        <p style="margin:0;color:#999;"><a th:href="@{/user/login}" style="color:#007bff;">请先登录</a></p>
+    </th:block>
+    <th:block th:if="${sidebarJoinedForums != null && #lists.isEmpty(sidebarJoinedForums)}">
+        <p style="margin:0;color:#999;">暂未加入频道</p>
+    </th:block>
+    <ul th:if="${sidebarJoinedForums != null && !#lists.isEmpty(sidebarJoinedForums)}" style="list-style:none;padding:0;margin:0 0 14px 0;">
+        <li th:each="f : ${sidebarJoinedForums}" style="margin:3px 0;">
+            <a th:href="@{/forum/detail/{id}(id=${f.forumId})}" th:text="${f.forumName}" style="color:#333;text-decoration:none;"></a>
+        </li>
+    </ul>
+
+    <div style="font-weight:bold;margin-bottom:6px;">全部频道</div>
+    <th:block th:if="${#lists.isEmpty(sidebarAllForums)}">
+        <p style="margin:0;color:#999;">暂无频道</p>
+    </th:block>
+    <ul th:if="${!#lists.isEmpty(sidebarAllForums)}" style="list-style:none;padding:0;margin:0;">
+        <li th:each="f : ${sidebarAllForums}" style="margin:3px 0;">
+            <a th:href="@{/forum/detail/{id}(id=${f.forumId})}" th:text="${f.forumName}" style="color:#333;text-decoration:none;"></a>
+        </li>
+    </ul>
+
+</div>
+</body>
+</html>

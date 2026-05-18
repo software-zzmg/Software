@@ -9,6 +9,10 @@
     <div th:replace="~{fragments/nav :: nav}"></div>
     <hr>
 
+    <div style="display:flex;">
+        <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+        <div style="flex:1;padding:15px;">
+
     <h1 th:text="${post.title}">帖子标题</h1>
 
     <p><strong>作者：</strong><span th:text="${post.author.status == 'deleted'} ? '已注销用户' : ${post.author.userName}"></span></p>
@@ -89,6 +93,8 @@
 
     <div>
         <a th:href="@{/forum/detail/{id}(id=${post.forum.forumId})}">返回频道详情</a>
+    </div>
+        </div>
     </div>
 </body>
 </html>

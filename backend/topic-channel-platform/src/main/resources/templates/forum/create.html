@@ -9,6 +9,10 @@
     <div th:replace="~{fragments/nav :: nav}"></div>
     <hr>
 
+    <div style="display:flex;">
+        <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+        <div style="flex:1;padding:15px;">
+
     <h1>创建主题频道</h1>
 
     <p th:if="${error}" style="color:red" th:text="${error}"></p>
@@ -27,5 +31,7 @@
             <a th:href="@{/}">取消</a>
         </div>
     </form>
+        </div>
+    </div>
 </body>
 </html>

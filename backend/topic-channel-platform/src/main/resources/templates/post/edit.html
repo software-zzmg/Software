@@ -6,6 +6,13 @@
     <title th:text="${post == null ? '发布新帖' : '编辑帖子'}">发布新帖</title>
 </head>
 <body>
+    <div th:replace="~{fragments/nav :: nav}"></div>
+    <hr>
+
+    <div style="display:flex;">
+        <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+        <div style="flex:1;padding:15px;">
+
     <h1 th:text="${post == null ? '发布新帖' : '编辑帖子'}">发布新帖</h1>
 
     <p th:if="${forum}"><strong>频道：</strong><span th:text="${forum.forumName}"></span></p>
@@ -28,5 +35,7 @@
             <a th:if="${post == null && forum != null}" th:href="@{/forum/detail/{id}(id=${forum.forumId})}">取消</a>
         </div>
     </form>
+        </div>
+    </div>
 </body>
 </html>

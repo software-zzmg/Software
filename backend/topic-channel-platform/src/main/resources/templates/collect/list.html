@@ -9,6 +9,10 @@
     <div th:replace="~{fragments/nav :: nav}"></div>
     <hr>
 
+    <div style="display:flex;">
+        <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+        <div style="flex:1;padding:15px;">
+
     <h1>我的收藏</h1>
 
     <div th:if="${#lists.isEmpty(collects)}">
@@ -44,5 +48,7 @@
             </tr>
         </tbody>
     </table>
+        </div>
+    </div>
 </body>
 </html>

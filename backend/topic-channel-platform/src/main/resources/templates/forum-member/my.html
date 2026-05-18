@@ -6,6 +6,13 @@
     <title>我的频道</title>
 </head>
 <body>
+    <div th:replace="~{fragments/nav :: nav}"></div>
+    <hr>
+
+    <div style="display:flex;">
+        <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+        <div style="flex:1;padding:15px;">
+
     <h1>我的频道</h1>
 
     <div th:if="${#lists.isEmpty(memberships)}">
@@ -41,6 +48,8 @@
     <div>
         <a th:href="@{/}">浏览更多频道</a>
         <a th:href="@{/}">返回首页</a>
+    </div>
+        </div>
     </div>
 </body>
 </html>
