@@ -1,9 +1,12 @@
 package com.zzmg.topicchannelplatform.service;
 
 import com.zzmg.topicchannelplatform.entity.ThemePost;
+import com.zzmg.topicchannelplatform.repository.CollectRepository;
+import com.zzmg.topicchannelplatform.repository.CommentRepository;
 import com.zzmg.topicchannelplatform.repository.ForumRepository;
 import com.zzmg.topicchannelplatform.repository.ThemePostRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -15,13 +18,19 @@ public class ThemePostService {
     private final ThemePostRepository postRepository;
     private final ForumRepository forumRepository;
     private final ForumMemberService forumMemberService;
+    private final CollectRepository collectRepository;
+    private final CommentRepository commentRepository;
 
     public ThemePostService(ThemePostRepository postRepository,
                             ForumRepository forumRepository,
-                            ForumMemberService forumMemberService) {
+                            ForumMemberService forumMemberService,
+                            CollectRepository collectRepository,
+                            CommentRepository commentRepository) {
         this.postRepository = postRepository;
         this.forumRepository = forumRepository;
         this.forumMemberService = forumMemberService;
+        this.collectRepository = collectRepository;
+        this.commentRepository = commentRepository;
     }
 
     public ThemePost publish(ThemePost post, String userId) {
@@ -71,7 +80,14 @@ public class ThemePostService {
         });
     }
 
+    @Transactional
     public void deleteById(Long postId) {
+        collectRepository.findAll().stream()
+                .filter(c -> c.getThemePost().getThemePostId().equals(postId))
+                .forEach(collectRepository::delete);
+        commentRepository.findAll().stream()
+                .filter(c -> c.getThemePost().getThemePostId().equals(postId))
+                .forEach(commentRepository::delete);
         postRepository.deleteById(postId);
     }
 }
