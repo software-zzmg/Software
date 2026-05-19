@@ -102,6 +102,10 @@ public class UserController {
                                    HttpSession session,
                                    Model model) {
         model.addAttribute("phoneNumber", phoneNumber);
+        if (!phoneNumber.matches("1\\d{10}")) {
+            model.addAttribute("error", "手机号格式错误");
+            return "user/register";
+        }
         if (userService.findByPhone(phoneNumber).isPresent()) {
             model.addAttribute("error", "该手机号已被注册");
             return "user/register";
