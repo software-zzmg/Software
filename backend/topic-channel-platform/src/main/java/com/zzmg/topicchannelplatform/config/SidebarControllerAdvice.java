@@ -33,6 +33,7 @@ public class SidebarControllerAdvice {
             model.addAttribute("sidebarJoinedForums",
                     memberships.stream()
                             .map(ForumMember::getForum)
+                            .filter(f -> "审核通过".equals(f.getAuditState()))
                             .toList());
         }
 
