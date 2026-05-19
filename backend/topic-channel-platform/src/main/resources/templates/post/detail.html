@@ -21,7 +21,6 @@
             <a th:href="@{/forum/detail/{id}(id=${post.forum.forumId})}" th:text="${post.forum.forumName}"></a>
         </p>
         <p class="info-row"><strong>发布时间：</strong><span th:text="${post.publishTime}"></span></p>
-        <p class="info-row"><strong>审核状态：</strong><span th:text="${post.auditState}"></span></p>
     </div>
 
     <div class="card">
