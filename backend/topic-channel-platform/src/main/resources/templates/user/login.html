@@ -4,24 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>登录</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
 </head>
-<body>
-    <h1>用户登录</h1>
-    <p th:if="${error}" style="color:red" th:text="${error}"></p>
-    <form method="post" th:action="@{/user/login}">
-        <div>
-            <label>手机号：</label>
-            <input type="text" name="phoneNumber" required>
-        </div>
-        <div>
-            <label>密码：</label>
-            <input type="password" name="userPassword" required>
-        </div>
-        <div>
-            <button type="submit">登录</button>
-            <a th:href="@{/user/register}">去注册</a>
-            <a th:href="@{/user/password/forgot}">忘记密码</a>
-        </div>
-    </form>
+<body style="background:#f0f2f5;display:flex;align-items:center;justify-content:center;min-height:100vh;">
+    <div style="width:400px;">
+        <h1 class="page-title" style="text-align:center;">用户登录</h1>
+        <p th:if="${error}" class="error-text" th:text="${error}"></p>
+        <form method="post" th:action="@{/user/login}" class="form">
+            <div class="form-group">
+                <label>手机号：</label>
+                <input type="text" name="phoneNumber" class="form-input" th:classappend="${error != null} ? 'input-error'" th:value="${phoneNumber}" required>
+            </div>
+            <div class="form-group">
+                <label>密码：</label>
+                <input type="password" name="userPassword" class="form-input" th:classappend="${error != null} ? 'input-error'" required>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">登录</button>
+                <a th:href="@{/user/register}" class="btn btn-outline">去注册</a>
+                <a th:href="@{/user/password/forgot}">忘记密码</a>
+            </div>
+        </form>
+    </div>
 </body>
 </html>

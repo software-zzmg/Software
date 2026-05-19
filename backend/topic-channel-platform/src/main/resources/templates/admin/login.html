@@ -4,23 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>管理员登录</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
 </head>
-<body>
-    <h1>管理员登录</h1>
-    <p th:if="${error}" style="color:red" th:text="${error}"></p>
-    <form method="post" th:action="@{/admin/login}">
-        <div>
-            <label>管理员账号：</label>
-            <input type="text" name="userId" required>
-        </div>
-        <div>
-            <label>密码：</label>
-            <input type="password" name="password" required>
-        </div>
-        <div>
-            <button type="submit">登录</button>
-            <a th:href="@{/}">返回首页</a>
-        </div>
-    </form>
+<body style="background:#f0f2f5;display:flex;align-items:center;justify-content:center;min-height:100vh;">
+    <div style="width:400px;">
+        <h1 class="page-title" style="text-align:center;">管理员登录</h1>
+        <p th:if="${error}" class="error-text" th:text="${error}"></p>
+        <form method="post" th:action="@{/admin/login}" class="form">
+            <div class="form-group">
+                <label>管理员账号：</label>
+                <input type="text" name="userId" class="form-input" required>
+            </div>
+            <div class="form-group">
+                <label>密码：</label>
+                <input type="password" name="password" class="form-input" required>
+            </div>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">登录</button>
+                <a th:href="@{/}" class="btn btn-outline">返回首页</a>
+            </div>
+        </form>
+    </div>
 </body>
 </html>

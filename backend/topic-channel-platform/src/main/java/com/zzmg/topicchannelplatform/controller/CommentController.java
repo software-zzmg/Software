@@ -55,7 +55,8 @@ public class CommentController {
     }
 
     @PostMapping("/delete")
-    public String delete(@RequestParam Long commentId, HttpSession session) {
+    public String delete(@RequestParam Long commentId, HttpSession session,
+                         RedirectAttributes redirectAttributes) {
         String userId = (String) session.getAttribute("userId");
         if (userId == null) {
             return "redirect:/user/login";
@@ -66,6 +67,7 @@ public class CommentController {
         if (postId != null && commentService.canDelete(userId, commentId)) {
             commentService.deleteById(commentId);
         }
+        redirectAttributes.addFlashAttribute("toast", "评论已删除");
         return postId != null ? "redirect:/post/detail/" + postId : "redirect:/forum/list";
     }
 }

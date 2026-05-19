@@ -144,7 +144,8 @@ public class ThemePostController {
     }
 
     @PostMapping("/delete")
-    public String delete(@RequestParam Long postId, HttpSession session) {
+    public String delete(@RequestParam Long postId, HttpSession session,
+                         RedirectAttributes redirectAttributes) {
         String userId = (String) session.getAttribute("userId");
         if (userId == null) {
             return "redirect:/user/login";
@@ -155,6 +156,7 @@ public class ThemePostController {
         if (postService.isAuthor(userId, postId)) {
             postService.deleteById(postId);
         }
+        redirectAttributes.addFlashAttribute("toast", "帖子已删除");
         return forumId != null ? "redirect:/forum/detail/" + forumId : "redirect:/forum/list";
     }
 }

@@ -4,31 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>创建主题频道</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
 </head>
 <body>
     <div th:replace="~{fragments/nav :: nav}"></div>
-    <hr>
 
-    <div style="display:flex;">
+    <div class="page-wrapper">
         <div th:replace="~{fragments/sidebar :: sidebar}"></div>
-        <div style="flex:1;padding:15px;">
+        <div class="main-content">
 
-    <h1>创建主题频道</h1>
+    <h1 class="page-title">创建主题频道</h1>
 
-    <p th:if="${error}" style="color:red" th:text="${error}"></p>
+    <p th:if="${error}" class="error-text" th:text="${error}"></p>
 
-    <form method="post" th:action="@{/forum/create}">
-        <div>
+    <form method="post" th:action="@{/forum/create}" class="form">
+        <div class="form-group">
             <label>频道名称：</label>
-            <input type="text" name="forumName" required>
+            <input type="text" name="forumName" class="form-input" required>
         </div>
-        <div>
+        <div class="form-group">
             <label>频道简介：</label>
-            <textarea name="content" rows="5" required></textarea>
+            <textarea name="content" rows="5" class="form-textarea" required></textarea>
         </div>
-        <div>
-            <button type="submit">提交创建</button>
-            <a th:href="@{/}">取消</a>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">提交创建</button>
+            <a th:href="@{/}" class="btn btn-outline">取消</a>
         </div>
     </form>
         </div>

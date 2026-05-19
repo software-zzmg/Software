@@ -4,15 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>审核帖子</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
 </head>
 <body>
-    <h1>待审核帖子</h1>
+    <div style="max-width:960px;margin:0 auto;padding:24px;">
+    <h1 class="page-title">待审核帖子</h1>
 
-    <div th:if="${#lists.isEmpty(posts)}">
-        <p>暂无待审核的帖子</p>
-    </div>
+    <p class="empty-state" th:if="${#lists.isEmpty(posts)}">暂无待审核的帖子</p>
 
-    <table th:if="${!#lists.isEmpty(posts)}">
+    <table th:if="${!#lists.isEmpty(posts)}" class="table">
         <thead>
             <tr>
                 <th>标题</th>
@@ -32,16 +32,17 @@
                 <td th:text="${p.publishTime}"></td>
                 <td>
                     <form method="post" th:action="@{/admin/posts/{id}/approve(id=${p.themePostId})}" style="display:inline">
-                        <button type="submit">通过</button>
+                        <button type="submit" class="btn btn-primary btn-sm">通过</button>
                     </form>
                     <form method="post" th:action="@{/admin/posts/{id}/reject(id=${p.themePostId})}" style="display:inline">
-                        <button type="submit">驳回</button>
+                        <button type="submit" class="btn btn-danger btn-sm">驳回</button>
                     </form>
                 </td>
             </tr>
         </tbody>
     </table>
 
-    <a th:href="@{/admin}">返回后台</a>
+    <a th:href="@{/admin}" class="btn btn-outline">返回后台</a>
+    </div>
 </body>
 </html>

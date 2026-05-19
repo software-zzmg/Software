@@ -4,22 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>我的频道</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
 </head>
 <body>
     <div th:replace="~{fragments/nav :: nav}"></div>
-    <hr>
 
-    <div style="display:flex;">
+    <div class="page-wrapper">
         <div th:replace="~{fragments/sidebar :: sidebar}"></div>
-        <div style="flex:1;padding:15px;">
+        <div class="main-content">
 
-    <h1>我的频道</h1>
+    <h1 class="page-title">我的频道</h1>
 
-    <div th:if="${#lists.isEmpty(memberships)}">
-        <p>你还没有加入任何频道</p>
-    </div>
+    <p class="empty-state" th:if="${#lists.isEmpty(memberships)}">你还没有加入任何频道</p>
 
-    <table th:if="${!#lists.isEmpty(memberships)}">
+    <table th:if="${!#lists.isEmpty(memberships)}" class="table">
         <thead>
             <tr>
                 <th>频道名称</th>
@@ -38,17 +36,14 @@
                 <td>
                     <form method="post" th:action="@{/forum-member/leave}" style="display:inline">
                         <input type="hidden" name="forumId" th:value="${m.forum.forumId}">
-                        <button type="submit" onclick="return confirm('确定要退出该频道吗？')">退出</button>
+                        <button type="submit" class="btn btn-outline btn-sm" onclick="return confirm('确定要退出该频道吗？')">退出</button>
                     </form>
                 </td>
             </tr>
         </tbody>
     </table>
 
-    <div>
-        <a th:href="@{/}">浏览更多频道</a>
-        <a th:href="@{/}">返回首页</a>
-    </div>
+    <a th:href="@{/}" class="btn btn-outline">返回首页</a>
         </div>
     </div>
 </body>

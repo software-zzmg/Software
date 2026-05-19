@@ -4,44 +4,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>主题频道交流平台</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
 </head>
 <body>
     <div th:replace="~{fragments/nav :: nav}"></div>
-    <hr>
 
-    <div style="display:flex;">
+    <div class="page-wrapper">
         <div th:replace="~{fragments/sidebar :: sidebar}"></div>
-        <div style="flex:1;padding:15px;">
-    <hr>
+        <div class="main-content">
 
-    <!-- Posts list -->
-    <h2>最新帖子</h2>
-    <div th:if="${#lists.isEmpty(posts)}">
-        <p>暂无帖子</p>
+    <h1 class="page-title">最新帖子</h1>
+    <p class="empty-state" th:if="${#lists.isEmpty(posts)}">暂无帖子</p>
+
+    <div th:if="${!#lists.isEmpty(posts)}" class="post-list">
+        <article th:each="post : ${posts}" class="post-card">
+            <a class="post-card-link"
+               th:href="@{/post/detail/{id}(id=${post.themePostId})}"
+               th:aria-label="|查看帖子：${post.title}|"></a>
+            <div class="post-card-content">
+                <h2 class="post-card-title" th:text="${post.title}"></h2>
+                <p class="post-card-summary"
+                   th:text="${post.content == null || #strings.isEmpty(post.content) ? '暂无正文摘要' : (#strings.length(post.content) > 120 ? #strings.substring(post.content, 0, 120) + '...' : post.content)}"></p>
+                <div class="post-card-meta">
+                    <span th:text="${post.author.status == 'deleted'} ? '已注销用户' : ${post.author.userName}"></span>
+                    <span>发布于</span>
+                    <a class="post-card-channel"
+                       th:href="@{/forum/detail/{id}(id=${post.forum.forumId})}"
+                       th:text="${post.forum.forumName}"></a>
+                    <span th:text="${post.publishTime}"></span>
+                </div>
+            </div>
+        </article>
     </div>
-
-    <table th:if="${!#lists.isEmpty(posts)}">
-        <thead>
-            <tr>
-                <th>标题</th>
-                <th>作者</th>
-                <th>所属频道</th>
-                <th>发布时间</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr th:each="post : ${posts}">
-                <td>
-                    <a th:href="@{/post/detail/{id}(id=${post.themePostId})}" th:text="${post.title}"></a>
-                </td>
-                <td th:text="${post.author.status == 'deleted'} ? '已注销用户' : ${post.author.userName}"></td>
-                <td>
-                    <a th:href="@{/forum/detail/{id}(id=${post.forum.forumId})}" th:text="${post.forum.forumName}"></a>
-                </td>
-                <td th:text="${post.publishTime}"></td>
-            </tr>
-        </tbody>
-    </table>
         </div>
     </div>
 </body>

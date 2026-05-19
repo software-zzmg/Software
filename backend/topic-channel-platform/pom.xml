@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.zzmg</groupId>
     <artifactId>topic-channel-platform</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.2.0-SNAPSHOT</version>
     <name>topic-channel-platform</name>
     <description>topic-channel-platform</description>
     <url/>

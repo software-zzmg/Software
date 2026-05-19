@@ -4,96 +4,85 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${post.title} + ' - 帖子详情'">帖子详情</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
 </head>
 <body>
     <div th:replace="~{fragments/nav :: nav}"></div>
-    <hr>
 
-    <div style="display:flex;">
+    <div class="page-wrapper">
         <div th:replace="~{fragments/sidebar :: sidebar}"></div>
-        <div style="flex:1;padding:15px;">
+        <div class="main-content">
 
-    <h1 th:text="${post.title}">帖子标题</h1>
+    <h1 class="page-title" th:text="${post.title}">帖子标题</h1>
 
-    <p><strong>作者：</strong><span th:text="${post.author.status == 'deleted'} ? '已注销用户' : ${post.author.userName}"></span></p>
-    <p><strong>所属频道：</strong>
-        <a th:href="@{/forum/detail/{id}(id=${post.forum.forumId})}" th:text="${post.forum.forumName}"></a>
-    </p>
-    <p><strong>发布时间：</strong><span th:text="${post.publishTime}"></span></p>
-    <p><strong>审核状态：</strong><span th:text="${post.auditState}"></span></p>
+    <div class="card">
+        <p class="info-row"><strong>作者：</strong><span th:text="${post.author.status == 'deleted'} ? '已注销用户' : ${post.author.userName}"></span></p>
+        <p class="info-row"><strong>所属频道：</strong>
+            <a th:href="@{/forum/detail/{id}(id=${post.forum.forumId})}" th:text="${post.forum.forumName}"></a>
+        </p>
+        <p class="info-row"><strong>发布时间：</strong><span th:text="${post.publishTime}"></span></p>
+    </div>
 
-    <hr>
-    <div>
+    <div class="card">
         <p th:text="${post.content}"></p>
     </div>
-    <hr>
 
-    <div>
+    <div class="form-actions">
         <form th:if="${currentUserId != null && !isCollected}" method="post" th:action="@{/collect/add}" style="display:inline">
             <input type="hidden" name="postId" th:value="${post.themePostId}">
-            <button type="submit">收藏</button>
+            <button type="submit" class="btn btn-primary btn-sm">收藏</button>
         </form>
         <form th:if="${currentUserId != null && isCollected}" method="post" th:action="@{/collect/cancel}" style="display:inline">
             <input type="hidden" name="postId" th:value="${post.themePostId}">
-            <button type="submit" onclick="return confirm('确定要取消收藏吗？')">取消收藏</button>
+            <button type="submit" class="btn btn-outline btn-sm" onclick="return confirm('确定要取消收藏吗？')">取消收藏</button>
         </form>
-        <a th:if="${currentUserId == null}" th:href="@{/user/login}">登录后即可收藏</a>
-        <a th:href="@{/collect/my}">我的收藏</a>
+        <a th:if="${currentUserId == null}" th:href="@{/user/login}" class="btn btn-outline btn-sm">登录后即可收藏</a>
+        <a th:href="@{/collect/my}" class="btn btn-outline btn-sm">我的收藏</a>
     </div>
 
-    <div th:if="${isAuthor}">
-        <a th:href="@{/post/edit/{id}(id=${post.themePostId})}">编辑帖子</a>
+    <div th:if="${isAuthor}" class="form-actions">
+        <a th:href="@{/post/edit/{id}(id=${post.themePostId})}" class="btn btn-outline">编辑帖子</a>
         <form method="post" th:action="@{/post/delete}" style="display:inline">
             <input type="hidden" name="postId" th:value="${post.themePostId}">
-            <button type="submit" onclick="return confirm('确定要删除该帖子吗？')">删除帖子</button>
+            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('确定要删除该帖子吗？')">删除帖子</button>
         </form>
     </div>
 
     <!-- Comments section -->
-    <h2>评论</h2>
+    <hr class="divider">
+    <h2 class="section-title">评论</h2>
 
-    <div th:if="${error}" style="color:red" th:text="${error}"></div>
+    <p th:if="${error}" class="error-text" th:text="${error}"></p>
 
-    <div th:if="${currentUserId != null && isMember}">
+    <div th:if="${currentUserId != null && isMember}" class="card">
         <form method="post" th:action="@{/comment/create}">
             <input type="hidden" name="postId" th:value="${post.themePostId}">
-            <div>
-                <textarea name="content" rows="3" placeholder="写下你的评论..." required></textarea>
+            <div class="form-group">
+                <textarea name="content" rows="3" class="form-textarea" placeholder="写下你的评论..." required></textarea>
             </div>
-            <div>
-                <button type="submit">发表评论</button>
-            </div>
+            <button type="submit" class="btn btn-primary btn-sm">发表评论</button>
         </form>
     </div>
 
-    <p th:if="${currentUserId != null && !isMember}">
-        需要加入频道后才能评论
-    </p>
-    <p th:if="${currentUserId == null}">
-        <a th:href="@{/user/login}">登录后即可评论</a>
-    </p>
+    <p th:if="${currentUserId != null && !isMember}" class="empty-state">需要加入频道后才能评论</p>
+    <p th:if="${currentUserId == null}" class="empty-state"><a th:href="@{/user/login}">登录后即可评论</a></p>
 
-    <div th:if="${#lists.isEmpty(comments)}">
-        <p>暂无评论</p>
-    </div>
+    <p th:if="${#lists.isEmpty(comments)}" class="empty-state">暂无评论</p>
 
-    <div th:each="c : ${comments}">
+    <div th:each="c : ${comments}" class="card" style="padding:12px 16px;">
         <p>
             <strong th:text="${c.author.status == 'deleted'} ? '已注销用户' : ${c.author.userName}"></strong>
-            <span th:text="${c.publishTime}"></span>
+            <span style="color:#999;font-size:12px;" th:text="${c.publishTime}"></span>
         </p>
         <p th:text="${c.content}"></p>
         <form th:if="${currentUserId != null && (currentUserId == c.author.userId || isAuthor)}"
               method="post" th:action="@{/comment/delete}" style="display:inline">
             <input type="hidden" name="commentId" th:value="${c.commentId}">
-            <button type="submit" onclick="return confirm('确定要删除该评论吗？')">删除</button>
+            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('确定要删除该评论吗？')">删除</button>
         </form>
-        <hr>
     </div>
 
-    <div>
-        <a th:href="@{/forum/detail/{id}(id=${post.forum.forumId})}">返回频道详情</a>
-    </div>
+    <a th:href="@{/forum/detail/{id}(id=${post.forum.forumId})}" class="btn btn-outline">返回频道详情</a>
         </div>
     </div>
 </body>

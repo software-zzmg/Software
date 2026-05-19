@@ -4,38 +4,42 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>编辑个人信息</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
 </head>
 <body>
     <div th:replace="~{fragments/nav :: nav}"></div>
-    <hr>
 
-    <h1>编辑个人信息</h1>
-    <p th:if="${error}" style="color:red" th:text="${error}"></p>
-    <form method="post" th:action="@{/user/info/update}" th:if="${user}">
-        <div>
+    <div style="max-width:560px;margin:0 auto;padding:24px;">
+    <h1 class="page-title">编辑个人信息</h1>
+    <form method="post" th:action="@{/user/info/update}" th:object="${userInfoForm}" class="form">
+        <div class="form-group">
             <label>用户名：</label>
-            <input type="text" name="userName" th:value="${user.userName}" required>
+            <input type="text" th:field="*{userName}" class="form-input" th:classappend="${#fields.hasErrors('userName')} ? 'input-error'">
+            <p th:if="${#fields.hasErrors('userName')}" th:errors="*{userName}" class="field-error"></p>
         </div>
-        <div>
+        <div class="form-group">
             <label>真实姓名：</label>
-            <input type="text" name="realName" th:value="${user.realName}">
+            <input type="text" th:field="*{realName}" class="form-input">
         </div>
-        <div>
+        <div class="form-group">
             <label>性别：</label>
-            <input type="text" name="gender" th:value="${user.gender}">
+            <input type="text" th:field="*{gender}" class="form-input">
         </div>
-        <div>
+        <div class="form-group">
             <label>生日：</label>
-            <input type="text" name="birthday" th:value="${user.birthday}">
+            <input type="date" th:field="*{birthday}" class="form-input" th:classappend="${#fields.hasErrors('birthday')} ? 'input-error'">
+            <p th:if="${#fields.hasErrors('birthday')}" th:errors="*{birthday}" class="field-error"></p>
         </div>
-        <div>
+        <div class="form-group">
             <label>身份证号：</label>
-            <input type="text" name="idNumber" th:value="${user.idNumber}">
+            <input type="text" th:field="*{idNumber}" class="form-input" th:classappend="${#fields.hasErrors('idNumber')} ? 'input-error'">
+            <p th:if="${#fields.hasErrors('idNumber')}" th:errors="*{idNumber}" class="field-error"></p>
         </div>
-        <div>
-            <button type="submit">保存</button>
-            <a th:href="@{/user/info}">取消</a>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">保存</button>
+            <a th:href="@{/user/info}" class="btn btn-outline">取消</a>
         </div>
     </form>
+    </div>
 </body>
 </html>

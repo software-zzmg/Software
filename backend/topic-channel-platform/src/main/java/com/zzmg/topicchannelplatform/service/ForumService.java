@@ -1,8 +1,11 @@
 package com.zzmg.topicchannelplatform.service;
 
 import com.zzmg.topicchannelplatform.entity.Forum;
+import com.zzmg.topicchannelplatform.repository.ForumMemberRepository;
 import com.zzmg.topicchannelplatform.repository.ForumRepository;
+import com.zzmg.topicchannelplatform.repository.ThemePostRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -12,9 +15,18 @@ import java.util.Optional;
 public class ForumService {
 
     private final ForumRepository forumRepository;
+    private final ForumMemberRepository forumMemberRepository;
+    private final ThemePostRepository postRepository;
+    private final ThemePostService themePostService;
 
-    public ForumService(ForumRepository forumRepository) {
+    public ForumService(ForumRepository forumRepository,
+                        ForumMemberRepository forumMemberRepository,
+                        ThemePostRepository postRepository,
+                        ThemePostService themePostService) {
         this.forumRepository = forumRepository;
+        this.forumMemberRepository = forumMemberRepository;
+        this.postRepository = postRepository;
+        this.themePostService = themePostService;
     }
 
     public Forum create(Forum forum) {
@@ -53,7 +65,14 @@ public class ForumService {
         });
     }
 
+    @Transactional
     public void deleteById(Long forumId) {
+        forumMemberRepository.findAll().stream()
+                .filter(m -> m.getForum().getForumId().equals(forumId))
+                .forEach(forumMemberRepository::delete);
+        postRepository.findAll().stream()
+                .filter(p -> p.getForum().getForumId().equals(forumId))
+                .forEach(p -> themePostService.deleteById(p.getThemePostId()));
         forumRepository.deleteById(forumId);
     }
 }

@@ -1,29 +1,23 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
 <body>
-<div th:fragment="nav" style="display:flex;align-items:center;justify-content:space-between;padding:8px 16px;background:#f8f9fa;border-bottom:1px solid #dee2e6;">
-
-    <div style="font-size:18px;font-weight:bold;">
-        <a th:href="@{/}" style="text-decoration:none;color:#333;">主题频道交流平台</a>
+<div th:fragment="nav" class="nav-bar">
+    <div class="nav-brand">
+        <a th:href="@{/}">主题频道交流平台</a>
     </div>
-
-    <form method="get" th:action="@{/search}" style="display:flex;align-items:center;gap:4px;">
-        <input type="text" name="keyword" th:value="${keyword}" placeholder="搜索帖子、频道、用户" required
-               style="padding:4px 8px;width:260px;border:1px solid #ccc;border-radius:3px;">
+    <form method="get" th:action="@{/search}" class="nav-search">
+        <input type="text" name="keyword" th:value="${keyword}" placeholder="搜索帖子、频道、用户" required>
         <input type="hidden" name="type" value="post">
-        <button type="submit" style="padding:4px 12px;">搜索</button>
+        <button type="submit">搜索</button>
     </form>
-
     <div style="flex:1;" th:replace="~{fragments/toast :: toast}"></div>
-    <div style="display:flex;align-items:center;gap:12px;font-size:14px;">
-        <a th:href="@{/}" style="text-decoration:none;color:#333;">首页</a>
-        <a th:if="${session.userId}" th:href="@{/forum/create}" style="text-decoration:none;color:#333;">创建频道</a>
-        <a th:if="${session.userId}" th:href="@{/user/info}" style="text-decoration:none;color:#333;">个人中心</a>
-
-        <a th:unless="${session.userId}" th:href="@{/user/login}" style="text-decoration:none;color:#333;">登录</a>
-        <a th:unless="${session.userId}" th:href="@{/user/register}" style="text-decoration:none;color:#333;">注册</a>
+    <div class="nav-links">
+        <a th:href="@{/}">首页</a>
+        <a th:if="${session.userId}" th:href="@{/forum/create}">创建频道</a>
+        <a th:if="${session.userId}" th:href="@{/user/info}">个人中心</a>
+        <a th:unless="${session.userId}" th:href="@{/user/login}">登录</a>
+        <a th:unless="${session.userId}" th:href="@{/user/register}">注册</a>
     </div>
-
 </div>
 </body>
 </html>
