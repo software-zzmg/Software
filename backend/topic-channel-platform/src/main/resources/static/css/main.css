@@ -63,6 +63,8 @@ a:hover { color:#1d4ed8; }
 .form-input:focus, .form-textarea:focus { border-color:#2563eb; }
 .form-textarea { resize:vertical; min-height:100px; }
 .form-actions { display:flex; gap:8px; align-items:center; margin-top:16px; }
+.input-error { border-color:#ef4444 !important; }
+.field-error { color:#ef4444; font-size:12px; margin-top:4px; }
 
 /* === 错误提示 === */
 .error-text { color:#ef4444; font-size:13px; margin-bottom:12px; }

@@ -1,11 +1,15 @@
 package com.zzmg.topicchannelplatform.controller;
 
+import com.zzmg.topicchannelplatform.dto.UserInfoForm;
 import com.zzmg.topicchannelplatform.entity.OrdinaryUser;
 import com.zzmg.topicchannelplatform.service.UserService;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -51,7 +55,17 @@ public class UserController {
         if (userId == null) {
             return "redirect:/user/login";
         }
-        userService.findById(userId).ifPresent(u -> model.addAttribute("user", u));
+        userService.findById(userId).ifPresent(u -> {
+            if (!model.containsAttribute("userInfoForm")) {
+                UserInfoForm form = new UserInfoForm();
+                form.setUserName(u.getUserName());
+                form.setRealName(u.getRealName());
+                form.setGender(u.getGender());
+                form.setBirthday(u.getBirthday() != null ? u.getBirthday().toString() : "");
+                form.setIdNumber(u.getIdNumber());
+                model.addAttribute("userInfoForm", form);
+            }
+        });
         return "user/userinfo-edit";
     }
 
@@ -104,32 +118,33 @@ public class UserController {
     }
 
     @PostMapping("/info/update")
-    public String updateInfo(@RequestParam String userName,
-                             @RequestParam String realName,
-                             @RequestParam String gender,
-                             @RequestParam String birthday,
-                             @RequestParam String idNumber,
-                             HttpSession session,
-                             Model model) {
+    public String updateInfo(@Valid @ModelAttribute("userInfoForm") UserInfoForm form,
+                             BindingResult bindingResult,
+                             HttpSession session) {
         String userId = (String) session.getAttribute("userId");
         if (userId == null) {
             return "redirect:/user/login";
         }
+        if (bindingResult.hasErrors()) {
+            return "user/userinfo-edit";
+        }
         OrdinaryUser user = new OrdinaryUser();
         user.setUserId(userId);
-        user.setUserName(userName);
-        user.setRealName(realName);
-        user.setGender(gender);
-        user.setIdNumber(idNumber);
-        try {
-            user.setBirthday(LocalDateTime.parse(birthday, DateTimeFormatter.ISO_LOCAL_DATE_TIME));
-        } catch (DateTimeParseException ex) {
+        user.setUserName(form.getUserName());
+        user.setRealName(form.getRealName());
+        user.setGender(form.getGender());
+        user.setIdNumber(form.getIdNumber());
+        String birthday = form.getBirthday();
+        if (birthday != null && !birthday.isBlank()) {
             try {
-                user.setBirthday(LocalDateTime.parse(birthday, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-            } catch (DateTimeParseException ex2) {
-                model.addAttribute("error", "日期格式不正确");
-                userService.findById(userId).ifPresent(u -> model.addAttribute("user", u));
-                return "user/userinfo-edit";
+                user.setBirthday(LocalDateTime.parse(birthday, DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+            } catch (DateTimeParseException ex) {
+                try {
+                    user.setBirthday(LocalDateTime.parse(birthday, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+                } catch (DateTimeParseException ex2) {
+                    bindingResult.rejectValue("birthday", "birthday.format", "日期格式不正确");
+                    return "user/userinfo-edit";
+                }
             }
         }
         userService.updateInfo(user);
@@ -161,6 +176,7 @@ public class UserController {
     public String sendResetCode(@RequestParam String phoneNumber,
                                 HttpSession session,
                                 Model model) {
+        model.addAttribute("phoneNumber", phoneNumber);
         if (userService.findByPhone(phoneNumber).isEmpty()) {
             model.addAttribute("error", "该手机号未注册");
             return "user/userpsd-forget";
@@ -179,15 +195,18 @@ public class UserController {
                                 @RequestParam String verificationCode,
                                 HttpSession session,
                                 Model model) {
+        String storedPhone = (String) session.getAttribute("resetPhone");
+        model.addAttribute("phoneNumber", phoneNumber);
+        model.addAttribute("resetPhone", storedPhone);
+        model.addAttribute("codeSent", true);
+        model.addAttribute("verificationCode", verificationCode);
         if (!newPassword.equals(confirmPassword)) {
             model.addAttribute("error", "两次输入的密码不一致");
             return "user/userpsd-forget";
         }
         String storedCode = (String) session.getAttribute("resetCode");
-        String storedPhone = (String) session.getAttribute("resetPhone");
         if (storedCode == null || !storedCode.equals(verificationCode)) {
             model.addAttribute("error", "验证码错误");
-            model.addAttribute("resetPhone", storedPhone);
             return "user/userpsd-forget";
         }
         if (!phoneNumber.equals(storedPhone)) {

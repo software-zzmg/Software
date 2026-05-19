@@ -14,7 +14,7 @@
         <form method="post" th:action="@{/user/password/forgot/send-code}" class="form">
             <div class="form-group">
                 <label>手机号：</label>
-                <input type="text" name="phoneNumber" class="form-input" required>
+                <input type="text" name="phoneNumber" class="form-input" th:classappend="${error != null} ? 'input-error'" th:value="${phoneNumber}" required>
             </div>
             <div class="form-actions">
                 <button type="submit" class="btn btn-primary">发送验证码</button>
@@ -28,7 +28,7 @@
             <input type="hidden" name="phoneNumber" th:value="${resetPhone}">
             <div class="form-group">
                 <label>验证码：</label>
-                <input type="text" name="verificationCode" class="form-input" required>
+                <input type="text" name="verificationCode" class="form-input" th:classappend="${error != null && verificationCode != null} ? 'input-error'" th:value="${verificationCode}" required>
             </div>
             <div class="form-group">
                 <label>新密码：</label>
