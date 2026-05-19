@@ -28,8 +28,6 @@ public class UserController {
     public UserController(UserService userService) {
         this.userService = userService;
     }
-    // TODO: 登录、注册、修改密码的表单回填
-    // TODO: 用户登录时需要验证码验证
     @GetMapping("/login")
     public String loginPage() {
         return "user/login";
@@ -98,16 +96,42 @@ public class UserController {
         return "user/login";
     }
 
+    @PostMapping("/register/send-code")
+    public String sendRegisterCode(@RequestParam String phoneNumber,
+                                   HttpSession session,
+                                   Model model) {
+        model.addAttribute("phoneNumber", phoneNumber);
+        if (userService.findByPhone(phoneNumber).isPresent()) {
+            model.addAttribute("error", "该手机号已被注册");
+            return "user/register";
+        }
+        session.setAttribute("registerCode", "123456");
+        session.setAttribute("registerPhone", phoneNumber);
+        model.addAttribute("codeSent", true);
+        return "user/register";
+    }
+
     @PostMapping("/register")
     public String register(@RequestParam String phoneNumber,
                            @RequestParam String userName,
                            @RequestParam String userPassword,
                            @RequestParam String confirmPassword,
+                           @RequestParam String verificationCode,
+                           HttpSession session,
                            Model model) {
         model.addAttribute("phoneNumber", phoneNumber);
         model.addAttribute("userName", userName);
         if (!userPassword.equals(confirmPassword)) {
             model.addAttribute("error", "两次输入的密码不一致");
+            model.addAttribute("codeSent", true);
+            return "user/register";
+        }
+        String storedCode = (String) session.getAttribute("registerCode");
+        String storedPhone = (String) session.getAttribute("registerPhone");
+        if (storedCode == null || !storedCode.equals(verificationCode)
+                || !phoneNumber.equals(storedPhone)) {
+            model.addAttribute("error", "验证码错误");
+            model.addAttribute("codeSent", true);
             return "user/register";
         }
         OrdinaryUser user = new OrdinaryUser();
@@ -116,8 +140,11 @@ public class UserController {
         user.setUserPassword(userPassword);
         if (!userService.register(user)) {
             model.addAttribute("error", "该手机号已被注册");
+            model.addAttribute("codeSent", true);
             return "user/register";
         }
+        session.removeAttribute("registerCode");
+        session.removeAttribute("registerPhone");
         return "redirect:/user/login";
     }
 
