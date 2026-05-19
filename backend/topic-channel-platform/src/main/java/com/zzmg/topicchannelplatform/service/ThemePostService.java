@@ -73,6 +73,10 @@ public class ThemePostService {
                 .toList();
     }
 
+    public List<ThemePost> findApprovedPosts() {
+        return postRepository.findByAuditStateOrderByPublishTimeDesc("审核通过");
+    }
+
     public void updateAuditState(Long postId, String auditState) {
         postRepository.findById(postId).ifPresent(p -> {
             p.setAuditState(auditState);

@@ -9,6 +9,8 @@ import java.util.List;
 
 public interface ThemePostRepository extends JpaRepository<ThemePost, Long> {
 
+    List<ThemePost> findByAuditStateOrderByPublishTimeDesc(String auditState);
+
     @Query("""
             select p from ThemePost p
             where p.auditState = '审核通过'
