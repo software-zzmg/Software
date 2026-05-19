@@ -27,12 +27,22 @@ public class UserService {
         this.forumMemberRepository = forumMemberRepository;
     }
 
-    // TODO: 注册手机号检测允许与已注销用户重复
     public boolean register(OrdinaryUser user) {
         if (!user.getPhoneNumber().matches("1\\d{10}")) {
             return false;
         }
-        if (userRepository.existsByPhoneNumber(user.getPhoneNumber())) {
+        Optional<OrdinaryUser> existing = userRepository.findByPhoneNumber(user.getPhoneNumber());
+        if (existing.isPresent()) {
+            if ("deleted".equals(existing.get().getStatus())) {
+                OrdinaryUser u = existing.get();
+                u.setStatus("normal");
+                u.setUserPassword(passwordEncoder.encode(user.getUserPassword()));
+                u.setUserName(user.getUserName());
+                u.setRegisterTime(java.time.LocalDateTime.now());
+                userRepository.save(u);
+                user.setUserId(u.getUserId());
+                return true;
+            }
             return false;
         }
         String userId = String.format("%09d", new java.util.Random().nextInt(1_000_000_000));

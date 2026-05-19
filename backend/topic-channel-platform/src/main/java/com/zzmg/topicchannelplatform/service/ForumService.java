@@ -53,7 +53,6 @@ public class ForumService {
         forumRepository.findById(forum.getForumId()).ifPresent(existing -> {
             existing.setForumName(forum.getForumName());
             existing.setContent(forum.getContent());
-            existing.setAuditState("待审核");
             forumRepository.save(existing);
         });
     }
