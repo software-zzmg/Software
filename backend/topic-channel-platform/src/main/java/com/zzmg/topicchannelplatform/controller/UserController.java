@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -60,7 +61,7 @@ public class UserController {
                 form.setUserName(u.getUserName());
                 form.setRealName(u.getRealName());
                 form.setGender(u.getGender());
-                form.setBirthday(u.getBirthday() != null ? u.getBirthday().toString() : "");
+                form.setBirthday(u.getBirthday() != null ? u.getBirthday().toLocalDate().toString() : "");
                 form.setIdNumber(u.getIdNumber());
                 model.addAttribute("userInfoForm", form);
             }
@@ -168,14 +169,10 @@ public class UserController {
         String birthday = form.getBirthday();
         if (birthday != null && !birthday.isBlank()) {
             try {
-                user.setBirthday(LocalDateTime.parse(birthday, DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+                user.setBirthday(LocalDate.parse(birthday).atStartOfDay());
             } catch (DateTimeParseException ex) {
-                try { // TODO: 使用可视化日历输入代替键盘，自动补齐时分秒
-                    user.setBirthday(LocalDateTime.parse(birthday, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
-                } catch (DateTimeParseException ex2) {
-                    bindingResult.rejectValue("birthday", "birthday.format", "日期格式不正确");
-                    return "user/userinfo-edit";
-                }
+                bindingResult.rejectValue("birthday", "birthday.format", "日期格式不正确");
+                return "user/userinfo-edit";
             }
         }
         userService.updateInfo(user);

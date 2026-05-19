@@ -27,7 +27,7 @@
         </div>
         <div class="form-group">
             <label>生日：</label>
-            <input type="text" th:field="*{birthday}" class="form-input" th:classappend="${#fields.hasErrors('birthday')} ? 'input-error'">
+            <input type="date" th:field="*{birthday}" class="form-input" th:classappend="${#fields.hasErrors('birthday')} ? 'input-error'">
             <p th:if="${#fields.hasErrors('birthday')}" th:errors="*{birthday}" class="field-error"></p>
         </div>
         <div class="form-group">
