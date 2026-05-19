@@ -4,22 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>我的收藏</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
 </head>
 <body>
     <div th:replace="~{fragments/nav :: nav}"></div>
-    <hr>
 
-    <div style="display:flex;">
+    <div class="page-wrapper">
         <div th:replace="~{fragments/sidebar :: sidebar}"></div>
-        <div style="flex:1;padding:15px;">
+        <div class="main-content">
 
-    <h1>我的收藏</h1>
+    <h1 class="page-title">我的收藏</h1>
 
-    <div th:if="${#lists.isEmpty(collects)}">
-        <p>暂无收藏</p>
-    </div>
+    <p class="empty-state" th:if="${#lists.isEmpty(collects)}">暂无收藏</p>
 
-    <table th:if="${!#lists.isEmpty(collects)}">
+    <table th:if="${!#lists.isEmpty(collects)}" class="table">
         <thead>
             <tr>
                 <th>帖子标题</th>
@@ -42,7 +40,7 @@
                 <td>
                     <form method="post" th:action="@{/collect/cancel}" style="display:inline">
                         <input type="hidden" name="postId" th:value="${c.themePost.themePostId}">
-                        <button type="submit" onclick="return confirm('确定要取消收藏吗？')">取消收藏</button>
+                        <button type="submit" class="btn btn-outline btn-sm" onclick="return confirm('确定要取消收藏吗？')">取消收藏</button>
                     </form>
                 </td>
             </tr>

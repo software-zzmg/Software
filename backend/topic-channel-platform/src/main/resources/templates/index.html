@@ -4,23 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>主题频道交流平台</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
 </head>
 <body>
     <div th:replace="~{fragments/nav :: nav}"></div>
-    <hr>
 
-    <div style="display:flex;">
+    <div class="page-wrapper">
         <div th:replace="~{fragments/sidebar :: sidebar}"></div>
-        <div style="flex:1;padding:15px;">
-    <hr>
+        <div class="main-content">
 
-    <!-- Posts list -->
-    <h2>最新帖子</h2>
-    <div th:if="${#lists.isEmpty(posts)}">
-        <p>暂无帖子</p>
-    </div>
+    <h1 class="page-title">最新帖子</h1>
+    <p class="empty-state" th:if="${#lists.isEmpty(posts)}">暂无帖子</p>
 
-    <table th:if="${!#lists.isEmpty(posts)}">
+    <table th:if="${!#lists.isEmpty(posts)}" class="table">
         <thead>
             <tr>
                 <th>标题</th>

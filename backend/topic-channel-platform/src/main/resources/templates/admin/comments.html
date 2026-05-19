@@ -4,15 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>审核评论</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
 </head>
 <body>
-    <h1>待审核评论</h1>
+    <div style="max-width:960px;margin:0 auto;padding:24px;">
+    <h1 class="page-title">待审核评论</h1>
 
-    <div th:if="${#lists.isEmpty(comments)}">
-        <p>暂无待审核的评论</p>
-    </div>
+    <p class="empty-state" th:if="${#lists.isEmpty(comments)}">暂无待审核的评论</p>
 
-    <table th:if="${!#lists.isEmpty(comments)}">
+    <table th:if="${!#lists.isEmpty(comments)}" class="table">
         <thead>
             <tr>
                 <th>评论者</th>
@@ -32,16 +32,17 @@
                 <td th:text="${c.publishTime}"></td>
                 <td>
                     <form method="post" th:action="@{/admin/comments/{id}/approve(id=${c.commentId})}" style="display:inline">
-                        <button type="submit">通过</button>
+                        <button type="submit" class="btn btn-primary btn-sm">通过</button>
                     </form>
                     <form method="post" th:action="@{/admin/comments/{id}/reject(id=${c.commentId})}" style="display:inline">
-                        <button type="submit">驳回</button>
+                        <button type="submit" class="btn btn-danger btn-sm">驳回</button>
                     </form>
                 </td>
             </tr>
         </tbody>
     </table>
 
-    <a th:href="@{/admin}">返回后台</a>
+    <a th:href="@{/admin}" class="btn btn-outline">返回后台</a>
+    </div>
 </body>
 </html>

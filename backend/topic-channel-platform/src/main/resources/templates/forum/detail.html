@@ -4,59 +4,59 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${forum.forumName} + ' - 频道详情'">频道详情</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
 </head>
 <body>
     <div th:replace="~{fragments/nav :: nav}"></div>
-    <hr>
 
-    <div style="display:flex;">
+    <div class="page-wrapper">
         <div th:replace="~{fragments/sidebar :: sidebar}"></div>
-        <div style="flex:1;padding:15px;">
+        <div class="main-content">
 
-    <h1 th:text="${forum.forumName}">频道名称</h1>
+    <h1 class="page-title" th:text="${forum.forumName}">频道名称</h1>
 
-    <p><strong>简介：</strong><span th:text="${forum.content}"></span></p>
-    <p><strong>创建者：</strong><span th:text="${forum.creator.status == 'deleted'} ? '已注销用户' : ${forum.creator.userName}"></span></p>
-    <p th:if="${forum.auditState == '审核未通过'}"><strong>审核状态：</strong><span th:text="${forum.auditState}"></span></p>
-    <p><strong>创建时间：</strong><span th:text="${forum.createTime}"></span></p>
+    <div class="card">
+        <p class="info-row"><strong>简介：</strong><span th:text="${forum.content}"></span></p>
+        <p class="info-row"><strong>创建者：</strong><span th:text="${forum.creator.status == 'deleted'} ? '已注销用户' : ${forum.creator.userName}"></span></p>
+        <p class="info-row" th:if="${forum.auditState == '审核未通过'}"><strong>审核状态：</strong><span th:text="${forum.auditState}"></span></p>
+        <p class="info-row"><strong>创建时间：</strong><span th:text="${forum.createTime}"></span></p>
 
-    <div th:if="${isCreator}">
-        <a th:href="@{/forum/edit/{id}(id=${forum.forumId})}">编辑频道</a>
-        <form method="post" th:action="@{/forum/dismiss}" style="display:inline">
-            <input type="hidden" name="forumId" th:value="${forum.forumId}">
-            <button type="submit" onclick="return confirm('确定要解散该频道吗？')">解散频道</button>
-        </form>
+        <div th:if="${isCreator}" class="form-actions">
+            <a th:href="@{/forum/edit/{id}(id=${forum.forumId})}" class="btn btn-outline">编辑频道</a>
+            <form method="post" th:action="@{/forum/dismiss}" style="display:inline">
+                <input type="hidden" name="forumId" th:value="${forum.forumId}">
+                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('确定要解散该频道吗？')">解散频道</button>
+            </form>
+        </div>
+
+        <div th:if="${session.userId != null && !isCreator}">
+            <form th:if="${!isMember && forum.auditState == '审核通过'}" method="post" th:action="@{/forum-member/join}" style="display:inline">
+                <input type="hidden" name="forumId" th:value="${forum.forumId}">
+                <button type="submit" class="btn btn-primary">加入频道</button>
+            </form>
+            <p th:if="${!isMember && forum.auditState != '审核通过'}" class="empty-state">该频道尚未审核通过，暂不能加入</p>
+            <form th:if="${isMember}" method="post" th:action="@{/forum-member/leave}" style="display:inline">
+                <input type="hidden" name="forumId" th:value="${forum.forumId}">
+                <button type="submit" class="btn btn-outline" onclick="return confirm('确定要退出该频道吗？')">退出频道</button>
+            </form>
+        </div>
+
+        <p th:if="${session.userId == null}" class="empty-state">
+            <a th:href="@{/user/login}">登录后即可加入频道</a>
+        </p>
+
+        <div class="form-actions">
+            <a th:if="${session.userId != null && forum.auditState == '审核通过'}" th:href="@{/post/create/{id}(id=${forum.forumId})}" class="btn btn-primary">发布新帖</a>
+            <a th:if="${session.userId != null && forum.auditState != '审核通过'}" href="#" class="btn btn-outline" onclick="alert('频道审核中，暂无法发帖');return false;">发布新帖</a>
+        </div>
     </div>
 
-    <div th:if="${session.userId != null && !isCreator}">
-        <form th:if="${!isMember && forum.auditState == '审核通过'}" method="post" th:action="@{/forum-member/join}" style="display:inline">
-            <input type="hidden" name="forumId" th:value="${forum.forumId}">
-            <button type="submit">加入频道</button>
-        </form>
-        <p th:if="${!isMember && forum.auditState != '审核通过'}">该频道尚未审核通过，暂不能加入</p>
-        <form th:if="${isMember}" method="post" th:action="@{/forum-member/leave}" style="display:inline">
-            <input type="hidden" name="forumId" th:value="${forum.forumId}">
-            <button type="submit" onclick="return confirm('确定要退出该频道吗？')">退出频道</button>
-        </form>
-    </div>
+    <hr class="divider">
+    <h2 class="section-title">频道帖子</h2>
 
-    <p th:if="${session.userId == null}">
-        <a th:href="@{/user/login}">登录后即可加入频道</a>
-    </p>
+    <p class="empty-state" th:if="${#lists.isEmpty(posts)}">暂无帖子</p>
 
-    <div>
-        <a th:if="${session.userId != null && forum.auditState == '审核通过'}" th:href="@{/post/create/{id}(id=${forum.forumId})}">发布新帖</a>
-        <a th:if="${session.userId != null && forum.auditState != '审核通过'}" href="#" onclick="alert('频道审核中，暂无法发帖');return false;">发布新帖</a>
-    </div>
-
-    <hr>
-    <h2>频道帖子</h2>
-
-    <div th:if="${#lists.isEmpty(posts)}">
-        <p>暂无帖子</p>
-    </div>
-
-    <table th:if="${!#lists.isEmpty(posts)}">
+    <table th:if="${!#lists.isEmpty(posts)}" class="table">
         <thead>
             <tr>
                 <th>标题</th>
@@ -75,9 +75,7 @@
         </tbody>
     </table>
 
-    <div>
-        <a th:href="@{/}">返回首页</a>
-    </div>
+    <a th:href="@{/}" class="btn btn-outline">返回首页</a>
         </div>
     </div>
 </body>

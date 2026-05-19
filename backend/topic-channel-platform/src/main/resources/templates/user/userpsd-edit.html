@@ -4,31 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>修改密码</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
 </head>
 <body>
     <div th:replace="~{fragments/nav :: nav}"></div>
-    <hr>
 
-
-    <h1>修改密码</h1>
-    <p th:if="${error}" style="color:red" th:text="${error}"></p>
-    <form method="post" th:action="@{/user/password/change}">
-        <div>
+    <div style="max-width:560px;margin:0 auto;padding:24px;">
+    <h1 class="page-title">修改密码</h1>
+    <p th:if="${error}" class="error-text" th:text="${error}"></p>
+    <form method="post" th:action="@{/user/password/change}" class="form">
+        <div class="form-group">
             <label>原密码：</label>
-            <input type="password" name="oldPassword" required>
+            <input type="password" name="oldPassword" class="form-input" required>
         </div>
-        <div>
+        <div class="form-group">
             <label>新密码：</label>
-            <input type="password" name="newPassword" required>
+            <input type="password" name="newPassword" class="form-input" required>
         </div>
-        <div>
+        <div class="form-group">
             <label>确认新密码：</label>
-            <input type="password" name="confirmPassword" required>
+            <input type="password" name="confirmPassword" class="form-input" required>
         </div>
-        <div>
-            <button type="submit">确认修改</button>
-            <a th:href="@{/user/info}">取消</a>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">确认修改</button>
+            <a th:href="@{/user/info}" class="btn btn-outline">取消</a>
         </div>
     </form>
+    </div>
 </body>
 </html>

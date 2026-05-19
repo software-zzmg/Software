@@ -4,38 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>编辑个人信息</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
 </head>
 <body>
     <div th:replace="~{fragments/nav :: nav}"></div>
-    <hr>
 
-    <h1>编辑个人信息</h1>
-    <p th:if="${error}" style="color:red" th:text="${error}"></p>
-    <form method="post" th:action="@{/user/info/update}" th:if="${user}">
-        <div>
+    <div style="max-width:560px;margin:0 auto;padding:24px;">
+    <h1 class="page-title">编辑个人信息</h1>
+    <p th:if="${error}" class="error-text" th:text="${error}"></p>
+    <form method="post" th:action="@{/user/info/update}" th:if="${user}" class="form">
+        <div class="form-group">
             <label>用户名：</label>
-            <input type="text" name="userName" th:value="${user.userName}" required>
+            <input type="text" name="userName" class="form-input" th:value="${user.userName}" required>
         </div>
-        <div>
+        <div class="form-group">
             <label>真实姓名：</label>
-            <input type="text" name="realName" th:value="${user.realName}">
+            <input type="text" name="realName" class="form-input" th:value="${user.realName}">
         </div>
-        <div>
+        <div class="form-group">
             <label>性别：</label>
-            <input type="text" name="gender" th:value="${user.gender}">
+            <input type="text" name="gender" class="form-input" th:value="${user.gender}">
         </div>
-        <div>
+        <div class="form-group">
             <label>生日：</label>
-            <input type="text" name="birthday" th:value="${user.birthday}">
+            <input type="text" name="birthday" class="form-input" th:value="${user.birthday}">
         </div>
-        <div>
+        <div class="form-group">
             <label>身份证号：</label>
-            <input type="text" name="idNumber" th:value="${user.idNumber}">
+            <input type="text" name="idNumber" class="form-input" th:value="${user.idNumber}">
         </div>
-        <div>
-            <button type="submit">保存</button>
-            <a th:href="@{/user/info}">取消</a>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">保存</button>
+            <a th:href="@{/user/info}" class="btn btn-outline">取消</a>
         </div>
     </form>
+    </div>
 </body>
 </html>
