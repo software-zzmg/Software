@@ -38,7 +38,9 @@ public class AdminController {
             return "admin/login";
         });
     }
-
+    // TODO: 管理员主界面可显示所有待审核（并计数），保留对帖子、频道、评论的单独筛选
+    // TODO: 添加自动审核功能
+    // TODO: 优化管理员界面
     @GetMapping("")
     public String dashboard(HttpSession session) {
         if (session.getAttribute("adminId") == null) {

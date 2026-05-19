@@ -28,7 +28,8 @@ public class UserController {
     public UserController(UserService userService) {
         this.userService = userService;
     }
-
+    // TODO: 登录、注册、修改密码的表单回填
+    // TODO: 用户登录时需要验证码验证
     @GetMapping("/login")
     public String loginPage() {
         return "user/login";
@@ -93,6 +94,7 @@ public class UserController {
             return "redirect:/";
         }
         model.addAttribute("error", "手机号或密码错误");
+        model.addAttribute("phoneNumber", phoneNumber);
         return "user/login";
     }
 
@@ -102,6 +104,8 @@ public class UserController {
                            @RequestParam String userPassword,
                            @RequestParam String confirmPassword,
                            Model model) {
+        model.addAttribute("phoneNumber", phoneNumber);
+        model.addAttribute("userName", userName);
         if (!userPassword.equals(confirmPassword)) {
             model.addAttribute("error", "两次输入的密码不一致");
             return "user/register";
@@ -139,7 +143,7 @@ public class UserController {
             try {
                 user.setBirthday(LocalDateTime.parse(birthday, DateTimeFormatter.ISO_LOCAL_DATE_TIME));
             } catch (DateTimeParseException ex) {
-                try {
+                try { // TODO: 使用可视化日历输入代替键盘，自动补齐时分秒
                     user.setBirthday(LocalDateTime.parse(birthday, DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
                 } catch (DateTimeParseException ex2) {
                     bindingResult.rejectValue("birthday", "birthday.format", "日期格式不正确");
@@ -163,10 +167,12 @@ public class UserController {
         }
         if (!newPassword.equals(confirmPassword)) {
             model.addAttribute("error", "两次输入的新密码不一致");
+            model.addAttribute("errorField", "newPassword");
             return "user/userpsd-edit";
         }
         if (!userService.changePassword(userId, oldPassword, newPassword)) {
             model.addAttribute("error", "原密码错误");
+            model.addAttribute("errorField", "oldPassword");
             return "user/userpsd-edit";
         }
         return "redirect:/user/info";

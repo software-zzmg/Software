@@ -15,15 +15,15 @@
     <form method="post" th:action="@{/user/password/change}" class="form">
         <div class="form-group">
             <label>原密码：</label>
-            <input type="password" name="oldPassword" class="form-input" required>
+            <input type="password" name="oldPassword" class="form-input" th:classappend="${errorField == 'oldPassword'} ? 'input-error'" required>
         </div>
         <div class="form-group">
             <label>新密码：</label>
-            <input type="password" name="newPassword" class="form-input" required>
+            <input type="password" name="newPassword" class="form-input" th:classappend="${errorField == 'newPassword'} ? 'input-error'" required>
         </div>
         <div class="form-group">
             <label>确认新密码：</label>
-            <input type="password" name="confirmPassword" class="form-input" required>
+            <input type="password" name="confirmPassword" class="form-input" th:classappend="${errorField == 'newPassword'} ? 'input-error'" required>
         </div>
         <div class="form-actions">
             <button type="submit" class="btn btn-primary">确认修改</button>
