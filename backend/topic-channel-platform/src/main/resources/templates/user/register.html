@@ -12,7 +12,7 @@
         <p th:if="${error}" class="error-text" th:text="${error}"></p>
 
         <!-- 第一步：发送验证码 -->
-        <form th:if="${!codeSent}" method="post" th:action="@{/user/register/send-code}" class="form">
+        <form th:unless="${codeSent}" method="post" th:action="@{/user/register/send-code}" class="form">
             <div class="form-group">
                 <label>手机号：</label>
                 <input type="text" name="phoneNumber" class="form-input" th:classappend="${error != null && error.contains('手机号')} ? 'input-error'" th:value="${phoneNumber}" required>
