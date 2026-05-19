@@ -28,6 +28,7 @@ public class UserService {
     }
 
     // TODO: 注册手机号检测允许与已注销用户重复
+    // TODO: 手机号格式验证
     public boolean register(OrdinaryUser user) {
         if (userRepository.existsByPhoneNumber(user.getPhoneNumber())) {
             return false;
