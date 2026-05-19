@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Controller
 @RequestMapping("/forum")
@@ -65,7 +66,8 @@ public class ForumController {
     @PostMapping("/create")
     public String create(@RequestParam String forumName,
                          @RequestParam String content,
-                         HttpSession session) {
+                         HttpSession session,
+                         RedirectAttributes redirectAttributes) {
         String userId = (String) session.getAttribute("userId");
         if (userId == null) {
             return "redirect:/user/login";
@@ -78,7 +80,8 @@ public class ForumController {
         forum.setCreator(creator);
         forumService.create(forum);
         forumMemberService.join(userId, forum.getForumId());
-        return "redirect:/forum/detail/" + forum.getForumId();
+        redirectAttributes.addFlashAttribute("toast", "已提交创建频道申请，等待审核成功后可见");
+        return "redirect:/";
     }
 
     @GetMapping("/edit/{forumId}")
@@ -116,7 +119,8 @@ public class ForumController {
     }
 
     @PostMapping("/dismiss")
-    public String dismiss(@RequestParam Long forumId, HttpSession session) {
+    public String dismiss(@RequestParam Long forumId, HttpSession session,
+                          RedirectAttributes redirectAttributes) {
         String userId = (String) session.getAttribute("userId");
         if (userId == null) {
             return "redirect:/user/login";
@@ -126,6 +130,7 @@ public class ForumController {
                 forumService.deleteById(forumId);
             }
         });
-        return "redirect:/forum/list";
+        redirectAttributes.addFlashAttribute("toast", "频道已解散");
+        return "redirect:/";
     }
 }

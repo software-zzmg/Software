@@ -36,6 +36,11 @@ spring:
     suffix: .html
     # 开发期关闭缓存，方便修改模板后即时刷新
     cache: false
+  
+server:
+  servlet:
+    session:
+      tracking-modes: cookie
 
 # =============================================
 # 默认管理员账号（首次启动自动创建）
