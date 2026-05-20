@@ -42,6 +42,8 @@ public class MyCollectsActivity extends AppCompatActivity {
         adapter = new PostAdapter();
         rvPosts.setAdapter(adapter);
 
+        com.zzmg.topic_channel_platform.helper.BottomNavHelper.setup(this, "collects");
+
         loadMyCollects();
     }
 

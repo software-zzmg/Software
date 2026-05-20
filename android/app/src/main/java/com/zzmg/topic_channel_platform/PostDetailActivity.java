@@ -77,6 +77,8 @@ public class PostDetailActivity extends AppCompatActivity {
         btnCollect.setOnClickListener(v -> toggleCollect());
         findViewById(R.id.btn_submit).setOnClickListener(v -> submitComment());
 
+        com.zzmg.topic_channel_platform.helper.BottomNavHelper.setup(this, "detail");
+
         loadPostDetail(postId);
         loadComments(postId);
         loadCollectStatus(postId);
