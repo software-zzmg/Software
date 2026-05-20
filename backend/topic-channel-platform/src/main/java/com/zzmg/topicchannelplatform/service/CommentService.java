@@ -40,6 +40,11 @@ public class CommentService {
                 .toList();
     }
 
+    public List<Comment> findApprovedCommentsByPostId(Long postId) {
+        return commentRepository.findByThemePost_ThemePostIdAndAuditStateOrderByPublishTimeAsc(
+                postId, "审核通过");
+    }
+
     public boolean canDelete(String userId, Long commentId) {
         return commentRepository.findById(commentId).map(comment -> {
             if (comment.getAuthor().getUserId().equals(userId)) {

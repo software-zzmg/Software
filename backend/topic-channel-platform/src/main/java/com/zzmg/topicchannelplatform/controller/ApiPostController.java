@@ -1,6 +1,8 @@
 package com.zzmg.topicchannelplatform.controller;
 
+import com.zzmg.topicchannelplatform.dto.CommentItemDTO;
 import com.zzmg.topicchannelplatform.dto.PostListItemDTO;
+import com.zzmg.topicchannelplatform.service.CommentService;
 import com.zzmg.topicchannelplatform.service.ThemePostService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,9 +17,11 @@ import java.util.List;
 public class ApiPostController {
 
     private final ThemePostService postService;
+    private final CommentService commentService;
 
-    public ApiPostController(ThemePostService postService) {
+    public ApiPostController(ThemePostService postService, CommentService commentService) {
         this.postService = postService;
+        this.commentService = commentService;
     }
 
     @GetMapping("/posts")
@@ -46,5 +50,22 @@ public class ApiPostController {
                         p.getPublishTime()
                 )))
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/posts/{postId}/comments")
+    public ResponseEntity<List<CommentItemDTO>> getComments(@PathVariable Long postId) {
+        if (postService.findApprovedPostById(postId).isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(
+                commentService.findApprovedCommentsByPostId(postId).stream()
+                        .map(c -> new CommentItemDTO(
+                                c.getCommentId(),
+                                c.getContent(),
+                                c.getAuthor().getUserName(),
+                                c.getPublishTime()
+                        ))
+                        .toList()
+        );
     }
 }

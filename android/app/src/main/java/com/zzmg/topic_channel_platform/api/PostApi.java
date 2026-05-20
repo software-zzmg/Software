@@ -1,5 +1,6 @@
 package com.zzmg.topic_channel_platform.api;
 
+import com.zzmg.topic_channel_platform.model.CommentItem;
 import com.zzmg.topic_channel_platform.model.PostDetail;
 import com.zzmg.topic_channel_platform.model.PostListItem;
 
@@ -15,4 +16,7 @@ public interface PostApi {
 
     @GET("/api/posts/{id}")
     Call<PostDetail> getPostDetail(@Path("id") Long id);
+
+    @GET("/api/posts/{postId}/comments")
+    Call<List<CommentItem>> getComments(@Path("postId") Long postId);
 }
