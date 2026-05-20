@@ -3,6 +3,7 @@ package com.zzmg.topicchannelplatform.controller;
 import com.zzmg.topicchannelplatform.dto.CommentCreateRequest;
 import com.zzmg.topicchannelplatform.dto.CommentItemDTO;
 import com.zzmg.topicchannelplatform.dto.PostListItemDTO;
+import com.zzmg.topicchannelplatform.service.CollectService;
 import com.zzmg.topicchannelplatform.service.CommentService;
 import com.zzmg.topicchannelplatform.service.ThemePostService;
 import jakarta.servlet.http.HttpSession;
@@ -23,10 +24,14 @@ public class ApiPostController {
 
     private final ThemePostService postService;
     private final CommentService commentService;
+    private final CollectService collectService;
 
-    public ApiPostController(ThemePostService postService, CommentService commentService) {
+    public ApiPostController(ThemePostService postService,
+                             CommentService commentService,
+                             CollectService collectService) {
         this.postService = postService;
         this.commentService = commentService;
+        this.collectService = collectService;
     }
 
     @GetMapping("/posts")
@@ -95,5 +100,59 @@ public class ApiPostController {
             return ResponseEntity.status(403)
                     .body(Map.of("success", false, "message", e.getMessage()));
         }
+    }
+
+    @GetMapping("/posts/{postId}/collect-status")
+    public ResponseEntity<?> getCollectStatus(@PathVariable Long postId, HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401)
+                    .body(Map.of("success", false, "message", "请先登录"));
+        }
+        if (postService.findApprovedPostById(postId).isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(
+                Map.of("collected", collectService.isCollected(userId, postId)));
+    }
+
+    @PostMapping("/posts/{postId}/collect")
+    public ResponseEntity<Map<String, Object>> collect(
+            @PathVariable Long postId, HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401)
+                    .body(Map.of("success", false, "message", "请先登录"));
+        }
+        if (postService.findApprovedPostById(postId).isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        if (collectService.isCollected(userId, postId)) {
+            return ResponseEntity.ok(
+                    Map.of("success", false, "message", "已经收藏过了"));
+        }
+        collectService.collect(userId, postId);
+        return ResponseEntity.ok(
+                Map.of("success", true, "message", "收藏成功"));
+    }
+
+    @PostMapping("/posts/{postId}/collect/cancel")
+    public ResponseEntity<Map<String, Object>> cancelCollect(
+            @PathVariable Long postId, HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401)
+                    .body(Map.of("success", false, "message", "请先登录"));
+        }
+        if (postService.findApprovedPostById(postId).isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        if (!collectService.isCollected(userId, postId)) {
+            return ResponseEntity.ok(
+                    Map.of("success", false, "message", "尚未收藏"));
+        }
+        collectService.cancelCollect(userId, postId);
+        return ResponseEntity.ok(
+                Map.of("success", true, "message", "已取消收藏"));
     }
 }

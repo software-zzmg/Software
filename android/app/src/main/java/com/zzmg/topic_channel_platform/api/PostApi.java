@@ -1,6 +1,7 @@
 package com.zzmg.topic_channel_platform.api;
 
 import com.zzmg.topic_channel_platform.model.ApiResponse;
+import com.zzmg.topic_channel_platform.model.CollectStatusResponse;
 import com.zzmg.topic_channel_platform.model.CommentCreateRequest;
 import com.zzmg.topic_channel_platform.model.CommentItem;
 import com.zzmg.topic_channel_platform.model.PostDetail;
@@ -26,4 +27,13 @@ public interface PostApi {
 
     @POST("/api/posts/{postId}/comments")
     Call<ApiResponse> createComment(@Path("postId") Long postId, @Body CommentCreateRequest request);
+
+    @GET("/api/posts/{postId}/collect-status")
+    Call<CollectStatusResponse> getCollectStatus(@Path("postId") Long postId);
+
+    @POST("/api/posts/{postId}/collect")
+    Call<ApiResponse> collect(@Path("postId") Long postId);
+
+    @POST("/api/posts/{postId}/collect/cancel")
+    Call<ApiResponse> cancelCollect(@Path("postId") Long postId);
 }

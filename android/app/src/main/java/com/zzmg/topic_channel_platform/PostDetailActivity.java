@@ -2,6 +2,7 @@ package com.zzmg.topic_channel_platform;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -17,6 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.zzmg.topic_channel_platform.adapter.CommentAdapter;
 import com.zzmg.topic_channel_platform.api.PostApi;
 import com.zzmg.topic_channel_platform.model.ApiResponse;
+import com.zzmg.topic_channel_platform.model.CollectStatusResponse;
 import com.zzmg.topic_channel_platform.model.CommentCreateRequest;
 import com.zzmg.topic_channel_platform.model.CommentItem;
 import com.zzmg.topic_channel_platform.model.PostDetail;
@@ -35,8 +37,10 @@ public class PostDetailActivity extends AppCompatActivity {
     private RecyclerView rvComments;
     private CommentAdapter commentAdapter;
     private EditText etComment;
+    private Button btnCollect;
 
     private long postId;
+    private boolean isCollected;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +61,7 @@ public class PostDetailActivity extends AppCompatActivity {
         tvNoComments = findViewById(R.id.tv_no_comments);
         rvComments = findViewById(R.id.rv_comments);
         etComment = findViewById(R.id.et_comment);
+        btnCollect = findViewById(R.id.btn_collect);
 
         rvComments.setLayoutManager(new LinearLayoutManager(this));
         commentAdapter = new CommentAdapter();
@@ -69,10 +74,67 @@ public class PostDetailActivity extends AppCompatActivity {
             return;
         }
 
+        btnCollect.setOnClickListener(v -> toggleCollect());
         findViewById(R.id.btn_submit).setOnClickListener(v -> submitComment());
 
         loadPostDetail(postId);
         loadComments(postId);
+        loadCollectStatus(postId);
+    }
+
+    private void toggleCollect() {
+        PostApi postApi = RetrofitClient.getInstance().create(PostApi.class);
+        if (isCollected) {
+            postApi.cancelCollect(postId).enqueue(new CollectCallback());
+        } else {
+            postApi.collect(postId).enqueue(new CollectCallback());
+        }
+    }
+
+    private void loadCollectStatus(long postId) {
+        PostApi postApi = RetrofitClient.getInstance().create(PostApi.class);
+        postApi.getCollectStatus(postId).enqueue(new Callback<CollectStatusResponse>() {
+            @Override
+            public void onResponse(Call<CollectStatusResponse> call, Response<CollectStatusResponse> response) {
+                if (response.code() == 401) {
+                    return;
+                }
+                if (response.isSuccessful() && response.body() != null) {
+                    updateCollectUI(response.body().isCollected());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<CollectStatusResponse> call, Throwable t) {
+            }
+        });
+    }
+
+    private void updateCollectUI(boolean collected) {
+        isCollected = collected;
+        btnCollect.setText(collected ? "Collected" : "Collect");
+    }
+
+    private class CollectCallback implements Callback<ApiResponse> {
+        @Override
+        public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+            if (response.code() == 401) {
+                Toast.makeText(PostDetailActivity.this, "请先登录", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            if (response.isSuccessful() && response.body() != null) {
+                ApiResponse res = response.body();
+                Toast.makeText(PostDetailActivity.this, res.getMessage(), Toast.LENGTH_SHORT).show();
+                if (res.isSuccess()) {
+                    updateCollectUI(!isCollected);
+                }
+            }
+        }
+
+        @Override
+        public void onFailure(Call<ApiResponse> call, Throwable t) {
+            Toast.makeText(PostDetailActivity.this, "Failed: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void submitComment() {
