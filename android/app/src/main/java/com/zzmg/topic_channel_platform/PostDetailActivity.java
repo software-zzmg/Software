@@ -2,6 +2,7 @@ package com.zzmg.topic_channel_platform;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -15,6 +16,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.zzmg.topic_channel_platform.adapter.CommentAdapter;
 import com.zzmg.topic_channel_platform.api.PostApi;
+import com.zzmg.topic_channel_platform.model.ApiResponse;
+import com.zzmg.topic_channel_platform.model.CommentCreateRequest;
 import com.zzmg.topic_channel_platform.model.CommentItem;
 import com.zzmg.topic_channel_platform.model.PostDetail;
 import com.zzmg.topic_channel_platform.network.RetrofitClient;
@@ -31,6 +34,9 @@ public class PostDetailActivity extends AppCompatActivity {
     private TextView tvNoComments;
     private RecyclerView rvComments;
     private CommentAdapter commentAdapter;
+    private EditText etComment;
+
+    private long postId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,20 +56,58 @@ public class PostDetailActivity extends AppCompatActivity {
         tvContent = findViewById(R.id.tv_detail_content);
         tvNoComments = findViewById(R.id.tv_no_comments);
         rvComments = findViewById(R.id.rv_comments);
+        etComment = findViewById(R.id.et_comment);
 
         rvComments.setLayoutManager(new LinearLayoutManager(this));
         commentAdapter = new CommentAdapter();
         rvComments.setAdapter(commentAdapter);
 
-        long postId = getIntent().getLongExtra("postId", -1);
+        postId = getIntent().getLongExtra("postId", -1);
         if (postId == -1) {
             Toast.makeText(this, "Invalid post ID", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
 
+        findViewById(R.id.btn_submit).setOnClickListener(v -> submitComment());
+
         loadPostDetail(postId);
         loadComments(postId);
+    }
+
+    private void submitComment() {
+        String content = etComment.getText().toString().trim();
+        if (content.isEmpty()) {
+            return;
+        }
+
+        PostApi postApi = RetrofitClient.getInstance().create(PostApi.class);
+        postApi.createComment(postId, new CommentCreateRequest(content))
+                .enqueue(new Callback<ApiResponse>() {
+                    @Override
+                    public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+                        if (response.code() == 401) {
+                            Toast.makeText(PostDetailActivity.this, "请先登录", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                        if (response.isSuccessful() && response.body() != null) {
+                            ApiResponse res = response.body();
+                            if (res.isSuccess()) {
+                                Toast.makeText(PostDetailActivity.this, res.getMessage(), Toast.LENGTH_SHORT).show();
+                                etComment.setText("");
+                            } else {
+                                Toast.makeText(PostDetailActivity.this, res.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        } else {
+                            Toast.makeText(PostDetailActivity.this, "Error: " + response.code(), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<ApiResponse> call, Throwable t) {
+                        Toast.makeText(PostDetailActivity.this, "Failed: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     private void loadPostDetail(long postId) {

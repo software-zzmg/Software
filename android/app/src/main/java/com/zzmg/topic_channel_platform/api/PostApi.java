@@ -1,5 +1,7 @@
 package com.zzmg.topic_channel_platform.api;
 
+import com.zzmg.topic_channel_platform.model.ApiResponse;
+import com.zzmg.topic_channel_platform.model.CommentCreateRequest;
 import com.zzmg.topic_channel_platform.model.CommentItem;
 import com.zzmg.topic_channel_platform.model.PostDetail;
 import com.zzmg.topic_channel_platform.model.PostListItem;
@@ -7,7 +9,9 @@ import com.zzmg.topic_channel_platform.model.PostListItem;
 import java.util.List;
 
 import retrofit2.Call;
+import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.POST;
 import retrofit2.http.Path;
 
 public interface PostApi {
@@ -19,4 +23,7 @@ public interface PostApi {
 
     @GET("/api/posts/{postId}/comments")
     Call<List<CommentItem>> getComments(@Path("postId") Long postId);
+
+    @POST("/api/posts/{postId}/comments")
+    Call<ApiResponse> createComment(@Path("postId") Long postId, @Body CommentCreateRequest request);
 }
