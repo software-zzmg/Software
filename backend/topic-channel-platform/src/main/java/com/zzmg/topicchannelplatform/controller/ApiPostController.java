@@ -9,7 +9,9 @@ import com.zzmg.topicchannelplatform.service.CollectService;
 import com.zzmg.topicchannelplatform.service.CommentService;
 import com.zzmg.topicchannelplatform.service.ThemePostService;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -38,7 +40,13 @@ public class ApiPostController {
 
     @PostMapping("/posts")
     public ResponseEntity<Map<String, Object>> createPost(
-            @RequestBody PostCreateRequest request, HttpSession session) {
+            @Valid @RequestBody PostCreateRequest request, BindingResult bindingResult,
+            HttpSession session) {
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message",
+                            bindingResult.getFieldError().getDefaultMessage()));
+        }
         String userId = (String) session.getAttribute("userId");
         if (userId == null) {
             return ResponseEntity.status(401)
@@ -105,8 +113,13 @@ public class ApiPostController {
     @PostMapping("/posts/{postId}/comments")
     public ResponseEntity<Map<String, Object>> createComment(
             @PathVariable Long postId,
-            @RequestBody CommentCreateRequest request,
+            @Valid @RequestBody CommentCreateRequest request, BindingResult bindingResult,
             HttpSession session) {
+        if (bindingResult.hasErrors()) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message",
+                            bindingResult.getFieldError().getDefaultMessage()));
+        }
         String userId = (String) session.getAttribute("userId");
         if (userId == null) {
             return ResponseEntity.status(401)

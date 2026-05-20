@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 @Entity
@@ -27,7 +28,8 @@ public class Comment {
     @JoinColumn(name = "user_id", nullable = false)
     private OrdinaryUser author;
 
-    @Column(name = "content")
+    @Size(max = 500, message = "评论内容不能超过500字")
+    @Column(name = "content", length = 500, columnDefinition = "TEXT")
     private String content;
 
     @Column(name = "publish_time")
