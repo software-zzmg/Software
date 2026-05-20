@@ -2,7 +2,9 @@ package com.zzmg.topicchannelplatform.controller;
 
 import com.zzmg.topicchannelplatform.dto.CommentCreateRequest;
 import com.zzmg.topicchannelplatform.dto.CommentItemDTO;
+import com.zzmg.topicchannelplatform.dto.PostCreateRequest;
 import com.zzmg.topicchannelplatform.dto.PostListItemDTO;
+import com.zzmg.topicchannelplatform.entity.ThemePost;
 import com.zzmg.topicchannelplatform.service.CollectService;
 import com.zzmg.topicchannelplatform.service.CommentService;
 import com.zzmg.topicchannelplatform.service.ThemePostService;
@@ -32,6 +34,27 @@ public class ApiPostController {
         this.postService = postService;
         this.commentService = commentService;
         this.collectService = collectService;
+    }
+
+    @PostMapping("/posts")
+    public ResponseEntity<Map<String, Object>> createPost(
+            @RequestBody PostCreateRequest request, HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401)
+                    .body(Map.of("success", false, "message", "请先登录"));
+        }
+        try {
+            ThemePost post = new ThemePost();
+            post.setTitle(request.getTitle());
+            post.setContent(request.getContent());
+            postService.publishPost(post, userId, request.getForumId());
+            return ResponseEntity.ok(
+                    Map.of("success", true, "message", "发布中，等待审核成功后可见"));
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(403)
+                    .body(Map.of("success", false, "message", e.getMessage()));
+        }
     }
 
     @GetMapping("/posts")

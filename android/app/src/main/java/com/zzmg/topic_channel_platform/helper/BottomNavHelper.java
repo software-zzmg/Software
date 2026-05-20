@@ -3,6 +3,7 @@ package com.zzmg.topic_channel_platform.helper;
 import android.app.Activity;
 import android.content.Intent;
 
+import com.zzmg.topic_channel_platform.CreatePostActivity;
 import com.zzmg.topic_channel_platform.MainActivity;
 import com.zzmg.topic_channel_platform.MeActivity;
 import com.zzmg.topic_channel_platform.MyCollectsActivity;
@@ -13,6 +14,12 @@ public class BottomNavHelper {
     private BottomNavHelper() {}
 
     public static void setup(Activity activity, String current) {
+        activity.findViewById(R.id.btn_nav_create).setOnClickListener(v -> {
+            if (!"create".equals(current)) {
+                activity.startActivity(new Intent(activity, CreatePostActivity.class));
+            }
+        });
+
         activity.findViewById(R.id.btn_nav_home).setOnClickListener(v -> {
             if (!"home".equals(current)) {
                 Intent intent = new Intent(activity, MainActivity.class);

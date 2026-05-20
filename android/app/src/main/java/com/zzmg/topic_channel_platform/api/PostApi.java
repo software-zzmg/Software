@@ -4,6 +4,7 @@ import com.zzmg.topic_channel_platform.model.ApiResponse;
 import com.zzmg.topic_channel_platform.model.CollectStatusResponse;
 import com.zzmg.topic_channel_platform.model.CommentCreateRequest;
 import com.zzmg.topic_channel_platform.model.CommentItem;
+import com.zzmg.topic_channel_platform.model.PostCreateRequest;
 import com.zzmg.topic_channel_platform.model.PostDetail;
 import com.zzmg.topic_channel_platform.model.PostListItem;
 
@@ -18,6 +19,9 @@ import retrofit2.http.Path;
 public interface PostApi {
     @GET("/api/posts")
     Call<List<PostListItem>> getPosts();
+
+    @POST("/api/posts")
+    Call<ApiResponse> createPost(@Body PostCreateRequest request);
 
     @GET("/api/posts/{id}")
     Call<PostDetail> getPostDetail(@Path("id") Long id);

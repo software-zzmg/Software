@@ -4,6 +4,7 @@ import com.zzmg.topicchannelplatform.entity.ThemePost;
 import com.zzmg.topicchannelplatform.repository.CollectRepository;
 import com.zzmg.topicchannelplatform.repository.CommentRepository;
 import com.zzmg.topicchannelplatform.repository.ForumRepository;
+import com.zzmg.topicchannelplatform.repository.OrdinaryUserRepository;
 import com.zzmg.topicchannelplatform.repository.ThemePostRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,17 +18,20 @@ public class ThemePostService {
 
     private final ThemePostRepository postRepository;
     private final ForumRepository forumRepository;
+    private final OrdinaryUserRepository userRepository;
     private final ForumMemberService forumMemberService;
     private final CollectRepository collectRepository;
     private final CommentRepository commentRepository;
 
     public ThemePostService(ThemePostRepository postRepository,
                             ForumRepository forumRepository,
+                            OrdinaryUserRepository userRepository,
                             ForumMemberService forumMemberService,
                             CollectRepository collectRepository,
                             CommentRepository commentRepository) {
         this.postRepository = postRepository;
         this.forumRepository = forumRepository;
+        this.userRepository = userRepository;
         this.forumMemberService = forumMemberService;
         this.collectRepository = collectRepository;
         this.commentRepository = commentRepository;
@@ -80,6 +84,12 @@ public class ThemePostService {
     public Optional<ThemePost> findApprovedPostById(Long postId) {
         return postRepository.findById(postId)
                 .filter(p -> "审核通过".equals(p.getAuditState()));
+    }
+
+    public ThemePost publishPost(ThemePost post, String userId, Long forumId) {
+        post.setForum(forumRepository.getReferenceById(forumId));
+        post.setAuthor(userRepository.getReferenceById(userId));
+        return publish(post, userId);
     }
 
     public void updateAuditState(Long postId, String auditState) {
