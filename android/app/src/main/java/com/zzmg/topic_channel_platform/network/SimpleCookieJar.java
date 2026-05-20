@@ -19,6 +19,10 @@ public class SimpleCookieJar implements CookieJar {
         cookieStore.put(url.host(), new ArrayList<>(cookies));
     }
 
+    public void clear() {
+        cookieStore.clear();
+    }
+
     @Override
     public List<Cookie> loadForRequest(HttpUrl url) {
         List<Cookie> cookies = cookieStore.get(url.host());

@@ -39,9 +39,6 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        findViewById(R.id.btn_collects).setOnClickListener(v ->
-                startActivity(new Intent(MainActivity.this, MyCollectsActivity.class)));
-
         findViewById(R.id.btn_login).setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             startActivityForResult(intent, REQUEST_LOGIN);

@@ -12,6 +12,12 @@ public class RetrofitClient {
 
     private RetrofitClient() {}
 
+    public static void clearCookies() {
+        if (cookieJar != null) {
+            cookieJar.clear();
+        }
+    }
+
     public static synchronized Retrofit getInstance() {
         if (retrofit == null) {
             cookieJar = new SimpleCookieJar();

@@ -3,6 +3,7 @@ package com.zzmg.topicchannelplatform.controller;
 import com.zzmg.topicchannelplatform.dto.LoginRequest;
 import com.zzmg.topicchannelplatform.dto.LoginResponse;
 import com.zzmg.topicchannelplatform.dto.PostListItemDTO;
+import com.zzmg.topicchannelplatform.dto.UserProfileDTO;
 import com.zzmg.topicchannelplatform.entity.OrdinaryUser;
 import com.zzmg.topicchannelplatform.service.CollectService;
 import com.zzmg.topicchannelplatform.service.UserService;
@@ -40,6 +41,24 @@ public class ApiUserController {
             return new LoginResponse(true, "登录成功", u.getUserId(), u.getUserName());
         }
         return new LoginResponse(false, "手机号或密码错误", null, null);
+    }
+
+    @GetMapping("/users/me")
+    public ResponseEntity<?> getMe(HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401)
+                    .body(Map.of("success", false, "message", "请先登录"));
+        }
+        OrdinaryUser user = userService.findById(userId).orElseThrow();
+        return ResponseEntity.ok(new UserProfileDTO(
+                user.getUserId(), user.getUserName(), user.getPhoneNumber()));
+    }
+
+    @PostMapping("/users/logout")
+    public ResponseEntity<Map<String, Object>> logout(HttpSession session) {
+        session.invalidate();
+        return ResponseEntity.ok(Map.of("success", true, "message", "已退出登录"));
     }
 
     @GetMapping("/users/me/collects")

@@ -2,9 +2,9 @@ package com.zzmg.topic_channel_platform.helper;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.widget.Toast;
 
 import com.zzmg.topic_channel_platform.MainActivity;
+import com.zzmg.topic_channel_platform.MeActivity;
 import com.zzmg.topic_channel_platform.MyCollectsActivity;
 import com.zzmg.topic_channel_platform.R;
 
@@ -30,8 +30,12 @@ public class BottomNavHelper {
             }
         });
 
-        activity.findViewById(R.id.btn_nav_me).setOnClickListener(v ->
-                Toast.makeText(activity, "个人中心待实现", Toast.LENGTH_SHORT).show()
-        );
+        activity.findViewById(R.id.btn_nav_me).setOnClickListener(v -> {
+            if (!"me".equals(current)) {
+                Intent intent = new Intent(activity, MeActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                activity.startActivity(intent);
+            }
+        });
     }
 }
