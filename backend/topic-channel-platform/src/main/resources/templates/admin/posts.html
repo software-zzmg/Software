@@ -29,7 +29,7 @@
                 </td>
                 <td th:text="${p.author.userName}"></td>
                 <td th:text="${p.forum.forumName}"></td>
-                <td th:text="${p.publishTime}"></td>
+                <td th:text="${@timeFormatter.format(p.publishTime)}"></td>
                 <td>
                     <form method="post" th:action="@{/admin/posts/{id}/approve(id=${p.themePostId})}" style="display:inline">
                         <button type="submit" class="btn btn-primary btn-sm">通过</button>

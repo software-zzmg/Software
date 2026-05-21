@@ -20,7 +20,7 @@
         <p class="info-row"><strong>所属频道：</strong>
             <a th:href="@{/forum/detail/{id}(id=${post.forum.forumId})}" th:text="${post.forum.forumName}"></a>
         </p>
-        <p class="info-row"><strong>发布时间：</strong><span th:text="${post.publishTime}"></span></p>
+        <p class="info-row"><strong>发布时间：</strong><span th:text="${@timeFormatter.format(post.publishTime)}"></span></p>
     </div>
 
     <div class="card">
@@ -72,7 +72,7 @@
     <div th:each="c : ${comments}" class="card" style="padding:12px 16px;">
         <p>
             <strong th:text="${c.author.status == 'deleted'} ? '已注销用户' : ${c.author.userName}"></strong>
-            <span style="color:#999;font-size:12px;" th:text="${c.publishTime}"></span>
+            <span style="color:#999;font-size:12px;" th:text="${@timeFormatter.format(c.publishTime)}"></span>
         </p>
         <p th:text="${c.content}"></p>
         <form th:if="${currentUserId != null && (currentUserId == c.author.userId || isAuthor)}"

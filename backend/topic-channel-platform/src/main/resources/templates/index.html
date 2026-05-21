@@ -31,7 +31,7 @@
                     <a class="post-card-channel"
                        th:href="@{/forum/detail/{id}(id=${post.forum.forumId})}"
                        th:text="${post.forum.forumName}"></a>
-                    <span th:text="${post.publishTime}"></span>
+                    <span th:text="${@timeFormatter.format(post.publishTime)}"></span>
                 </div>
             </div>
         </article>

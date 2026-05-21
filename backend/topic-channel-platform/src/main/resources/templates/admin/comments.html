@@ -29,7 +29,7 @@
                 <td>
                     <a th:href="@{/post/detail/{id}(id=${c.themePost.themePostId})}" th:text="${c.themePost.title}"></a>
                 </td>
-                <td th:text="${c.publishTime}"></td>
+                <td th:text="${@timeFormatter.format(c.publishTime)}"></td>
                 <td>
                     <form method="post" th:action="@{/admin/comments/{id}/approve(id=${c.commentId})}" style="display:inline">
                         <button type="submit" class="btn btn-primary btn-sm">通过</button>

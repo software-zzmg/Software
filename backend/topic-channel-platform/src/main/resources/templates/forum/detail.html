@@ -19,7 +19,7 @@
         <p class="info-row"><strong>简介：</strong><span th:text="${forum.content}"></span></p>
         <p class="info-row"><strong>创建者：</strong><span th:text="${forum.creator.status == 'deleted'} ? '已注销用户' : ${forum.creator.userName}"></span></p>
         <p class="info-row" th:if="${forum.auditState == '审核未通过'}"><strong>审核状态：</strong><span th:text="${forum.auditState}"></span></p>
-        <p class="info-row"><strong>创建时间：</strong><span th:text="${forum.createTime}"></span></p>
+        <p class="info-row"><strong>创建时间：</strong><span th:text="${@timeFormatter.formatDate(forum.createTime)}"></span></p>
 
         <div th:if="${isCreator}" class="form-actions">
             <a th:href="@{/forum/edit/{id}(id=${forum.forumId})}" class="btn btn-outline">编辑频道</a>
@@ -71,7 +71,7 @@
                     <a class="post-card-channel"
                        th:href="@{/forum/detail/{id}(id=${post.forum.forumId})}"
                        th:text="${post.forum.forumName}"></a>
-                    <span th:text="${post.publishTime}"></span>
+                    <span th:text="${@timeFormatter.format(post.publishTime)}"></span>
                 </div>
             </div>
         </article>
