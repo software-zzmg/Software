@@ -49,10 +49,11 @@ public class ForumService {
         return forumRepository.searchApproved(keyword);
     }
 
-    public void update(Forum forum) {
+    public void update(Forum forum) { 
         forumRepository.findById(forum.getForumId()).ifPresent(existing -> {
             existing.setForumName(forum.getForumName());
             existing.setContent(forum.getContent());
+            // existing.setAuditState("待审核");
             forumRepository.save(existing);
         });
     }

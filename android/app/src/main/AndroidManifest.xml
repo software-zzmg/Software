@@ -15,6 +15,34 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Topic_channel_platform">
         <activity
+            android:name=".ForumListActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".ForumDetailActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".CreatePostActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".MeActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".LoginActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".MyCollectsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".PostDetailActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".MainActivity"
             android:exported="true">
             <intent-filter>

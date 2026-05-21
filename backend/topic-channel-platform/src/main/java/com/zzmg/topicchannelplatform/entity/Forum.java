@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 @Entity
@@ -26,7 +27,8 @@ public class Forum {
     @Column(name = "forum_name", nullable = false)
     private String forumName;
 
-    @Column(name = "content")
+    @Size(max = 500, message = "频道简介不能超过500字")
+    @Column(name = "content", length = 500, columnDefinition = "TEXT")
     private String content;
 
     @Column(name = "audit_state")

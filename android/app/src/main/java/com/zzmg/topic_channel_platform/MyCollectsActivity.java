@@ -1,6 +1,5 @@
 package com.zzmg.topic_channel_platform;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -13,7 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.zzmg.topic_channel_platform.adapter.PostAdapter;
-import com.zzmg.topic_channel_platform.api.PostApi;
+import com.zzmg.topic_channel_platform.api.UserApi;
 import com.zzmg.topic_channel_platform.model.PostListItem;
 import com.zzmg.topic_channel_platform.network.RetrofitClient;
 
@@ -23,25 +22,19 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class MainActivity extends AppCompatActivity {
+public class MyCollectsActivity extends AppCompatActivity {
 
-    private static final int REQUEST_LOGIN = 1;
     private PostAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_my_collects);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
-        });
-
-        findViewById(R.id.btn_login).setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-            startActivityForResult(intent, REQUEST_LOGIN);
         });
 
         RecyclerView rvPosts = findViewById(R.id.rv_posts);
@@ -49,34 +42,31 @@ public class MainActivity extends AppCompatActivity {
         adapter = new PostAdapter();
         rvPosts.setAdapter(adapter);
 
-        com.zzmg.topic_channel_platform.helper.BottomNavHelper.setup(this, "home");
+        com.zzmg.topic_channel_platform.helper.BottomNavHelper.setup(this, "collects");
 
-        loadPosts();
+        loadMyCollects();
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_LOGIN && resultCode == RESULT_OK) {
-            Toast.makeText(this, "Logged in", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void loadPosts() {
-        PostApi postApi = RetrofitClient.getInstance().create(PostApi.class);
-        postApi.getPosts().enqueue(new Callback<List<PostListItem>>() {
+    private void loadMyCollects() {
+        UserApi userApi = RetrofitClient.getInstance().create(UserApi.class);
+        userApi.getMyCollects().enqueue(new Callback<List<PostListItem>>() {
             @Override
             public void onResponse(Call<List<PostListItem>> call, Response<List<PostListItem>> response) {
+                if (response.code() == 401) {
+                    Toast.makeText(MyCollectsActivity.this, "请先登录", Toast.LENGTH_SHORT).show();
+                    finish();
+                    return;
+                }
                 if (response.isSuccessful() && response.body() != null) {
                     adapter.setPosts(response.body());
                 } else {
-                    Toast.makeText(MainActivity.this, "Error: " + response.code(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(MyCollectsActivity.this, "Error: " + response.code(), Toast.LENGTH_LONG).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<PostListItem>> call, Throwable t) {
-                Toast.makeText(MainActivity.this, "Failed: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                Toast.makeText(MyCollectsActivity.this, "Failed: " + t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
     }

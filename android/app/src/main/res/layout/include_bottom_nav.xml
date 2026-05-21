@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="56dp"
+    android:orientation="horizontal"
+    android:background="?android:attr/colorBackground"
+    android:elevation="8dp">
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_nav_create"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:text="Create"
+        style="@style/Widget.Material3.Button.TextButton" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_nav_home"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:text="Home"
+        style="@style/Widget.Material3.Button.TextButton" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_nav_forums"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:text="Forums"
+        style="@style/Widget.Material3.Button.TextButton" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_nav_collects"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:text="Collects"
+        style="@style/Widget.Material3.Button.TextButton" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_nav_me"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:text="Me"
+        style="@style/Widget.Material3.Button.TextButton" />
+
+</LinearLayout>
