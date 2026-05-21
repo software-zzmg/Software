@@ -58,6 +58,9 @@ public class MeActivity extends AppCompatActivity {
         findViewById(R.id.btn_my_forums).setOnClickListener(v ->
                 startActivity(new Intent(MeActivity.this, MyForumsActivity.class)));
 
+        findViewById(R.id.btn_my_collects).setOnClickListener(v ->
+                startActivity(new Intent(MeActivity.this, MyCollectsActivity.class)));
+
         findViewById(R.id.btn_logout).setOnClickListener(v -> doLogout());
         findViewById(R.id.btn_login).setOnClickListener(v -> {
             Intent intent = new Intent(MeActivity.this, LoginActivity.class);
