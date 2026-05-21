@@ -1,6 +1,8 @@
 package com.zzmg.topic_channel_platform;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Toast;
 
@@ -11,6 +13,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.zzmg.topic_channel_platform.api.UserApi;
 import com.zzmg.topic_channel_platform.model.LoginRequest;
 import com.zzmg.topic_channel_platform.model.LoginResponse;
@@ -22,6 +25,7 @@ import retrofit2.Response;
 
 public class LoginActivity extends AppCompatActivity {
 
+    private TextInputLayout tilPhone, tilPassword;
     private TextInputEditText etPhone, etPassword;
     private View tvError;
 
@@ -36,24 +40,48 @@ public class LoginActivity extends AppCompatActivity {
             return insets;
         });
 
+        tilPhone = findViewById(R.id.til_phone);
+        tilPassword = findViewById(R.id.til_password);
         etPhone = findViewById(R.id.et_phone);
         etPassword = findViewById(R.id.et_password);
         tvError = findViewById(R.id.tv_error);
 
+        etPhone.addTextChangedListener(new ClearErrorWatcher(tilPhone));
+        etPassword.addTextChangedListener(new ClearErrorWatcher(tilPassword));
+
         findViewById(R.id.btn_login).setOnClickListener(v -> {
-            String phone = etPhone.getText().toString().trim();
-            String password = etPassword.getText().toString().trim();
-
-            if (phone.isEmpty() || password.isEmpty()) {
-                showError("Please enter phone and password");
-                return;
+            tvError.setVisibility(View.GONE);
+            if (validateForm()) {
+                doLogin();
             }
-
-            doLogin(phone, password);
         });
     }
 
-    private void doLogin(String phone, String password) {
+    private boolean validateForm() {
+        boolean valid = true;
+        String phone = etPhone.getText().toString().trim();
+        String password = etPassword.getText().toString().trim();
+
+        if (phone.isEmpty()) {
+            tilPhone.setError("请输入手机号");
+            valid = false;
+        } else if (!phone.matches("1\\d{10}")) {
+            tilPhone.setError("手机号格式不正确，应为11位数字");
+            valid = false;
+        }
+
+        if (password.isEmpty()) {
+            tilPassword.setError("请输入密码");
+            valid = false;
+        }
+
+        return valid;
+    }
+
+    private void doLogin() {
+        String phone = etPhone.getText().toString().trim();
+        String password = etPassword.getText().toString().trim();
+
         UserApi userApi = RetrofitClient.getInstance().create(UserApi.class);
         userApi.login(new LoginRequest(phone, password)).enqueue(new Callback<LoginResponse>() {
             @Override
@@ -82,5 +110,15 @@ public class LoginActivity extends AppCompatActivity {
     private void showError(String message) {
         tvError.setVisibility(View.VISIBLE);
         ((android.widget.TextView) tvError).setText(message);
+    }
+
+    private static class ClearErrorWatcher implements TextWatcher {
+        private final TextInputLayout layout;
+        ClearErrorWatcher(TextInputLayout layout) { this.layout = layout; }
+        @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+        @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+            layout.setError(null);
+        }
+        @Override public void afterTextChanged(Editable s) {}
     }
 }

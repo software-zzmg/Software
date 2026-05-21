@@ -1,6 +1,8 @@
 package com.zzmg.topic_channel_platform;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -10,6 +12,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.material.textfield.TextInputLayout;
 import com.zzmg.topic_channel_platform.api.UserApi;
 import com.zzmg.topic_channel_platform.model.ApiResponse;
 import com.zzmg.topic_channel_platform.model.ChangePasswordRequest;
@@ -21,6 +24,7 @@ import retrofit2.Response;
 
 public class ChangePasswordActivity extends AppCompatActivity {
 
+    private TextInputLayout tilOld, tilNew, tilConfirm;
     private EditText etOldPassword, etNewPassword, etConfirmPassword;
 
     @Override
@@ -34,22 +38,51 @@ public class ChangePasswordActivity extends AppCompatActivity {
             return insets;
         });
 
+        tilOld = findViewById(R.id.til_old_password);
+        tilNew = findViewById(R.id.til_new_password);
+        tilConfirm = findViewById(R.id.til_confirm_password);
         etOldPassword = findViewById(R.id.et_old_password);
         etNewPassword = findViewById(R.id.et_new_password);
         etConfirmPassword = findViewById(R.id.et_confirm_password);
 
-        findViewById(R.id.btn_submit).setOnClickListener(v -> changePassword());
+        etOldPassword.addTextChangedListener(new ClearErrorWatcher(tilOld));
+        etNewPassword.addTextChangedListener(new ClearErrorWatcher(tilNew));
+        etConfirmPassword.addTextChangedListener(new ClearErrorWatcher(tilConfirm));
+
+        findViewById(R.id.btn_submit).setOnClickListener(v -> {
+            if (validateForm()) changePassword();
+        });
+    }
+
+    private boolean validateForm() {
+        boolean valid = true;
+        String oldPwd = etOldPassword.getText().toString().trim();
+        String newPwd = etNewPassword.getText().toString().trim();
+        String confirmPwd = etConfirmPassword.getText().toString().trim();
+
+        if (oldPwd.isEmpty()) {
+            tilOld.setError("请输入原密码");
+            valid = false;
+        }
+        if (newPwd.isEmpty()) {
+            tilNew.setError("请输入新密码");
+            valid = false;
+        }
+        if (confirmPwd.isEmpty()) {
+            tilConfirm.setError("请确认新密码");
+            valid = false;
+        } else if (!confirmPwd.equals(newPwd)) {
+            tilConfirm.setError("两次密码输入不一致");
+            valid = false;
+        }
+
+        return valid;
     }
 
     private void changePassword() {
         String oldPwd = etOldPassword.getText().toString().trim();
         String newPwd = etNewPassword.getText().toString().trim();
         String confirmPwd = etConfirmPassword.getText().toString().trim();
-
-        if (oldPwd.isEmpty() || newPwd.isEmpty() || confirmPwd.isEmpty()) {
-            Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
-            return;
-        }
 
         ChangePasswordRequest request = new ChangePasswordRequest(oldPwd, newPwd, confirmPwd);
         UserApi userApi = RetrofitClient.getInstance().create(UserApi.class);
@@ -66,9 +99,9 @@ public class ChangePasswordActivity extends AppCompatActivity {
                     if (res.isSuccess()) {
                         setResult(RESULT_OK);
                         finish();
+                    } else {
+                        tilOld.setError(res.getMessage());
                     }
-                } else {
-                    Toast.makeText(ChangePasswordActivity.this, "Error: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
 
@@ -77,5 +110,15 @@ public class ChangePasswordActivity extends AppCompatActivity {
                 Toast.makeText(ChangePasswordActivity.this, "Failed: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private static class ClearErrorWatcher implements TextWatcher {
+        private final TextInputLayout layout;
+        ClearErrorWatcher(TextInputLayout layout) { this.layout = layout; }
+        @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+        @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+            layout.setError(null);
+        }
+        @Override public void afterTextChanged(Editable s) {}
     }
 }

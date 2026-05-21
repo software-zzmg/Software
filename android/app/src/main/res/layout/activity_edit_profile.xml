@@ -20,6 +20,7 @@
             android:layout_marginBottom="16dp" />
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_user_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="User Name">
@@ -55,6 +56,7 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_birthday"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
@@ -68,6 +70,7 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/til_id_number"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"

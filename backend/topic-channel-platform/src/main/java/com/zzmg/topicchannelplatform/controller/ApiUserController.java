@@ -94,11 +94,16 @@ public class ApiUserController {
         user.setIdNumber(request.getIdNumber());
         if (request.getBirthday() != null && !request.getBirthday().isEmpty()) {
             try {
-                LocalDate date = LocalDate.parse(request.getBirthday(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                LocalDate date = LocalDate.parse(request.getBirthday(),
+                        DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                if (date.getYear() < 100 || date.getYear() > 2026) {
+                    return ResponseEntity.badRequest()
+                            .body(Map.of("success", false, "message", "年份必须在 100-2026 之间"));
+                }
                 user.setBirthday(date.atStartOfDay());
             } catch (DateTimeParseException e) {
                 return ResponseEntity.badRequest()
-                        .body(Map.of("success", false, "message", "生日格式不正确，请使用 yyyy-MM-dd"));
+                        .body(Map.of("success", false, "message", "生日格式或日期不正确，请使用 yyyy-MM-dd"));
             }
         }
         userService.updateInfo(user);
