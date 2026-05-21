@@ -145,6 +145,18 @@ public class ApiUserController {
         return ResponseEntity.ok(forums);
     }
 
+    @PostMapping("/users/me/delete")
+    public ResponseEntity<Map<String, Object>> deleteMe(HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401)
+                    .body(Map.of("success", false, "message", "请先登录"));
+        }
+        userService.deleteUser(userId);
+        session.invalidate();
+        return ResponseEntity.ok(Map.of("success", true, "message", "账号已注销"));
+    }
+
     @PostMapping("/users/logout")
     public ResponseEntity<Map<String, Object>> logout(HttpSession session) {
         session.invalidate();

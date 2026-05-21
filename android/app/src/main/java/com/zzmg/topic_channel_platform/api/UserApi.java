@@ -33,6 +33,9 @@ public interface UserApi {
     @GET("/api/users/me/forums")
     Call<List<ForumListItem>> getMyForumsJoined();
 
+    @POST("/api/users/me/delete")
+    Call<ApiResponse> deleteMe();
+
     @POST("/api/users/logout")
     Call<ApiResponse> logout();
 
