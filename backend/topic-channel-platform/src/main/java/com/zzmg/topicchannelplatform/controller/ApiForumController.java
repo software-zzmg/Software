@@ -3,9 +3,11 @@ package com.zzmg.topicchannelplatform.controller;
 import com.zzmg.topicchannelplatform.dto.ForumDetailDTO;
 import com.zzmg.topicchannelplatform.dto.ForumItemDTO;
 import com.zzmg.topicchannelplatform.dto.ForumListItemDTO;
+import com.zzmg.topicchannelplatform.dto.PostListItemDTO;
 import com.zzmg.topicchannelplatform.entity.Forum;
 import com.zzmg.topicchannelplatform.service.ForumMemberService;
 import com.zzmg.topicchannelplatform.service.ForumService;
+import com.zzmg.topicchannelplatform.service.ThemePostService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -23,10 +26,14 @@ public class ApiForumController {
 
     private final ForumService forumService;
     private final ForumMemberService forumMemberService;
+    private final ThemePostService postService;
 
-    public ApiForumController(ForumService forumService, ForumMemberService forumMemberService) {
+    public ApiForumController(ForumService forumService,
+                              ForumMemberService forumMemberService,
+                              ThemePostService postService) {
         this.forumService = forumService;
         this.forumMemberService = forumMemberService;
+        this.postService = postService;
     }
 
     @GetMapping("/forums")
@@ -71,6 +78,28 @@ public class ApiForumController {
                 .map(m -> new ForumItemDTO(m.getForum().getForumId(), m.getForum().getForumName()))
                 .toList();
         return ResponseEntity.ok(forums);
+    }
+
+    @GetMapping("/forums/{forumId}/posts")
+    public ResponseEntity<?> getForumPosts(@PathVariable Long forumId) {
+        if (forumService.findById(forumId)
+                .filter(f -> "审核通过".equals(f.getAuditState()))
+                .isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        List<PostListItemDTO> posts = postService.findByForumId(forumId).stream()
+                .sorted(Comparator.comparing(
+                        p -> p.getPublishTime(), Comparator.nullsLast(Comparator.reverseOrder())))
+                .map(p -> new PostListItemDTO(
+                        p.getThemePostId(),
+                        p.getTitle(),
+                        p.getContent(),
+                        p.getAuthor().getUserName(),
+                        p.getForum().getForumName(),
+                        p.getPublishTime()
+                ))
+                .toList();
+        return ResponseEntity.ok(posts);
     }
 
     @PostMapping("/forums/{id}/join")

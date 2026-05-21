@@ -4,6 +4,7 @@ import com.zzmg.topic_channel_platform.model.ApiResponse;
 import com.zzmg.topic_channel_platform.model.ForumDetail;
 import com.zzmg.topic_channel_platform.model.ForumItem;
 import com.zzmg.topic_channel_platform.model.ForumListItem;
+import com.zzmg.topic_channel_platform.model.PostListItem;
 
 import java.util.List;
 
@@ -21,6 +22,9 @@ public interface ForumApi {
 
     @GET("/api/forums/{id}")
     Call<ForumDetail> getForumDetail(@Path("id") Long id);
+
+    @GET("/api/forums/{forumId}/posts")
+    Call<List<PostListItem>> getForumPosts(@Path("forumId") Long forumId);
 
     @POST("/api/forums/{id}/join")
     Call<ApiResponse> join(@Path("id") Long id);
