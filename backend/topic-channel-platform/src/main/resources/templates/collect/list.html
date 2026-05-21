@@ -36,7 +36,7 @@
                     <a th:href="@{/forum/detail/{id}(id=${c.themePost.forum.forumId})}" th:text="${c.themePost.forum.forumName}"></a>
                 </td>
                 <td th:text="${c.themePost.author.status == 'deleted'} ? '已注销用户' : ${c.themePost.author.userName}"></td>
-                <td th:text="${c.collectTime}"></td>
+                <td th:text="${@timeFormatter.format(c.collectTime)}"></td>
                 <td>
                     <form method="post" th:action="@{/collect/cancel}" style="display:inline">
                         <input type="hidden" name="postId" th:value="${c.themePost.themePostId}">
