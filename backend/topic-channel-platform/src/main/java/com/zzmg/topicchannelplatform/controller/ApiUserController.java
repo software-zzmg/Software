@@ -1,20 +1,29 @@
 package com.zzmg.topicchannelplatform.controller;
 
+import com.zzmg.topicchannelplatform.dto.ChangePasswordRequest;
+import com.zzmg.topicchannelplatform.dto.ForumListItemDTO;
 import com.zzmg.topicchannelplatform.dto.LoginRequest;
 import com.zzmg.topicchannelplatform.dto.LoginResponse;
 import com.zzmg.topicchannelplatform.dto.PostListItemDTO;
+import com.zzmg.topicchannelplatform.dto.UpdateProfileRequest;
 import com.zzmg.topicchannelplatform.dto.UserProfileDTO;
 import com.zzmg.topicchannelplatform.entity.OrdinaryUser;
 import com.zzmg.topicchannelplatform.service.CollectService;
+import com.zzmg.topicchannelplatform.service.ForumMemberService;
 import com.zzmg.topicchannelplatform.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -25,10 +34,14 @@ public class ApiUserController {
 
     private final UserService userService;
     private final CollectService collectService;
+    private final ForumMemberService forumMemberService;
 
-    public ApiUserController(UserService userService, CollectService collectService) {
+    public ApiUserController(UserService userService,
+                             CollectService collectService,
+                             ForumMemberService forumMemberService) {
         this.userService = userService;
         this.collectService = collectService;
+        this.forumMemberService = forumMemberService;
     }
 
     @PostMapping("/users/login")
@@ -53,7 +66,83 @@ public class ApiUserController {
         }
         OrdinaryUser user = userService.findById(userId).orElseThrow();
         return ResponseEntity.ok(new UserProfileDTO(
-                user.getUserId(), user.getUserName(), user.getPhoneNumber()));
+                user.getUserId(),
+                user.getUserName(),
+                user.getPhoneNumber(),
+                user.getRealName(),
+                user.getGender(),
+                user.getBirthday() != null
+                        ? user.getBirthday().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))
+                        : null,
+                user.getIdNumber()
+        ));
+    }
+
+    @PutMapping("/users/me")
+    public ResponseEntity<Map<String, Object>> updateMe(
+            @RequestBody UpdateProfileRequest request, HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401)
+                    .body(Map.of("success", false, "message", "请先登录"));
+        }
+        OrdinaryUser user = new OrdinaryUser();
+        user.setUserId(userId);
+        user.setUserName(request.getUserName());
+        user.setRealName(request.getRealName());
+        user.setGender(request.getGender());
+        user.setIdNumber(request.getIdNumber());
+        if (request.getBirthday() != null && !request.getBirthday().isEmpty()) {
+            try {
+                LocalDate date = LocalDate.parse(request.getBirthday(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                user.setBirthday(date.atStartOfDay());
+            } catch (DateTimeParseException e) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("success", false, "message", "生日格式不正确，请使用 yyyy-MM-dd"));
+            }
+        }
+        userService.updateInfo(user);
+        return ResponseEntity.ok(Map.of("success", true, "message", "保存成功"));
+    }
+
+    @PostMapping("/users/me/password")
+    public ResponseEntity<Map<String, Object>> changePassword(
+            @RequestBody ChangePasswordRequest request, HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401)
+                    .body(Map.of("success", false, "message", "请先登录"));
+        }
+        if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "两次密码输入不一致"));
+        }
+        boolean ok = userService.changePassword(userId,
+                request.getOldPassword(), request.getNewPassword());
+        if (!ok) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "原密码错误"));
+        }
+        return ResponseEntity.ok(Map.of("success", true, "message", "密码修改成功"));
+    }
+
+    @GetMapping("/users/me/forums")
+    public ResponseEntity<?> getMyForums(HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401)
+                    .body(Map.of("success", false, "message", "请先登录"));
+        }
+        List<ForumListItemDTO> forums = forumMemberService.findByUserId(userId).stream()
+                .filter(m -> "审核通过".equals(m.getForum().getAuditState()))
+                .map(m -> new ForumListItemDTO(
+                        m.getForum().getForumId(),
+                        m.getForum().getForumName(),
+                        m.getForum().getContent(),
+                        m.getForum().getCreator().getUserName()
+                ))
+                .toList();
+        return ResponseEntity.ok(forums);
     }
 
     @PostMapping("/users/logout")
