@@ -40,6 +40,7 @@ public class ApiUserController {
             session.setAttribute("userId", u.getUserId());
             return new LoginResponse(true, "登录成功", u.getUserId(), u.getUserName());
         }
+        session.invalidate();
         return new LoginResponse(false, "手机号或密码错误", null, null);
     }
 
