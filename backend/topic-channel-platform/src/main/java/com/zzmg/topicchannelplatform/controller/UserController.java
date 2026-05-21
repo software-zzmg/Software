@@ -66,6 +66,7 @@ public class UserController {
                 model.addAttribute("userInfoForm", form);
             }
         });
+        model.addAttribute("today", LocalDate.now().toString());
         return "user/userinfo-edit";
     }
 
@@ -156,11 +157,13 @@ public class UserController {
     @PostMapping("/info/update")
     public String updateInfo(@Valid @ModelAttribute("userInfoForm") UserInfoForm form,
                              BindingResult bindingResult,
-                             HttpSession session) {
+                             HttpSession session,
+                             Model model) {
         String userId = (String) session.getAttribute("userId");
         if (userId == null) {
             return "redirect:/user/login";
         }
+        model.addAttribute("today", LocalDate.now().toString());
         if (bindingResult.hasErrors()) {
             return "user/userinfo-edit";
         }
@@ -173,7 +176,12 @@ public class UserController {
         String birthday = form.getBirthday();
         if (birthday != null && !birthday.isBlank()) {
             try {
-                user.setBirthday(LocalDate.parse(birthday).atStartOfDay());
+                LocalDate birthDate = LocalDate.parse(birthday);
+                if (birthDate.isAfter(LocalDate.now())) {
+                    bindingResult.rejectValue("birthday", "birthday.future", "生日不能超过当前日期");
+                    return "user/userinfo-edit";
+                }
+                user.setBirthday(birthDate.atStartOfDay());
             } catch (DateTimeParseException ex) {
                 bindingResult.rejectValue("birthday", "birthday.format", "日期格式不正确");
                 return "user/userinfo-edit";

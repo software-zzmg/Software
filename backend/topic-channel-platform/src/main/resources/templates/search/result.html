@@ -82,7 +82,7 @@
                 <tr th:each="user : ${users}">
                     <td th:text="${user.userId}"></td>
                     <td th:text="${user.status == 'deleted'} ? ${user.userName} + '(已注销)' : ${user.userName}"></td>
-                    <td th:text="${user.registerTime}"></td>
+                    <td th:text="${#strings.substring(user.registerTime.toString(), 0, 10)}"></td>
                 </tr>
             </tbody>
         </table>
