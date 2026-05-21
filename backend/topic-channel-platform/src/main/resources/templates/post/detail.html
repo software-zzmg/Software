@@ -58,7 +58,7 @@
         <form method="post" th:action="@{/comment/create}">
             <input type="hidden" name="postId" th:value="${post.themePostId}">
             <div class="form-group">
-                <textarea name="content" rows="3" class="form-textarea" placeholder="写下你的评论..." required></textarea>
+                <textarea name="content" rows="3" class="form-textarea" maxlength="500" placeholder="写下你的评论..." required></textarea>
             </div>
             <button type="submit" class="btn btn-primary btn-sm">发表评论</button>
         </form>

@@ -8,6 +8,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 
 @Entity
@@ -30,7 +31,8 @@ public class ThemePost {
     @Column(name = "title", nullable = false)
     private String title;
 
-    @Column(name = "content")
+    @Size(max = 3000, message = "帖子内容不能超过3000字")
+    @Column(name = "content", length = 3000, columnDefinition = "TEXT")
     private String content;
 
     @Column(name = "publish_time")

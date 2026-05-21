@@ -2,6 +2,7 @@ package com.zzmg.topicchannelplatform.service;
 
 import com.zzmg.topicchannelplatform.entity.Comment;
 import com.zzmg.topicchannelplatform.repository.CommentRepository;
+import com.zzmg.topicchannelplatform.repository.OrdinaryUserRepository;
 import com.zzmg.topicchannelplatform.repository.ThemePostRepository;
 import org.springframework.stereotype.Service;
 
@@ -13,13 +14,16 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final ThemePostRepository postRepository;
+    private final OrdinaryUserRepository userRepository;
     private final ForumMemberService forumMemberService;
 
     public CommentService(CommentRepository commentRepository,
                           ThemePostRepository postRepository,
+                          OrdinaryUserRepository userRepository,
                           ForumMemberService forumMemberService) {
         this.commentRepository = commentRepository;
         this.postRepository = postRepository;
+        this.userRepository = userRepository;
         this.forumMemberService = forumMemberService;
     }
 
@@ -40,6 +44,11 @@ public class CommentService {
                 .toList();
     }
 
+    public List<Comment> findApprovedCommentsByPostId(Long postId) {
+        return commentRepository.findByThemePost_ThemePostIdAndAuditStateOrderByPublishTimeAsc(
+                postId, "审核通过");
+    }
+
     public boolean canDelete(String userId, Long commentId) {
         return commentRepository.findById(commentId).map(comment -> {
             if (comment.getAuthor().getUserId().equals(userId)) {
@@ -54,6 +63,14 @@ public class CommentService {
 
     public void deleteById(Long commentId) {
         commentRepository.deleteById(commentId);
+    }
+
+    public Comment publishComment(Long postId, String userId, String content) {
+        Comment comment = new Comment();
+        comment.setThemePost(postRepository.getReferenceById(postId));
+        comment.setAuthor(userRepository.getReferenceById(userId));
+        comment.setContent(content);
+        return publish(comment, userId);
     }
 
     public void updateAuditState(Long commentId, String auditState) {

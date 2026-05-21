@@ -1,5 +1,6 @@
 package com.zzmg.topic_channel_platform;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Toast;
 
@@ -24,6 +25,7 @@ import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final int REQUEST_LOGIN = 1;
     private PostAdapter adapter;
 
     @Override
@@ -37,12 +39,27 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        findViewById(R.id.btn_login).setOnClickListener(v -> {
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivityForResult(intent, REQUEST_LOGIN);
+        });
+
         RecyclerView rvPosts = findViewById(R.id.rv_posts);
         rvPosts.setLayoutManager(new LinearLayoutManager(this));
         adapter = new PostAdapter();
         rvPosts.setAdapter(adapter);
 
+        com.zzmg.topic_channel_platform.helper.BottomNavHelper.setup(this, "home");
+
         loadPosts();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_LOGIN && resultCode == RESULT_OK) {
+            Toast.makeText(this, "Logged in", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void loadPosts() {

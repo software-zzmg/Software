@@ -1,10 +1,12 @@
 package com.zzmg.topic_channel_platform.adapter;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import com.zzmg.topic_channel_platform.PostDetailActivity;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -44,9 +46,11 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ViewHolder> {
         holder.tvContent.setText(post.getContent());
         holder.tvTime.setText(post.getPublishTime());
 
-        holder.itemView.setOnClickListener(v ->
-                Toast.makeText(v.getContext(), post.getTitle(), Toast.LENGTH_SHORT).show()
-        );
+        holder.itemView.setOnClickListener(v -> {
+            Intent intent = new Intent(v.getContext(), PostDetailActivity.class);
+            intent.putExtra("postId", post.getId());
+            v.getContext().startActivity(intent);
+        });
     }
 
     @Override
