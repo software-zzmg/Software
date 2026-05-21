@@ -59,6 +59,56 @@ cd backend/topic-channel-platform
 
 首次启动时由 `DataInitializer` 自动创建，后续启动不会重复插入。
 
+### Android 开发环境配置
+
+#### 前置条件
+- Android Studio (最新稳定版)
+- Android SDK (API 34+)
+- JDK 17（推荐通过 Android Studio 内置或 Gradle Toolchain 自动管理）
+
+#### JDK 配置
+
+**不要**在 `gradle.properties` 中硬编码本地 JDK 路径。该文件应被提交到 Git，硬编码路径会导致 CI 和其他开发者构建失败。
+
+正确的 `gradle.properties` 配置：
+
+```properties
+# JDK toolchain: prefer JAVA_HOME; Gradle will auto-download if missing.
+# DO NOT hardcode local paths here (use local.properties for that).
+org.gradle.java.installations.auto-download=true
+org.gradle.java.installations.fromEnv=JAVA_HOME
+```
+
+| 文件 | 用途 | 是否提交 Git |
+|------|------|-------------|
+| `gradle.properties` | 共享构建配置（JDK toolchain、JVM 参数等） | 是 |
+| `local.properties` | 本地 SDK/JDK 路径，Android Studio 自动生成 | **否**（.gitignore） |
+
+#### Android SDK 路径
+
+`local.properties` 中配置 SDK 路径（由 Android Studio 自动生成，无需手动编辑）：
+
+```properties
+sdk.dir=/path/to/Android/Sdk
+```
+
+#### 模拟器与后端通信
+
+Android 官方模拟器使用 `10.0.2.2` 访问宿主机 localhost。`RetrofitClient` 中已配置：
+
+```java
+private static final String BASE_URL = "http://10.0.2.2:8080/";
+```
+
+如使用第三方模拟器（如 Mumu、BlueStacks），需改为宿主机局域网 IP。
+
+#### 启动步骤
+
+1. 用 Android Studio 打开 `android/` 目录
+2. 等待 Gradle Sync 完成（首次需下载依赖）
+3. 先启动后端（`./mvnw spring-boot:run`）
+4. 选择模拟器或真机，点击 Run
+
 ---
 ## 技术架构
 

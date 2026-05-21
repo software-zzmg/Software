@@ -1,7 +1,8 @@
 package com.zzmg.topic_channel_platform;
 
-import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -15,6 +16,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.google.android.material.textfield.TextInputLayout;
 import com.zzmg.topic_channel_platform.api.ForumApi;
 import com.zzmg.topic_channel_platform.api.PostApi;
 import com.zzmg.topic_channel_platform.helper.BottomNavHelper;
@@ -32,11 +34,10 @@ import retrofit2.Response;
 
 public class CreatePostActivity extends AppCompatActivity {
 
-    private static final int REQUEST_LOGIN = 1;
-
     private TextView tvNoForums;
     private View llForm;
     private Spinner spinnerForum;
+    private TextInputLayout tilTitle, tilContent;
     private EditText etTitle, etContent;
     private List<ForumItem> forums = new ArrayList<>();
 
@@ -58,10 +59,38 @@ public class CreatePostActivity extends AppCompatActivity {
         spinnerForum = findViewById(R.id.spinner_forum);
         etTitle = findViewById(R.id.et_title);
         etContent = findViewById(R.id.et_content);
+        tilTitle = findViewById(R.id.til_title);
+        tilContent = findViewById(R.id.til_content);
 
-        findViewById(R.id.btn_submit).setOnClickListener(v -> submitPost());
+        etTitle.addTextChangedListener(new ClearErrorWatcher(tilTitle));
+        etContent.addTextChangedListener(new ClearErrorWatcher(tilContent));
+
+        findViewById(R.id.btn_submit).setOnClickListener(v -> {
+            if (validateForm()) submitPost();
+        });
 
         loadMyForums();
+    }
+
+    private boolean validateForm() {
+        boolean valid = true;
+        String title = etTitle.getText().toString().trim();
+        String content = etContent.getText().toString().trim();
+
+        if (title.isEmpty()) {
+            tilTitle.setError("标题不能为空");
+            valid = false;
+        } else if (title.length() > 100) {
+            tilTitle.setError("标题不能超过100字");
+            valid = false;
+        }
+
+        if (content.isEmpty()) {
+            tilContent.setError("正文不能为空");
+            valid = false;
+        }
+
+        return valid;
     }
 
     private void loadMyForums() {
@@ -102,13 +131,8 @@ public class CreatePostActivity extends AppCompatActivity {
 
         String title = etTitle.getText().toString().trim();
         String content = etContent.getText().toString().trim();
-
-        if (title.isEmpty() || content.isEmpty()) {
-            Toast.makeText(this, "Please fill all fields", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
         ForumItem selectedForum = forums.get(spinnerForum.getSelectedItemPosition());
+
         PostApi postApi = RetrofitClient.getInstance().create(PostApi.class);
         postApi.createPost(new PostCreateRequest(selectedForum.getId(), title, content))
                 .enqueue(new Callback<ApiResponse>() {
@@ -120,12 +144,12 @@ public class CreatePostActivity extends AppCompatActivity {
                         }
                         if (response.isSuccessful() && response.body() != null) {
                             ApiResponse res = response.body();
-                            Toast.makeText(CreatePostActivity.this, res.getMessage(), Toast.LENGTH_SHORT).show();
                             if (res.isSuccess()) {
+                                Toast.makeText(CreatePostActivity.this, res.getMessage(), Toast.LENGTH_SHORT).show();
                                 finish();
+                            } else {
+                                tilContent.setError(res.getMessage());
                             }
-                        } else {
-                            Toast.makeText(CreatePostActivity.this, "Error: " + response.code(), Toast.LENGTH_SHORT).show();
                         }
                     }
 
@@ -134,5 +158,15 @@ public class CreatePostActivity extends AppCompatActivity {
                         Toast.makeText(CreatePostActivity.this, "Failed: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
+
+    private static class ClearErrorWatcher implements TextWatcher {
+        private final TextInputLayout layout;
+        ClearErrorWatcher(TextInputLayout layout) { this.layout = layout; }
+        @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+        @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+            layout.setError(null);
+        }
+        @Override public void afterTextChanged(Editable s) {}
     }
 }

@@ -1,5 +1,6 @@
 package com.zzmg.topic_channel_platform;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -7,6 +8,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -25,6 +27,8 @@ import retrofit2.Response;
 public class MeActivity extends AppCompatActivity {
 
     private static final int REQUEST_LOGIN = 1;
+    private static final int REQUEST_EDIT_PROFILE = 2;
+    private static final int REQUEST_CHANGE_PASSWORD = 3;
 
     private View llLoggedIn, llNotLoggedIn;
     private TextView tvUserName, tvPhoneNumber;
@@ -47,6 +51,20 @@ public class MeActivity extends AppCompatActivity {
         tvUserName = findViewById(R.id.tv_user_name);
         tvPhoneNumber = findViewById(R.id.tv_phone_number);
 
+        findViewById(R.id.btn_edit_profile).setOnClickListener(v ->
+                startActivityForResult(new Intent(MeActivity.this, EditProfileActivity.class), REQUEST_EDIT_PROFILE));
+
+        findViewById(R.id.btn_change_password).setOnClickListener(v ->
+                startActivityForResult(new Intent(MeActivity.this, ChangePasswordActivity.class), REQUEST_CHANGE_PASSWORD));
+
+        findViewById(R.id.btn_my_forums).setOnClickListener(v ->
+                startActivity(new Intent(MeActivity.this, MyForumsActivity.class)));
+
+        findViewById(R.id.btn_my_collects).setOnClickListener(v ->
+                startActivity(new Intent(MeActivity.this, MyCollectsActivity.class)));
+
+        findViewById(R.id.btn_delete_account).setOnClickListener(v -> confirmDelete());
+
         findViewById(R.id.btn_logout).setOnClickListener(v -> doLogout());
         findViewById(R.id.btn_login).setOnClickListener(v -> {
             Intent intent = new Intent(MeActivity.this, LoginActivity.class);
@@ -59,7 +77,7 @@ public class MeActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_LOGIN && resultCode == RESULT_OK) {
+        if (resultCode == RESULT_OK) {
             loadProfile();
         }
     }
@@ -83,6 +101,35 @@ public class MeActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<UserProfile> call, Throwable t) {
+                Toast.makeText(MeActivity.this, "Failed: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void confirmDelete() {
+        new AlertDialog.Builder(this)
+                .setTitle("Delete Account")
+                .setMessage("This will permanently delete your account. Are you sure?")
+                .setPositiveButton("Delete", (dialog, which) -> doDelete())
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    private void doDelete() {
+        UserApi userApi = RetrofitClient.getInstance().create(UserApi.class);
+        userApi.deleteMe().enqueue(new Callback<ApiResponse>() {
+            @Override
+            public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    RetrofitClient.clearCookies();
+                    llLoggedIn.setVisibility(View.GONE);
+                    llNotLoggedIn.setVisibility(View.VISIBLE);
+                    Toast.makeText(MeActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ApiResponse> call, Throwable t) {
                 Toast.makeText(MeActivity.this, "Failed: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });

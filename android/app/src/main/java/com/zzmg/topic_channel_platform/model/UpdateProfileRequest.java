@@ -1,20 +1,23 @@
 package com.zzmg.topic_channel_platform.model;
 
-public class UserProfile {
-    private String userId;
+public class UpdateProfileRequest {
     private String userName;
-    private String phoneNumber;
     private String realName;
     private String gender;
     private String birthday;
     private String idNumber;
 
-    public String getUserId() { return userId; }
-    public void setUserId(String userId) { this.userId = userId; }
+    public UpdateProfileRequest(String userName, String realName, String gender,
+                                String birthday, String idNumber) {
+        this.userName = userName;
+        this.realName = realName;
+        this.gender = gender;
+        this.birthday = birthday;
+        this.idNumber = idNumber;
+    }
+
     public String getUserName() { return userName; }
     public void setUserName(String userName) { this.userName = userName; }
-    public String getPhoneNumber() { return phoneNumber; }
-    public void setPhoneNumber(String phoneNumber) { this.phoneNumber = phoneNumber; }
     public String getRealName() { return realName; }
     public void setRealName(String realName) { this.realName = realName; }
     public String getGender() { return gender; }

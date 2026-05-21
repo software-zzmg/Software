@@ -7,7 +7,6 @@ import com.zzmg.topic_channel_platform.CreatePostActivity;
 import com.zzmg.topic_channel_platform.ForumListActivity;
 import com.zzmg.topic_channel_platform.MainActivity;
 import com.zzmg.topic_channel_platform.MeActivity;
-import com.zzmg.topic_channel_platform.MyCollectsActivity;
 import com.zzmg.topic_channel_platform.R;
 
 public class BottomNavHelper {
@@ -33,14 +32,6 @@ public class BottomNavHelper {
         activity.findViewById(R.id.btn_nav_forums).setOnClickListener(v -> {
             if (!"forums".equals(current) && !"forum_detail".equals(current)) {
                 Intent intent = new Intent(activity, ForumListActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                activity.startActivity(intent);
-            }
-        });
-
-        activity.findViewById(R.id.btn_nav_collects).setOnClickListener(v -> {
-            if (!"collects".equals(current)) {
-                Intent intent = new Intent(activity, MyCollectsActivity.class);
                 intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 activity.startActivity(intent);
             }

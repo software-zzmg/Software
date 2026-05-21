@@ -2,9 +2,13 @@ package com.zzmg.topic_channel_platform;
 
 import android.os.Bundle;
 import android.view.View;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import com.google.android.material.textfield.TextInputLayout;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -36,6 +40,7 @@ public class PostDetailActivity extends AppCompatActivity {
     private TextView tvNoComments;
     private RecyclerView rvComments;
     private CommentAdapter commentAdapter;
+    private TextInputLayout tilComment;
     private EditText etComment;
     private Button btnCollect;
 
@@ -60,6 +65,7 @@ public class PostDetailActivity extends AppCompatActivity {
         tvContent = findViewById(R.id.tv_detail_content);
         tvNoComments = findViewById(R.id.tv_no_comments);
         rvComments = findViewById(R.id.rv_comments);
+        tilComment = findViewById(R.id.til_comment);
         etComment = findViewById(R.id.et_comment);
         btnCollect = findViewById(R.id.btn_collect);
 
@@ -75,6 +81,15 @@ public class PostDetailActivity extends AppCompatActivity {
         }
 
         btnCollect.setOnClickListener(v -> toggleCollect());
+
+        etComment.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                tilComment.setError(null);
+            }
+            @Override public void afterTextChanged(Editable s) {}
+        });
+
         findViewById(R.id.btn_submit).setOnClickListener(v -> submitComment());
 
         com.zzmg.topic_channel_platform.helper.BottomNavHelper.setup(this, "detail");
@@ -142,6 +157,7 @@ public class PostDetailActivity extends AppCompatActivity {
     private void submitComment() {
         String content = etComment.getText().toString().trim();
         if (content.isEmpty()) {
+            tilComment.setError("评论内容不能为空");
             return;
         }
 
