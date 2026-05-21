@@ -118,6 +118,18 @@ public class ApiUserController {
             return ResponseEntity.status(401)
                     .body(Map.of("success", false, "message", "请先登录"));
         }
+        if (request.getOldPassword() == null || request.getOldPassword().isBlank()) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "请输入原密码"));
+        }
+        if (request.getNewPassword() == null || request.getNewPassword().isBlank()) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "请输入新密码"));
+        }
+        if (request.getConfirmPassword() == null || request.getConfirmPassword().isBlank()) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "请确认新密码"));
+        }
         if (!request.getNewPassword().equals(request.getConfirmPassword())) {
             return ResponseEntity.badRequest()
                     .body(Map.of("success", false, "message", "两次密码输入不一致"));
