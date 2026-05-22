@@ -41,6 +41,9 @@ public class ForumListActivity extends AppCompatActivity {
 
         BottomNavHelper.setup(this, "forums");
 
+        findViewById(R.id.btn_create_forum).setOnClickListener(v ->
+                startActivity(new Intent(ForumListActivity.this, CreateForumActivity.class)));
+
         RecyclerView rvForums = findViewById(R.id.rv_forums);
         rvForums.setLayoutManager(new LinearLayoutManager(this));
         adapter = new ForumAdapter();

@@ -21,6 +21,16 @@
             android:textSize="20sp"
             android:textStyle="bold" />
 
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_create_forum"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Create Forum"
+            android:textSize="12sp"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            style="@style/Widget.Material3.Button.TonalButton" />
+
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView

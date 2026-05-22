@@ -1,10 +1,12 @@
 package com.zzmg.topicchannelplatform.controller;
 
+import com.zzmg.topicchannelplatform.dto.ForumCreateRequest;
 import com.zzmg.topicchannelplatform.dto.ForumDetailDTO;
 import com.zzmg.topicchannelplatform.dto.ForumItemDTO;
 import com.zzmg.topicchannelplatform.dto.ForumListItemDTO;
 import com.zzmg.topicchannelplatform.dto.PostListItemDTO;
 import com.zzmg.topicchannelplatform.entity.Forum;
+import com.zzmg.topicchannelplatform.entity.OrdinaryUser;
 import com.zzmg.topicchannelplatform.service.ForumMemberService;
 import com.zzmg.topicchannelplatform.service.ForumService;
 import com.zzmg.topicchannelplatform.service.ThemePostService;
@@ -13,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -140,5 +143,43 @@ public class ApiForumController {
         forumMemberService.leave(userId, id);
         return ResponseEntity.ok(
                 Map.of("success", true, "message", "已退出频道"));
+    }
+
+    @PostMapping("/forums")
+    public ResponseEntity<Map<String, Object>> createForum(
+            @RequestBody ForumCreateRequest request, HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401)
+                    .body(Map.of("success", false, "message", "请先登录"));
+        }
+        String forumName = request.getForumName();
+        String description = request.getDescription();
+        if (forumName == null || forumName.isBlank()) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "频道名不能为空"));
+        }
+        if (forumName.length() > 50) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "频道名长度不能超过50"));
+        }
+        if (description == null || description.isBlank()) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "频道简介不能为空"));
+        }
+        if (description.length() > 500) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "频道简介长度不能超过500"));
+        }
+        Forum forum = new Forum();
+        forum.setForumName(forumName);
+        forum.setContent(description);
+        OrdinaryUser creator = new OrdinaryUser();
+        creator.setUserId(userId);
+        forum.setCreator(creator);
+        forumService.create(forum);
+        forumMemberService.join(userId, forum.getForumId());
+        return ResponseEntity.ok(
+                Map.of("success", true, "message", "频道创建申请已提交，等待审核通过后可见"));
     }
 }
