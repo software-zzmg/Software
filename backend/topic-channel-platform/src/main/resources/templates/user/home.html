@@ -36,14 +36,21 @@
             <p class="empty-state" th:if="${#lists.isEmpty(myPosts)}">暂无帖子</p>
             <div class="table-wrapper"><table th:if="${!#lists.isEmpty(myPosts)}" class="table">
                 <thead>
-                    <tr><th>标题</th><th>所属频道</th><th>发布时间</th><th>状态</th></tr>
+                    <tr><th>标题</th><th>所属频道</th><th>发布时间</th><th>状态</th><th>操作</th></tr>
                 </thead>
                 <tbody>
                     <tr th:each="p : ${myPosts}">
-                        <td><a th:href="@{/post/detail/{id}(id=${p.themePostId})}" th:text="${p.title}"></a></td>
+                        <td>
+                            <a th:if="${p.auditState == '审核通过'}" th:href="@{/post/detail/{id}(id=${p.themePostId})}" th:text="${p.title}"></a>
+                            <span th:unless="${p.auditState == '审核通过'}" th:text="${p.title}"></span>
+                        </td>
                         <td th:text="${p.forum.forumName}"></td>
                         <td th:text="${@timeFormatter.format(p.publishTime)}"></td>
                         <td th:text="${p.auditState}"></td>
+                        <td>
+                            <a th:if="${p.auditState != '审核通过'}" href="javascript:void(0)" class="btn btn-outline btn-sm btn-edit-post"
+                               th:attr="data-id=${p.themePostId},data-title=${p.title},data-content=${p.content}">编辑</a>
+                        </td>
                     </tr>
                 </tbody>
             </table></div>
@@ -83,6 +90,29 @@
         </div>
     </div>
 
+    <!-- 编辑帖子弹窗 -->
+    <div id="modal-edit-post" class="modal-overlay">
+        <div class="modal-card">
+            <h2>编辑帖子</h2>
+            <p id="modal-edit-error" class="error-text" style="display:none;"></p>
+            <form id="form-edit-post" class="form" onsubmit="return false">
+                <input type="hidden" name="postId" id="edit-post-id">
+                <div class="form-group">
+                    <label>标题：</label>
+                    <input type="text" name="title" id="edit-post-title" class="form-input" required maxlength="100">
+                </div>
+                <div class="form-group">
+                    <label>内容：</label>
+                    <textarea name="content" id="edit-post-content" rows="8" class="form-textarea" maxlength="3000" required></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">保存修改</button>
+                    <button type="button" id="btn-cancel-edit" class="btn btn-outline">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
     (function() {
         var btns = document.querySelectorAll('.tab-btn');
@@ -106,6 +136,63 @@
         if (tab && document.getElementById('tab-' + tab)) {
             switchTab(tab);
         }
+
+        // 编辑帖子弹窗
+        var editModal = document.getElementById('modal-edit-post');
+        var editForm = document.getElementById('form-edit-post');
+        var editError = document.getElementById('modal-edit-error');
+        var editPostId = document.getElementById('edit-post-id');
+        var editTitle = document.getElementById('edit-post-title');
+        var editContent = document.getElementById('edit-post-content');
+        var cancelBtn = document.getElementById('btn-cancel-edit');
+
+        function openEdit(postId, title, content) {
+            editPostId.value = postId;
+            editTitle.value = title;
+            editContent.value = content;
+            editError.style.display = 'none';
+            editError.textContent = '';
+            editModal.classList.add('active');
+        }
+        function closeEdit() { editModal.classList.remove('active'); }
+
+        document.querySelectorAll('.btn-edit-post').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                openEdit(this.getAttribute('data-id'), this.getAttribute('data-title'), this.getAttribute('data-content'));
+            });
+        });
+        cancelBtn.addEventListener('click', closeEdit);
+        editModal.addEventListener('click', function(e) { if (e.target === editModal) closeEdit(); });
+
+        editForm.addEventListener('submit', function() {
+            editError.style.display = 'none';
+            var fd = new FormData(editForm);
+            var params = new URLSearchParams(fd).toString();
+            fetch('/post/edit', {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: params
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    closeEdit();
+                    var toast = document.createElement('div');
+                    toast.className = 'toast';
+                    toast.textContent = data.toast;
+                    document.body.appendChild(toast);
+                    setTimeout(function() { toast.style.opacity = '0'; setTimeout(function() { toast.remove(); }, 500); }, 2500);
+                    setTimeout(function() { location.reload(); }, 800);
+                } else {
+                    editError.textContent = data.error || '编辑失败，请重试';
+                    editError.style.display = 'block';
+                }
+            })
+            .catch(function() {
+                editError.textContent = '网络错误，请重试';
+                editError.style.display = 'block';
+            });
+        });
     })();
     </script>
 

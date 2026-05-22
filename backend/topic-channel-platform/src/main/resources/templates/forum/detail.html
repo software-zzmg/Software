@@ -46,10 +46,88 @@
         </p>
 
         <div class="form-actions">
-            <a th:if="${session.userId != null && forum.auditState == '审核通过'}" th:href="@{/post/create/{id}(id=${forum.forumId})}" class="btn btn-primary">发布新帖</a>
-            <a th:if="${session.userId != null && forum.auditState != '审核通过'}" href="#" class="btn btn-outline" onclick="alert('频道审核中，暂无法发帖');return false;">发布新帖</a>
+            <a th:if="${session.userId != null && forum.auditState == '审核通过'}" href="javascript:void(0)" id="btn-create-post" class="btn btn-primary">发布新帖</a>
+            <a th:if="${session.userId != null && forum.auditState != '审核通过'}" href="javascript:void(0)" class="btn btn-outline" id="btn-disabled-post">发布新帖</a>
         </div>
     </div>
+
+    <!-- 发布新帖弹窗 -->
+    <div th:if="${session.userId != null && forum.auditState == '审核通过'}" id="modal-create-post" class="modal-overlay">
+        <div class="modal-card">
+            <h2>发布新帖</h2>
+            <p th:text="'频道：' + ${forum.forumName}" class="info-row"></p>
+            <p id="modal-post-error" class="error-text" style="display:none;"></p>
+            <form id="form-create-post" class="form" onsubmit="return false">
+                <input type="hidden" name="forumId" th:value="${forum.forumId}">
+                <div class="form-group">
+                    <label>标题：</label>
+                    <input type="text" name="title" class="form-input" required maxlength="100">
+                </div>
+                <div class="form-group">
+                    <label>内容：</label>
+                    <textarea name="content" rows="8" class="form-textarea" maxlength="3000" required></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">发布</button>
+                    <button type="button" id="btn-cancel-post" class="btn btn-outline">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script th:if="${session.userId != null && forum.auditState == '审核通过'}">
+    (function() {
+        var modal = document.getElementById('modal-create-post');
+        var btnOpen = document.getElementById('btn-create-post');
+        var btnCancel = document.getElementById('btn-cancel-post');
+        var form = document.getElementById('form-create-post');
+        var error = document.getElementById('modal-post-error');
+
+        function open() { modal.classList.add('active'); }
+        function close() { modal.classList.remove('active'); form.reset(); error.style.display = 'none'; error.textContent = ''; }
+
+        btnOpen.addEventListener('click', function(e) { e.preventDefault(); open(); });
+        btnCancel.addEventListener('click', close);
+        modal.addEventListener('click', function(e) { if (e.target === modal) close(); });
+
+        form.addEventListener('submit', function() {
+            error.style.display = 'none';
+            var fd = new FormData(form);
+            var params = new URLSearchParams(fd).toString();
+            fetch('/post/create', {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: params
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    close();
+                    var toast = document.createElement('div');
+                    toast.className = 'toast';
+                    toast.textContent = data.toast;
+                    document.body.appendChild(toast);
+                    setTimeout(function() { toast.style.opacity = '0'; setTimeout(function() { toast.remove(); }, 500); }, 2500);
+                    setTimeout(function() { location.reload(); }, 800);
+                } else {
+                    error.textContent = data.error || '发布失败，请重试';
+                    error.style.display = 'block';
+                }
+            })
+            .catch(function() {
+                error.textContent = '网络错误，请重试';
+                error.style.display = 'block';
+            });
+        });
+    })();
+    </script>
+
+    <script th:if="${session.userId != null && forum.auditState != '审核通过'}">
+    document.getElementById('btn-disabled-post').addEventListener('click', function(e) {
+        e.preventDefault();
+        alert('频道审核中，暂无法发帖');
+    });
+    </script>
 
     <hr class="divider">
     <h2 class="section-title">频道帖子</h2>
