@@ -15,103 +15,79 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
-import com.zzmg.topic_channel_platform.api.UserApi;
-import com.zzmg.topic_channel_platform.helper.BottomNavHelper;
-import com.zzmg.topic_channel_platform.model.LoginRequest;
-import com.zzmg.topic_channel_platform.model.LoginResponse;
+import com.zzmg.topic_channel_platform.api.AdminApi;
+import com.zzmg.topic_channel_platform.model.AdminLoginRequest;
+import com.zzmg.topic_channel_platform.model.AdminLoginResponse;
 import com.zzmg.topic_channel_platform.network.RetrofitClient;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class LoginActivity extends AppCompatActivity {
+public class AdminLoginActivity extends AppCompatActivity {
 
-    private TextInputLayout tilPhone, tilPassword;
-    private TextInputEditText etPhone, etPassword;
+    private TextInputLayout tilAdminId, tilPassword;
+    private TextInputEditText etAdminId, etPassword;
     private View tvError;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_login);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.ll_header), (v, insets) -> {
+        setContentView(R.layout.activity_admin_login);
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.btn_back), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(v.getPaddingLeft(), systemBars.top, v.getPaddingRight(), v.getPaddingBottom());
             return insets;
         });
 
-        BottomNavHelper.setup(this, "login");
-
         findViewById(R.id.btn_back).setOnClickListener(v -> finish());
 
-        tilPhone = findViewById(R.id.til_phone);
+        tilAdminId = findViewById(R.id.til_admin_id);
         tilPassword = findViewById(R.id.til_password);
-        etPhone = findViewById(R.id.et_phone);
+        etAdminId = findViewById(R.id.et_admin_id);
         etPassword = findViewById(R.id.et_password);
         tvError = findViewById(R.id.tv_error);
 
-        etPhone.addTextChangedListener(new ClearErrorWatcher(tilPhone));
+        etAdminId.addTextChangedListener(new ClearErrorWatcher(tilAdminId));
         etPassword.addTextChangedListener(new ClearErrorWatcher(tilPassword));
 
         findViewById(R.id.btn_login).setOnClickListener(v -> {
             tvError.setVisibility(View.GONE);
-            if (validateForm()) {
-                doLogin();
-            }
-        });
-
-        findViewById(R.id.tv_forgot_password).setOnClickListener(v -> {
-            startActivity(new Intent(LoginActivity.this, ForgotPasswordActivity.class));
-        });
-
-        findViewById(R.id.tv_admin_login).setOnClickListener(v -> {
-            startActivity(new Intent(LoginActivity.this, AdminLoginActivity.class));
-        });
-
-        findViewById(R.id.tv_register_link).setOnClickListener(v -> {
-            startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
+            if (validateForm()) doLogin();
         });
     }
 
     private boolean validateForm() {
         boolean valid = true;
-        String phone = etPhone.getText().toString().trim();
-        String password = etPassword.getText().toString().trim();
-
-        if (phone.isEmpty()) {
-            tilPhone.setError("请输入手机号");
-            valid = false;
-        } else if (!phone.matches("1\\d{10}")) {
-            tilPhone.setError("手机号格式不正确，应为11位数字");
+        if (etAdminId.getText().toString().trim().isEmpty()) {
+            tilAdminId.setError("请输入管理员账号");
             valid = false;
         }
-
-        if (password.isEmpty()) {
+        if (etPassword.getText().toString().trim().isEmpty()) {
             tilPassword.setError("请输入密码");
             valid = false;
         }
-
         return valid;
     }
 
     private void doLogin() {
-        String phone = etPhone.getText().toString().trim();
+        String adminId = etAdminId.getText().toString().trim();
         String password = etPassword.getText().toString().trim();
 
-        UserApi userApi = RetrofitClient.getInstance().create(UserApi.class);
-        userApi.login(new LoginRequest(phone, password)).enqueue(new Callback<LoginResponse>() {
+        AdminApi adminApi = RetrofitClient.getInstance().create(AdminApi.class);
+        adminApi.login(new AdminLoginRequest(adminId, password))
+                .enqueue(new Callback<AdminLoginResponse>() {
             @Override
-            public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+            public void onResponse(Call<AdminLoginResponse> call, Response<AdminLoginResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {
-                    LoginResponse loginResponse = response.body();
-                    if (loginResponse.isSuccess()) {
-                        Toast.makeText(LoginActivity.this, "欢迎, " + loginResponse.getUserName(), Toast.LENGTH_SHORT).show();
-                        setResult(RESULT_OK);
+                    AdminLoginResponse res = response.body();
+                    if (res.isSuccess()) {
+                        Toast.makeText(AdminLoginActivity.this, res.getMessage(), Toast.LENGTH_SHORT).show();
+                        startActivity(new Intent(AdminLoginActivity.this, AdminDashboardActivity.class));
                         finish();
                     } else {
-                        showError(loginResponse.getMessage());
+                        showError(res.getMessage());
                     }
                 } else {
                     showError("登录失败");
@@ -119,7 +95,7 @@ public class LoginActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onFailure(Call<LoginResponse> call, Throwable t) {
+            public void onFailure(Call<AdminLoginResponse> call, Throwable t) {
                 showError("网络错误: " + t.getMessage());
             }
         });

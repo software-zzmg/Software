@@ -15,6 +15,26 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Topic_channel_platform">
         <activity
+            android:name=".AdminLoginActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".AdminDashboardActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".AdminPendingForumsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".AdminPendingPostsActivity"
+            android:exported="false" />
+
+        <activity
+            android:name=".AdminPendingCommentsActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".ForgotPasswordActivity"
             android:exported="false" />
 
