@@ -16,6 +16,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.zzmg.topic_channel_platform.api.AdminApi;
 import com.zzmg.topic_channel_platform.model.ApiResponse;
@@ -34,6 +35,7 @@ public class AdminPendingCommentsActivity extends AppCompatActivity {
     private RecyclerView rvItems;
     private TextView tvEmpty;
     private CommentAdapter adapter;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,6 +57,9 @@ public class AdminPendingCommentsActivity extends AppCompatActivity {
         adapter = new CommentAdapter();
         rvItems.setAdapter(adapter);
 
+        swipeRefreshLayout = findViewById(R.id.swipe_refresh);
+        swipeRefreshLayout.setOnRefreshListener(this::loadData);
+
         loadData();
     }
 
@@ -63,6 +68,7 @@ public class AdminPendingCommentsActivity extends AppCompatActivity {
         adminApi.getPendingComments().enqueue(new Callback<List<PendingCommentItem>>() {
             @Override
             public void onResponse(Call<List<PendingCommentItem>> call, Response<List<PendingCommentItem>> response) {
+                swipeRefreshLayout.setRefreshing(false);
                 if (response.code() == 401) {
                     Toast.makeText(AdminPendingCommentsActivity.this, "请先进行管理员登录", Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(AdminPendingCommentsActivity.this, AdminLoginActivity.class));
@@ -77,6 +83,7 @@ public class AdminPendingCommentsActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<List<PendingCommentItem>> call, Throwable t) {
+                swipeRefreshLayout.setRefreshing(false);
                 Toast.makeText(AdminPendingCommentsActivity.this, "网络错误: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
