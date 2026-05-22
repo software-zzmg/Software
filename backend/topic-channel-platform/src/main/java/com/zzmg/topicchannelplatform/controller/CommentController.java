@@ -5,6 +5,8 @@ import com.zzmg.topicchannelplatform.entity.OrdinaryUser;
 import com.zzmg.topicchannelplatform.repository.CommentRepository;
 import com.zzmg.topicchannelplatform.repository.ThemePostRepository;
 import com.zzmg.topicchannelplatform.service.CommentService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,6 +14,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.io.IOException;
 
 @Controller
 @RequestMapping("/comment")
@@ -56,9 +60,13 @@ public class CommentController {
 
     @PostMapping("/delete")
     public String delete(@RequestParam Long commentId, HttpSession session,
-                         RedirectAttributes redirectAttributes) {
+                         RedirectAttributes redirectAttributes,
+                         HttpServletRequest request,
+                         HttpServletResponse response) throws IOException {
         String userId = (String) session.getAttribute("userId");
+        boolean isAjax = "XMLHttpRequest".equals(request.getHeader("X-Requested-With"));
         if (userId == null) {
+            if (isAjax) { writeJson(response, "{\"success\":false,\"error\":\"请先登录\"}"); return null; }
             return "redirect:/user/login";
         }
         Long postId = commentRepository.findById(commentId)
@@ -67,7 +75,13 @@ public class CommentController {
         if (postId != null && commentService.canDelete(userId, commentId)) {
             commentService.deleteById(commentId);
         }
+        if (isAjax) { writeJson(response, "{\"success\":true,\"toast\":\"评论已删除\"}"); return null; }
         redirectAttributes.addFlashAttribute("toast", "评论已删除");
         return postId != null ? "redirect:/post/detail/" + postId : "redirect:/forum/list";
+    }
+
+    private void writeJson(HttpServletResponse response, String json) throws IOException {
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write(json);
     }
 }

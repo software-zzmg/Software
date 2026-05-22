@@ -77,11 +77,7 @@ public class ForumController {
         String userId = (String) session.getAttribute("userId");
         boolean isAjax = "XMLHttpRequest".equals(request.getHeader("X-Requested-With"));
         if (userId == null) {
-            if (isAjax) {
-                response.setContentType("application/json;charset=UTF-8");
-                response.getWriter().write("{\"success\":false,\"error\":\"请先登录\"}");
-                return null;
-            }
+            if (isAjax) { writeJson(response, "{\"success\":false,\"error\":\"请先登录\"}"); return null; }
             return "redirect:/user/login";
         }
         Forum forum = new Forum();
@@ -92,11 +88,7 @@ public class ForumController {
         forum.setCreator(creator);
         forumService.create(forum);
         forumMemberService.join(userId, forum.getForumId());
-        if (isAjax) {
-            response.setContentType("application/json;charset=UTF-8");
-            response.getWriter().write("{\"success\":true,\"toast\":\"已提交创建频道申请，等待审核成功后可见\"}");
-            return null;
-        }
+        if (isAjax) { writeJson(response, "{\"success\":true,\"toast\":\"已提交创建频道申请，等待审核成功后可见\"}"); return null; }
         redirectAttributes.addFlashAttribute("toast", "已提交创建频道申请，等待审核成功后可见");
         return "redirect:/";
     }
@@ -120,9 +112,13 @@ public class ForumController {
     public String edit(@RequestParam Long forumId,
                        @RequestParam String forumName,
                        @RequestParam String content,
-                       HttpSession session) {
+                       HttpSession session,
+                       HttpServletRequest request,
+                       HttpServletResponse response) throws IOException {
         String userId = (String) session.getAttribute("userId");
+        boolean isAjax = "XMLHttpRequest".equals(request.getHeader("X-Requested-With"));
         if (userId == null) {
+            if (isAjax) { writeJson(response, "{\"success\":false,\"error\":\"请先登录\"}"); return null; }
             return "redirect:/user/login";
         }
         forumService.findById(forumId).ifPresent(forum -> {
@@ -132,14 +128,19 @@ public class ForumController {
                 forumService.update(forum);
             }
         });
+        if (isAjax) { writeJson(response, "{\"success\":true,\"toast\":\"频道信息已更新\"}"); return null; }
         return "redirect:/forum/detail/" + forumId;
     }
 
     @PostMapping("/dismiss")
     public String dismiss(@RequestParam Long forumId, HttpSession session,
-                          RedirectAttributes redirectAttributes) {
+                          RedirectAttributes redirectAttributes,
+                          HttpServletRequest request,
+                          HttpServletResponse response) throws IOException {
         String userId = (String) session.getAttribute("userId");
+        boolean isAjax = "XMLHttpRequest".equals(request.getHeader("X-Requested-With"));
         if (userId == null) {
+            if (isAjax) { writeJson(response, "{\"success\":false,\"error\":\"请先登录\"}"); return null; }
             return "redirect:/user/login";
         }
         forumService.findById(forumId).ifPresent(forum -> {
@@ -147,7 +148,13 @@ public class ForumController {
                 forumService.deleteById(forumId);
             }
         });
+        if (isAjax) { writeJson(response, "{\"success\":true,\"toast\":\"频道已解散\"}"); return null; }
         redirectAttributes.addFlashAttribute("toast", "频道已解散");
         return "redirect:/";
+    }
+
+    private void writeJson(HttpServletResponse response, String json) throws IOException {
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write(json);
     }
 }

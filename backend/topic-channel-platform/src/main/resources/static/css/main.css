@@ -119,6 +119,17 @@ a:hover { color:#1d4ed8; }
 .tab-panel .table-wrapper { margin-top:8px; }
 .tab-panel .table { box-shadow:none; border-radius:0; }
 
+/* === 三点菜单 === */
+.forum-dots { position:relative; display:inline-block; }
+.forum-dots-btn { background:none; border:none; font-size:20px; color:#6b7280; cursor:pointer; padding:2px 6px; line-height:1; border-radius:4px; }
+.forum-dots-btn:hover { background:#f3f4f6; color:#111; }
+.forum-dots-menu { display:none; position:absolute; top:100%; right:0; margin-top:4px; min-width:120px; background:#fff; border-radius:8px; box-shadow:0 4px 20px rgba(0,0,0,.14); z-index:500; overflow:hidden; }
+.forum-dots-menu.active { display:block; animation:fadeIn .15s ease; }
+.forum-dots-menu a, .forum-dots-menu button { display:block; width:100%; padding:10px 16px; text-align:left; background:none; border:none; font-size:14px; color:#444; cursor:pointer; }
+.forum-dots-menu a:hover, .forum-dots-menu button:hover { background:#f0f5ff; color:#2563eb; }
+.forum-dots-menu .danger { color:#ef4444; }
+.forum-dots-menu .danger:hover { background:#fef2f2; color:#dc2626; }
+
 /* === 响应式 === */
 @media (max-width:768px) {
   .modal-card { width:90%; }

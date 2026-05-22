@@ -184,9 +184,17 @@ public class ThemePostController {
 
     @PostMapping("/delete")
     public String delete(@RequestParam Long postId, HttpSession session,
-                         RedirectAttributes redirectAttributes) {
+                         RedirectAttributes redirectAttributes,
+                         HttpServletRequest request,
+                         HttpServletResponse response) throws IOException {
         String userId = (String) session.getAttribute("userId");
+        boolean isAjax = "XMLHttpRequest".equals(request.getHeader("X-Requested-With"));
         if (userId == null) {
+            if (isAjax) {
+                response.setContentType("application/json;charset=UTF-8");
+                response.getWriter().write("{\"success\":false,\"error\":\"请先登录\"}");
+                return null;
+            }
             return "redirect:/user/login";
         }
         Long forumId = postService.findById(postId)
@@ -194,6 +202,12 @@ public class ThemePostController {
                 .orElse(null);
         if (postService.isAuthor(userId, postId)) {
             postService.deleteById(postId);
+        }
+        if (isAjax) {
+            String redirect = forumId != null ? "/forum/detail/" + forumId : "/forum/list";
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write("{\"success\":true,\"toast\":\"帖子已删除\",\"redirect\":\"" + redirect + "\"}");
+            return null;
         }
         redirectAttributes.addFlashAttribute("toast", "帖子已删除");
         return forumId != null ? "redirect:/forum/detail/" + forumId : "redirect:/forum/list";

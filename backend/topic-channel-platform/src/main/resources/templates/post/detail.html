@@ -15,7 +15,16 @@
 
     <h1 class="page-title" th:text="${post.title}">帖子标题</h1>
 
-    <div class="card">
+    <div class="card" style="position:relative;">
+        <!-- 三点菜单按钮 -->
+        <div th:if="${isAuthor}" class="forum-dots" style="position:absolute;top:12px;right:12px;">
+            <button id="post-dots-btn" class="forum-dots-btn">&#8943;</button>
+            <div id="post-dots-menu" class="forum-dots-menu">
+                <a href="javascript:void(0)" id="menu-edit-post">编辑帖子</a>
+                <button class="danger" id="menu-delete-post">删除帖子</button>
+            </div>
+        </div>
+
         <p class="info-row"><strong>作者：</strong><span th:text="${post.author.status == 'deleted'} ? '已注销用户' : ${post.author.userName}"></span></p>
         <p class="info-row"><strong>所属频道：</strong>
             <a th:href="@{/forum/detail/{id}(id=${post.forum.forumId})}" th:text="${post.forum.forumName}"></a>
@@ -38,14 +47,6 @@
         </form>
         <a th:if="${currentUserId == null}" th:href="@{/user/login}" class="btn btn-outline btn-sm">登录后即可收藏</a>
         <a th:href="@{/collect/my}" class="btn btn-outline btn-sm">我的收藏</a>
-    </div>
-
-    <div th:if="${isAuthor}" class="form-actions">
-        <a href="javascript:void(0)" id="btn-edit-post" class="btn btn-outline">编辑帖子</a>
-        <form method="post" th:action="@{/post/delete}" style="display:inline">
-            <input type="hidden" name="postId" th:value="${post.themePostId}">
-            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('确定要删除该帖子吗？')">删除帖子</button>
-        </form>
     </div>
 
     <!-- 编辑帖子弹窗 -->
@@ -71,57 +72,132 @@
         </div>
     </div>
 
+    <!-- 确认弹窗 -->
+    <div id="modal-confirm" class="modal-overlay">
+        <div class="modal-card" style="max-width:360px;">
+            <h2 id="confirm-title">确认操作</h2>
+            <p id="confirm-msg" style="margin-bottom:20px;color:#555;"></p>
+            <div class="form-actions" style="justify-content:flex-end;">
+                <button type="button" id="btn-confirm-cancel" class="btn btn-outline">取消</button>
+                <button type="button" id="btn-confirm-ok" class="btn btn-danger">确认</button>
+            </div>
+        </div>
+    </div>
+
     <script th:if="${isAuthor}">
     (function() {
-        var modal = document.getElementById('modal-edit-post');
-        var btnOpen = document.getElementById('btn-edit-post');
-        var btnCancel = document.getElementById('btn-cancel-edit');
-        var form = document.getElementById('form-edit-post');
-        var error = document.getElementById('modal-edit-error');
-        var originalTitle = form.querySelector('[name="title"]').value;
-        var originalContent = form.querySelector('[name="content"]').value;
+        // 三点菜单
+        var dotsBtn = document.getElementById('post-dots-btn');
+        var dotsMenu = document.getElementById('post-dots-menu');
+        var dotsContainer = dotsBtn.parentElement;
+        var hideTimer = null;
+        function showMenu() { clearTimeout(hideTimer); dotsMenu.classList.add('active'); }
+        function hideMenu() { hideTimer = setTimeout(function() { dotsMenu.classList.remove('active'); }, 150); }
+        dotsBtn.addEventListener('click', function(e) { e.stopPropagation(); dotsMenu.classList.contains('active') ? hideMenu() : showMenu(); });
+        dotsBtn.addEventListener('mouseenter', showMenu);
+        dotsContainer.addEventListener('mouseleave', hideMenu);
+        dotsMenu.addEventListener('mouseenter', showMenu);
+        dotsMenu.addEventListener('mouseleave', hideMenu);
+        document.addEventListener('click', function() { dotsMenu.classList.remove('active'); });
 
-        function open() { modal.classList.add('active'); }
-        function close() {
-            modal.classList.remove('active');
-            form.querySelector('[name="title"]').value = originalTitle;
-            form.querySelector('[name="content"]').value = originalContent;
-            error.style.display = 'none'; error.textContent = '';
+        function showToast(msg) {
+            var t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
+            document.body.appendChild(t);
+            setTimeout(function() { t.style.opacity = '0'; setTimeout(function() { t.remove(); }, 500); }, 2500);
         }
 
-        btnOpen.addEventListener('click', function(e) { e.preventDefault(); open(); });
-        btnCancel.addEventListener('click', close);
-        modal.addEventListener('click', function(e) { if (e.target === modal) close(); });
+        // 确认弹窗
+        var confirmModal = document.getElementById('modal-confirm');
+        var confirmTitle = document.getElementById('confirm-title');
+        var confirmMsg = document.getElementById('confirm-msg');
+        var confirmBtn = document.getElementById('btn-confirm-ok');
+        var confirmCancel = document.getElementById('btn-confirm-cancel');
+        var confirmCallback = null;
+        function showConfirm(title, msg, cb) {
+            confirmTitle.textContent = title; confirmMsg.textContent = msg; confirmCallback = cb;
+            confirmModal.classList.add('active');
+        }
+        function hideConfirm() { confirmModal.classList.remove('active'); }
+        confirmCancel.addEventListener('click', hideConfirm);
+        confirmModal.addEventListener('click', function(e) { if (e.target === confirmModal) hideConfirm(); });
+        confirmBtn.addEventListener('click', function() { if (confirmCallback) { confirmCallback(); hideConfirm(); } });
 
-        form.addEventListener('submit', function() {
-            error.style.display = 'none';
-            var fd = new FormData(form);
-            var params = new URLSearchParams(fd).toString();
-            fetch('/post/edit', {
-                method: 'POST',
-                headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded' },
-                body: params
-            })
+        // 编辑帖子
+        var editModal = document.getElementById('modal-edit-post');
+        var editForm = document.getElementById('form-edit-post');
+        var editError = document.getElementById('modal-edit-error');
+        var editBtnCancel = document.getElementById('btn-cancel-edit');
+        var originalTitle = editForm.querySelector('[name="title"]').value;
+        var originalContent = editForm.querySelector('[name="content"]').value;
+        function openEdit() { editModal.classList.add('active'); }
+        function closeEdit() {
+            editModal.classList.remove('active');
+            editForm.querySelector('[name="title"]').value = originalTitle;
+            editForm.querySelector('[name="content"]').value = originalContent;
+            editError.style.display = 'none'; editError.textContent = '';
+        }
+        document.getElementById('menu-edit-post').addEventListener('click', openEdit);
+        editBtnCancel.addEventListener('click', closeEdit);
+        editModal.addEventListener('click', function(e) { if (e.target === editModal) closeEdit(); });
+        editForm.addEventListener('submit', function() {
+            editError.style.display = 'none';
+            var p = new URLSearchParams(new FormData(editForm)).toString();
+            fetch('/post/edit', { method:'POST', headers:{'X-Requested-With':'XMLHttpRequest','Content-Type':'application/x-www-form-urlencoded'}, body:p })
             .then(function(r) { return r.json(); })
-            .then(function(data) {
-                if (data.success) {
-                    originalTitle = form.querySelector('[name="title"]').value;
-                    originalContent = form.querySelector('[name="content"]').value;
-                    close();
-                    var toast = document.createElement('div');
-                    toast.className = 'toast';
-                    toast.textContent = data.toast;
-                    document.body.appendChild(toast);
-                    setTimeout(function() { toast.style.opacity = '0'; setTimeout(function() { toast.remove(); }, 500); }, 2500);
+            .then(function(d) {
+                if (d.success) {
+                    originalTitle = editForm.querySelector('[name="title"]').value;
+                    originalContent = editForm.querySelector('[name="content"]').value;
+                    closeEdit(); showToast(d.toast);
                     setTimeout(function() { location.reload(); }, 800);
-                } else {
-                    error.textContent = data.error || '编辑失败，请重试';
-                    error.style.display = 'block';
-                }
-            })
-            .catch(function() {
-                error.textContent = '网络错误，请重试';
-                error.style.display = 'block';
+                } else { editError.textContent = d.error || '编辑失败'; editError.style.display = 'block'; }
+            });
+        });
+
+        // 评论三点菜单 - 事件委托
+        document.addEventListener('click', function(e) {
+            var btn = e.target.closest('.comment-dots-btn');
+            if (btn) {
+                e.stopPropagation();
+                var menu = btn.parentElement.querySelector('.comment-dots-menu');
+                var wasActive = menu.classList.contains('active');
+                document.querySelectorAll('.comment-dots-menu.active').forEach(function(m) { m.classList.remove('active'); });
+                if (!wasActive) menu.classList.add('active');
+                return;
+            }
+            var del = e.target.closest('.btn-delete-comment');
+            if (del) {
+                var cid = del.getAttribute('data-id');
+                document.querySelectorAll('.comment-dots-menu.active').forEach(function(m) { m.classList.remove('active'); });
+                showConfirm('删除评论', '确定要删除该评论吗？', function() {
+                    fetch('/comment/delete', {
+                        method:'POST',
+                        headers:{'X-Requested-With':'XMLHttpRequest','Content-Type':'application/x-www-form-urlencoded'},
+                        body:'commentId=' + encodeURIComponent(cid)
+                    })
+                    .then(function(r) { return r.json(); })
+                    .then(function(d) { if (d.success) { showToast(d.toast); location.reload(); } });
+                });
+                return;
+            }
+            if (!e.target.closest('.comment-dots-btn')) {
+                document.querySelectorAll('.comment-dots-menu.active').forEach(function(m) { m.classList.remove('active'); });
+            }
+        });
+
+        // 删除帖子
+        document.getElementById('menu-delete-post').addEventListener('click', function() {
+            showConfirm('删除帖子', '确定要删除该帖子吗？此操作不可恢复。', function() {
+                fetch('/post/delete', {
+                    method:'POST',
+                    headers:{'X-Requested-With':'XMLHttpRequest','Content-Type':'application/x-www-form-urlencoded'},
+                    body:'postId=' + encodeURIComponent('${post.themePostId}')
+                })
+                .then(function(r) { return r.json(); })
+                .then(function(d) {
+                    showToast(d.toast);
+                    setTimeout(function() { location.href = d.redirect || '/'; }, 600);
+                });
             });
         });
     })();
@@ -148,17 +224,20 @@
 
     <p th:if="${#lists.isEmpty(comments)}" class="empty-state">暂无评论</p>
 
-    <div th:each="c : ${comments}" class="card" style="padding:12px 16px;">
+    <div th:each="c : ${comments}" class="card" style="padding:12px 16px;position:relative;">
         <p>
             <strong th:text="${c.author.status == 'deleted'} ? '已注销用户' : ${c.author.userName}"></strong>
             <span style="color:#999;font-size:12px;" th:text="${@timeFormatter.format(c.publishTime)}"></span>
         </p>
         <p th:text="${c.content}"></p>
-        <form th:if="${currentUserId != null && (currentUserId == c.author.userId || isAuthor)}"
-              method="post" th:action="@{/comment/delete}" style="display:inline">
-            <input type="hidden" name="commentId" th:value="${c.commentId}">
-            <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('确定要删除该评论吗？')">删除</button>
-        </form>
+        <!-- 评论删除三点 -->
+        <div th:if="${currentUserId != null && (currentUserId == c.author.userId || isAuthor)}"
+             class="forum-dots" style="position:absolute;top:8px;right:8px;">
+            <button class="forum-dots-btn comment-dots-btn">&#8943;</button>
+            <div class="forum-dots-menu comment-dots-menu">
+                <button class="danger btn-delete-comment" th:attr="data-id=${c.commentId}">删除评论</button>
+            </div>
+        </div>
     </div>
 
     <a th:href="@{/forum/detail/{id}(id=${post.forum.forumId})}" class="btn btn-outline">返回频道详情</a>
