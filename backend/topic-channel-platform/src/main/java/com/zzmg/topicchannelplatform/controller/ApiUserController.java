@@ -5,6 +5,8 @@ import com.zzmg.topicchannelplatform.dto.ForumListItemDTO;
 import com.zzmg.topicchannelplatform.dto.LoginRequest;
 import com.zzmg.topicchannelplatform.dto.LoginResponse;
 import com.zzmg.topicchannelplatform.dto.PostListItemDTO;
+import com.zzmg.topicchannelplatform.dto.RegisterRequest;
+import com.zzmg.topicchannelplatform.dto.SendCodeRequest;
 import com.zzmg.topicchannelplatform.dto.UpdateProfileRequest;
 import com.zzmg.topicchannelplatform.dto.UserProfileDTO;
 import com.zzmg.topicchannelplatform.entity.OrdinaryUser;
@@ -199,5 +201,76 @@ public class ApiUserController {
                 ))
                 .toList();
         return ResponseEntity.ok(collects);
+    }
+
+    @PostMapping("/users/register/send-code")
+    public ResponseEntity<Map<String, Object>> sendRegisterCode(
+            @RequestBody SendCodeRequest request, HttpSession session) {
+        String phoneNumber = request.getPhoneNumber();
+        if (phoneNumber == null || !phoneNumber.matches("1\\d{10}")) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "手机号格式错误"));
+        }
+        Optional<OrdinaryUser> existing = userService.findByPhone(phoneNumber);
+        if (existing.isPresent()) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "该手机号已被注册"));
+        }
+        session.setAttribute("registerCode", "123456");
+        session.setAttribute("registerPhone", phoneNumber);
+        return ResponseEntity.ok(Map.of("success", true, "message", "验证码已发送"));
+    }
+
+    @PostMapping("/users/register")
+    public ResponseEntity<Map<String, Object>> register(
+            @RequestBody RegisterRequest request, HttpSession session) {
+        String phoneNumber = request.getPhoneNumber();
+        String userName = request.getUserName();
+        String password = request.getPassword();
+        String confirmPassword = request.getConfirmPassword();
+        String verificationCode = request.getVerificationCode();
+
+        if (phoneNumber == null || !phoneNumber.matches("1\\d{10}")) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "手机号格式错误"));
+        }
+        if (userName == null || userName.isBlank()) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "用户名不能为空"));
+        }
+        if (userName.length() > 50) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "用户名长度不能超过50"));
+        }
+        if (password == null || password.isBlank()) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "密码不能为空"));
+        }
+        if (password.length() < 6) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "密码长度至少6位"));
+        }
+        if (!password.equals(confirmPassword)) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "两次密码不一致"));
+        }
+        String storedCode = (String) session.getAttribute("registerCode");
+        String storedPhone = (String) session.getAttribute("registerPhone");
+        if (storedCode == null || !storedCode.equals(verificationCode)
+                || !phoneNumber.equals(storedPhone)) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "验证码错误"));
+        }
+        OrdinaryUser user = new OrdinaryUser();
+        user.setPhoneNumber(phoneNumber);
+        user.setUserName(userName);
+        user.setUserPassword(password);
+        if (!userService.register(user)) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "该手机号已被注册"));
+        }
+        session.removeAttribute("registerCode");
+        session.removeAttribute("registerPhone");
+        return ResponseEntity.ok(Map.of("success", true, "message", "注册成功"));
     }
 }

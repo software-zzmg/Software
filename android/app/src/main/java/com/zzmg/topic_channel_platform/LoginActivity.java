@@ -1,5 +1,6 @@
 package com.zzmg.topic_channel_platform;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -54,6 +55,10 @@ public class LoginActivity extends AppCompatActivity {
             if (validateForm()) {
                 doLogin();
             }
+        });
+
+        findViewById(R.id.tv_register_link).setOnClickListener(v -> {
+            startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
         });
     }
 

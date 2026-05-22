@@ -116,6 +116,7 @@ public class UserController {
         return "user/register";
     }
 
+    // TODO: web后端添加密码长度至少为6位的校验
     @PostMapping("/register")
     public String register(@RequestParam String phoneNumber,
                            @RequestParam String userName,
