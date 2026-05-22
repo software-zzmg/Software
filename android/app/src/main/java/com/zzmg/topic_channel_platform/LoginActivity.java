@@ -16,6 +16,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.zzmg.topic_channel_platform.api.UserApi;
+import com.zzmg.topic_channel_platform.helper.BottomNavHelper;
 import com.zzmg.topic_channel_platform.model.LoginRequest;
 import com.zzmg.topic_channel_platform.model.LoginResponse;
 import com.zzmg.topic_channel_platform.network.RetrofitClient;
@@ -35,11 +36,15 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_login);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.ll_header), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            v.setPadding(v.getPaddingLeft(), systemBars.top, v.getPaddingRight(), v.getPaddingBottom());
             return insets;
         });
+
+        BottomNavHelper.setup(this, "login");
+
+        findViewById(R.id.btn_back).setOnClickListener(v -> finish());
 
         tilPhone = findViewById(R.id.til_phone);
         tilPassword = findViewById(R.id.til_password);
