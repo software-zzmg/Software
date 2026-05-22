@@ -2,6 +2,10 @@ package com.zzmg.topicchannelplatform.controller;
 
 import com.zzmg.topicchannelplatform.dto.UserInfoForm;
 import com.zzmg.topicchannelplatform.entity.OrdinaryUser;
+import com.zzmg.topicchannelplatform.service.CollectService;
+import com.zzmg.topicchannelplatform.service.CommentService;
+import com.zzmg.topicchannelplatform.service.ForumMemberService;
+import com.zzmg.topicchannelplatform.service.ThemePostService;
 import com.zzmg.topicchannelplatform.service.UserService;
 import com.zzmg.topicchannelplatform.service.VerificationCodeService;
 import jakarta.servlet.http.HttpSession;
@@ -16,8 +20,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Optional;
 
@@ -27,11 +29,23 @@ public class UserController {
 
     private final UserService userService;
     private final VerificationCodeService verificationCodeService;
+    private final ThemePostService themePostService;
+    private final CommentService commentService;
+    private final CollectService collectService;
+    private final ForumMemberService forumMemberService;
 
     public UserController(UserService userService,
-                           VerificationCodeService verificationCodeService) {
+                          VerificationCodeService verificationCodeService,
+                          ThemePostService themePostService,
+                          CommentService commentService,
+                          CollectService collectService,
+                          ForumMemberService forumMemberService) {
         this.userService = userService;
         this.verificationCodeService = verificationCodeService;
+        this.themePostService = themePostService;
+        this.commentService = commentService;
+        this.collectService = collectService;
+        this.forumMemberService = forumMemberService;
     }
     @GetMapping("/login")
     public String loginPage() {
@@ -70,6 +84,7 @@ public class UserController {
                 model.addAttribute("userInfoForm", form);
             }
         });
+        model.addAttribute("today", LocalDate.now().toString());
         return "user/userinfo-edit";
     }
 
@@ -156,11 +171,13 @@ public class UserController {
     @PostMapping("/info/update")
     public String updateInfo(@Valid @ModelAttribute("userInfoForm") UserInfoForm form,
                              BindingResult bindingResult,
-                             HttpSession session) {
+                             HttpSession session,
+                             Model model) {
         String userId = (String) session.getAttribute("userId");
         if (userId == null) {
             return "redirect:/user/login";
         }
+        model.addAttribute("today", LocalDate.now().toString());
         if (bindingResult.hasErrors()) {
             return "user/userinfo-edit";
         }
@@ -173,7 +190,12 @@ public class UserController {
         String birthday = form.getBirthday();
         if (birthday != null && !birthday.isBlank()) {
             try {
-                user.setBirthday(LocalDate.parse(birthday).atStartOfDay());
+                LocalDate birthDate = LocalDate.parse(birthday);
+                if (birthDate.isAfter(LocalDate.now())) {
+                    bindingResult.rejectValue("birthday", "birthday.future", "生日不能超过当前日期");
+                    return "user/userinfo-edit";
+                }
+                user.setBirthday(birthDate.atStartOfDay());
             } catch (DateTimeParseException ex) {
                 bindingResult.rejectValue("birthday", "birthday.format", "日期格式不正确");
                 return "user/userinfo-edit";
@@ -243,6 +265,20 @@ public class UserController {
         }
         userService.resetPassword(phoneNumber, newPassword);
         return "redirect:/user/login";
+    }
+
+    @GetMapping("/home")
+    public String homePage(HttpSession session, Model model) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return "redirect:/user/login";
+        }
+        userService.findById(userId).ifPresent(u -> model.addAttribute("user", u));
+        model.addAttribute("myPosts", themePostService.findApprovedByUserId(userId));
+        model.addAttribute("myComments", commentService.findApprovedByUserId(userId));
+        model.addAttribute("myCollects", collectService.findByUserId(userId));
+        model.addAttribute("myChannels", forumMemberService.findByUserId(userId));
+        return "user/home";
     }
 
     @GetMapping("/logout")

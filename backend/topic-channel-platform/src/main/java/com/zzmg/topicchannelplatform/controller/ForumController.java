@@ -2,9 +2,15 @@ package com.zzmg.topicchannelplatform.controller;
 
 import com.zzmg.topicchannelplatform.entity.Forum;
 import com.zzmg.topicchannelplatform.entity.OrdinaryUser;
+import com.zzmg.topicchannelplatform.service.CollectService;
 import com.zzmg.topicchannelplatform.service.ForumMemberService;
 import com.zzmg.topicchannelplatform.service.ForumService;
 import com.zzmg.topicchannelplatform.service.ThemePostService;
+
+import java.util.Set;
+import java.util.stream.Collectors;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -15,6 +21,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
+
 @Controller
 @RequestMapping("/forum")
 public class ForumController {
@@ -22,13 +30,16 @@ public class ForumController {
     private final ForumService forumService;
     private final ForumMemberService forumMemberService;
     private final ThemePostService postService;
+    private final CollectService collectService;
 
     public ForumController(ForumService forumService,
                            ForumMemberService forumMemberService,
-                           ThemePostService postService) {
+                           ThemePostService postService,
+                           CollectService collectService) {
         this.forumService = forumService;
         this.forumMemberService = forumMemberService;
         this.postService = postService;
+        this.collectService = collectService;
     }
 
     @GetMapping("/list")
@@ -50,6 +61,10 @@ public class ForumController {
             if (userId != null) {
                 model.addAttribute("isMember", forumMemberService.isMember(userId, forumId));
                 model.addAttribute("isCreator", isCreator);
+                Set<Long> collectedIds = collectService.findByUserId(userId).stream()
+                        .map(c -> c.getThemePost().getThemePostId())
+                        .collect(Collectors.toSet());
+                model.addAttribute("collectedPostIds", collectedIds);
             }
             return "forum/detail";
         }).orElse("redirect:/forum/list");
@@ -67,9 +82,13 @@ public class ForumController {
     public String create(@RequestParam String forumName,
                          @RequestParam String content,
                          HttpSession session,
-                         RedirectAttributes redirectAttributes) {
+                         RedirectAttributes redirectAttributes,
+                         HttpServletRequest request,
+                         HttpServletResponse response) throws IOException {
         String userId = (String) session.getAttribute("userId");
+        boolean isAjax = "XMLHttpRequest".equals(request.getHeader("X-Requested-With"));
         if (userId == null) {
+            if (isAjax) { writeJson(response, "{\"success\":false,\"error\":\"请先登录\"}"); return null; }
             return "redirect:/user/login";
         }
         Forum forum = new Forum();
@@ -80,6 +99,7 @@ public class ForumController {
         forum.setCreator(creator);
         forumService.create(forum);
         forumMemberService.join(userId, forum.getForumId());
+        if (isAjax) { writeJson(response, "{\"success\":true,\"toast\":\"已提交创建频道申请，等待审核成功后可见\"}"); return null; }
         redirectAttributes.addFlashAttribute("toast", "已提交创建频道申请，等待审核成功后可见");
         return "redirect:/";
     }
@@ -103,9 +123,13 @@ public class ForumController {
     public String edit(@RequestParam Long forumId,
                        @RequestParam String forumName,
                        @RequestParam String content,
-                       HttpSession session) {
+                       HttpSession session,
+                       HttpServletRequest request,
+                       HttpServletResponse response) throws IOException {
         String userId = (String) session.getAttribute("userId");
+        boolean isAjax = "XMLHttpRequest".equals(request.getHeader("X-Requested-With"));
         if (userId == null) {
+            if (isAjax) { writeJson(response, "{\"success\":false,\"error\":\"请先登录\"}"); return null; }
             return "redirect:/user/login";
         }
         forumService.findById(forumId).ifPresent(forum -> {
@@ -115,14 +139,19 @@ public class ForumController {
                 forumService.update(forum);
             }
         });
+        if (isAjax) { writeJson(response, "{\"success\":true,\"toast\":\"频道信息已更新\"}"); return null; }
         return "redirect:/forum/detail/" + forumId;
     }
 
     @PostMapping("/dismiss")
     public String dismiss(@RequestParam Long forumId, HttpSession session,
-                          RedirectAttributes redirectAttributes) {
+                          RedirectAttributes redirectAttributes,
+                          HttpServletRequest request,
+                          HttpServletResponse response) throws IOException {
         String userId = (String) session.getAttribute("userId");
+        boolean isAjax = "XMLHttpRequest".equals(request.getHeader("X-Requested-With"));
         if (userId == null) {
+            if (isAjax) { writeJson(response, "{\"success\":false,\"error\":\"请先登录\"}"); return null; }
             return "redirect:/user/login";
         }
         forumService.findById(forumId).ifPresent(forum -> {
@@ -130,7 +159,13 @@ public class ForumController {
                 forumService.deleteById(forumId);
             }
         });
+        if (isAjax) { writeJson(response, "{\"success\":true,\"toast\":\"频道已解散\"}"); return null; }
         redirectAttributes.addFlashAttribute("toast", "频道已解散");
         return "redirect:/";
+    }
+
+    private void writeJson(HttpServletResponse response, String json) throws IOException {
+        response.setContentType("application/json;charset=UTF-8");
+        response.getWriter().write(json);
     }
 }

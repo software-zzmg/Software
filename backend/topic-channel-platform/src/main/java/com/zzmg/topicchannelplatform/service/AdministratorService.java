@@ -88,6 +88,18 @@ public class AdministratorService {
         });
     }
 
+    public long countPendingForums() {
+        return forumRepository.countByAuditState("待审核");
+    }
+
+    public long countPendingPosts() {
+        return postRepository.countByAuditState("待审核");
+    }
+
+    public long countPendingComments() {
+        return commentRepository.countByAuditState("待审核");
+    }
+
     public void auditComment(Long commentId, boolean approved) {
         commentRepository.findById(commentId).ifPresent(c -> {
             c.setAuditState(approved ? "审核通过" : "审核未通过");

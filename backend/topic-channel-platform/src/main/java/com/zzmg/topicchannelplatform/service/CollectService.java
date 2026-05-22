@@ -49,9 +49,7 @@ public class CollectService {
     }
 
     public List<Collect> findByUserId(String userId) {
-        return collectRepository.findAll().stream()
-                .filter(c -> c.getUser().getUserId().equals(userId))
-                .toList();
+        return collectRepository.findByUser_UserId(userId);
     }
 
     public boolean isCollected(String userId, Long postId) {

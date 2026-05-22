@@ -8,6 +8,8 @@ import com.zzmg.topicchannelplatform.service.CommentService;
 import com.zzmg.topicchannelplatform.service.ForumMemberService;
 import com.zzmg.topicchannelplatform.service.ForumService;
 import com.zzmg.topicchannelplatform.service.ThemePostService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
 import java.util.List;
 
 @Controller
@@ -84,9 +87,17 @@ public class ThemePostController {
                          @RequestParam String content,
                          HttpSession session,
                          Model model,
-                         RedirectAttributes redirectAttributes) {
+                         RedirectAttributes redirectAttributes,
+                         HttpServletRequest request,
+                         HttpServletResponse response) throws IOException {
         String userId = (String) session.getAttribute("userId");
+        boolean isAjax = "XMLHttpRequest".equals(request.getHeader("X-Requested-With"));
         if (userId == null) {
+            if (isAjax) {
+                response.setContentType("application/json;charset=UTF-8");
+                response.getWriter().write("{\"success\":false,\"error\":\"请先登录\"}");
+                return null;
+            }
             return "redirect:/user/login";
         }
         ThemePost post = new ThemePost();
@@ -99,9 +110,19 @@ public class ThemePostController {
         try {
             postService.publish(post, userId);
         } catch (IllegalStateException e) {
+            if (isAjax) {
+                response.setContentType("application/json;charset=UTF-8");
+                response.getWriter().write("{\"success\":false,\"error\":\"" + e.getMessage() + "\"}");
+                return null;
+            }
             model.addAttribute("error", e.getMessage());
             forumService.findById(forumId).ifPresent(f -> model.addAttribute("forum", f));
             return "post/edit";
+        }
+        if (isAjax) {
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write("{\"success\":true,\"toast\":\"发布中，等待审核成功后可见\"}");
+            return null;
         }
         redirectAttributes.addFlashAttribute("toast", "发布中，等待审核成功后可见");
         return "redirect:/forum/detail/" + forumId;
@@ -127,12 +148,25 @@ public class ThemePostController {
     public String edit(@RequestParam Long postId,
                        @RequestParam String title,
                        @RequestParam String content,
-                       HttpSession session) {
+                       HttpSession session,
+                       HttpServletRequest request,
+                       HttpServletResponse response) throws IOException {
         String userId = (String) session.getAttribute("userId");
+        boolean isAjax = "XMLHttpRequest".equals(request.getHeader("X-Requested-With"));
         if (userId == null) {
+            if (isAjax) {
+                response.setContentType("application/json;charset=UTF-8");
+                response.getWriter().write("{\"success\":false,\"error\":\"请先登录\"}");
+                return null;
+            }
             return "redirect:/user/login";
         }
         if (!postService.isAuthor(userId, postId)) {
+            if (isAjax) {
+                response.setContentType("application/json;charset=UTF-8");
+                response.getWriter().write("{\"success\":false,\"error\":\"无权编辑此帖子\"}");
+                return null;
+            }
             return "redirect:/post/detail/" + postId;
         }
         ThemePost post = new ThemePost();
@@ -140,14 +174,27 @@ public class ThemePostController {
         post.setTitle(title);
         post.setContent(content);
         postService.update(post);
+        if (isAjax) {
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write("{\"success\":true,\"toast\":\"帖子已更新\"}");
+            return null;
+        }
         return "redirect:/post/detail/" + postId;
     }
 
     @PostMapping("/delete")
     public String delete(@RequestParam Long postId, HttpSession session,
-                         RedirectAttributes redirectAttributes) {
+                         RedirectAttributes redirectAttributes,
+                         HttpServletRequest request,
+                         HttpServletResponse response) throws IOException {
         String userId = (String) session.getAttribute("userId");
+        boolean isAjax = "XMLHttpRequest".equals(request.getHeader("X-Requested-With"));
         if (userId == null) {
+            if (isAjax) {
+                response.setContentType("application/json;charset=UTF-8");
+                response.getWriter().write("{\"success\":false,\"error\":\"请先登录\"}");
+                return null;
+            }
             return "redirect:/user/login";
         }
         Long forumId = postService.findById(postId)
@@ -155,6 +202,12 @@ public class ThemePostController {
                 .orElse(null);
         if (postService.isAuthor(userId, postId)) {
             postService.deleteById(postId);
+        }
+        if (isAjax) {
+            String redirect = forumId != null ? "/forum/detail/" + forumId : "/forum/list";
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write("{\"success\":true,\"toast\":\"帖子已删除\",\"redirect\":\"" + redirect + "\"}");
+            return null;
         }
         redirectAttributes.addFlashAttribute("toast", "帖子已删除");
         return forumId != null ? "redirect:/forum/detail/" + forumId : "redirect:/forum/list";

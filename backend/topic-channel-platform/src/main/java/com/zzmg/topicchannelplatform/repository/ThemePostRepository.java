@@ -19,4 +19,8 @@ public interface ThemePostRepository extends JpaRepository<ThemePost, Long> {
             order by p.publishTime desc
             """)
     List<ThemePost> searchApproved(@Param("keyword") String keyword);
+
+    long countByAuditState(String auditState);
+
+    List<ThemePost> findByAuthor_UserIdOrderByPublishTimeDesc(String userId);
 }
