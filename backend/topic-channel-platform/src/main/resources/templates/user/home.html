@@ -48,6 +48,7 @@
                         <td th:text="${@timeFormatter.format(p.publishTime)}"></td>
                         <td th:text="${p.auditState}"></td>
                         <td>
+                            <a th:if="${p.auditState == '审核通过'}" th:href="@{/post/detail/{id}(id=${p.themePostId})}" class="btn btn-outline btn-sm">查看</a>
                             <a th:if="${p.auditState != '审核通过'}" href="javascript:void(0)" class="btn btn-outline btn-sm btn-edit-post"
                                th:attr="data-id=${p.themePostId},data-title=${p.title},data-content=${p.content}">编辑</a>
                         </td>
@@ -76,7 +77,7 @@
             <p class="empty-state" th:if="${#lists.isEmpty(myCollects)}">暂无收藏</p>
             <div class="table-wrapper"><table th:if="${!#lists.isEmpty(myCollects)}" class="table">
                 <thead>
-                    <tr><th>帖子标题</th><th>所属频道</th><th>作者</th><th>收藏时间</th></tr>
+                    <tr><th>帖子标题</th><th>所属频道</th><th>作者</th><th>收藏时间</th><th>操作</th></tr>
                 </thead>
                 <tbody>
                     <tr th:each="c : ${myCollects}">
@@ -84,6 +85,9 @@
                         <td><a th:href="@{/forum/detail/{id}(id=${c.themePost.forum.forumId})}" th:text="${c.themePost.forum.forumName}"></a></td>
                         <td th:text="${c.themePost.author.status == 'deleted'} ? '已注销用户' : ${c.themePost.author.userName}"></td>
                         <td th:text="${@timeFormatter.format(c.collectTime)}"></td>
+                        <td>
+                            <button class="btn btn-outline btn-sm btn-cancel-collect" th:attr="data-id=${c.themePost.themePostId}">取消收藏</button>
+                        </td>
                     </tr>
                 </tbody>
             </table></div>
@@ -191,6 +195,28 @@
             .catch(function() {
                 editError.textContent = '网络错误，请重试';
                 editError.style.display = 'block';
+            });
+        });
+
+        // 取消收藏
+        document.querySelectorAll('.btn-cancel-collect').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                if (!confirm('确定要取消收藏吗？')) return;
+                var postId = this.getAttribute('data-id');
+                fetch('/collect/cancel', {
+                    method: 'POST',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: 'postId=' + encodeURIComponent(postId)
+                })
+                .then(function(r) { return r.json(); })
+                .then(function(d) {
+                    var toast = document.createElement('div');
+                    toast.className = 'toast';
+                    toast.textContent = d.toast || '已取消收藏';
+                    document.body.appendChild(toast);
+                    setTimeout(function() { toast.style.opacity = '0'; setTimeout(function() { toast.remove(); }, 500); }, 2500);
+                    setTimeout(function() { location.reload(); }, 600);
+                });
             });
         });
     })();
