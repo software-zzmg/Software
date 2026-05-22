@@ -35,10 +35,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="创建频道"
-                android:textSize="12sp"
+                android:textSize="14sp"
+                android:textColor="@color/primary"
                 android:paddingStart="12dp"
-                android:paddingEnd="12dp"
-                style="@style/Widget.Material3.Button.TonalButton" />
+                android:paddingEnd="4dp"
+                style="@style/Widget.Material3.Button.TextButton" />
 
         </LinearLayout>
 
