@@ -3,6 +3,7 @@ package com.zzmg.topicchannelplatform.controller;
 import com.zzmg.topicchannelplatform.dto.UserInfoForm;
 import com.zzmg.topicchannelplatform.entity.OrdinaryUser;
 import com.zzmg.topicchannelplatform.service.UserService;
+import com.zzmg.topicchannelplatform.service.VerificationCodeService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
@@ -25,9 +26,12 @@ import java.util.Optional;
 public class UserController {
 
     private final UserService userService;
+    private final VerificationCodeService verificationCodeService;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService,
+                           VerificationCodeService verificationCodeService) {
         this.userService = userService;
+        this.verificationCodeService = verificationCodeService;
     }
     @GetMapping("/login")
     public String loginPage() {
@@ -110,13 +114,11 @@ public class UserController {
             model.addAttribute("error", "该手机号已被注册");
             return "user/register";
         }
-        session.setAttribute("registerCode", "123456");
-        session.setAttribute("registerPhone", phoneNumber);
+        verificationCodeService.sendCode("register", phoneNumber, session);
         model.addAttribute("codeSent", true);
         return "user/register";
     }
 
-    // TODO: web后端添加密码长度至少为6位的校验
     @PostMapping("/register")
     public String register(@RequestParam String phoneNumber,
                            @RequestParam String userName,
@@ -132,11 +134,10 @@ public class UserController {
             model.addAttribute("codeSent", true);
             return "user/register";
         }
-        String storedCode = (String) session.getAttribute("registerCode");
-        String storedPhone = (String) session.getAttribute("registerPhone");
-        if (storedCode == null || !storedCode.equals(verificationCode)
-                || !phoneNumber.equals(storedPhone)) {
-            model.addAttribute("error", "验证码错误");
+        String error = verificationCodeService.validate("register", phoneNumber,
+                verificationCode, session);
+        if (error != null) {
+            model.addAttribute("error", error);
             model.addAttribute("codeSent", true);
             return "user/register";
         }
@@ -149,8 +150,6 @@ public class UserController {
             model.addAttribute("codeSent", true);
             return "user/register";
         }
-        session.removeAttribute("registerCode");
-        session.removeAttribute("registerPhone");
         return "redirect:/user/login";
     }
 
@@ -216,8 +215,7 @@ public class UserController {
             model.addAttribute("error", "该手机号未注册");
             return "user/userpsd-forget";
         }
-        session.setAttribute("resetCode", "123456");
-        session.setAttribute("resetPhone", phoneNumber);
+        verificationCodeService.sendCode("reset", phoneNumber, session);
         model.addAttribute("resetPhone", phoneNumber);
         model.addAttribute("codeSent", true);
         return "user/userpsd-forget";
@@ -230,27 +228,20 @@ public class UserController {
                                 @RequestParam String verificationCode,
                                 HttpSession session,
                                 Model model) {
-        String storedPhone = (String) session.getAttribute("resetPhone");
         model.addAttribute("phoneNumber", phoneNumber);
-        model.addAttribute("resetPhone", storedPhone);
+        model.addAttribute("resetPhone", phoneNumber);
         model.addAttribute("codeSent", true);
-        model.addAttribute("verificationCode", verificationCode);
         if (!newPassword.equals(confirmPassword)) {
             model.addAttribute("error", "两次输入的密码不一致");
             return "user/userpsd-forget";
         }
-        String storedCode = (String) session.getAttribute("resetCode");
-        if (storedCode == null || !storedCode.equals(verificationCode)) {
-            model.addAttribute("error", "验证码错误");
-            return "user/userpsd-forget";
-        }
-        if (!phoneNumber.equals(storedPhone)) {
-            model.addAttribute("error", "手机号与发送验证码时不一致");
+        String error = verificationCodeService.validate("reset", phoneNumber,
+                verificationCode, session);
+        if (error != null) {
+            model.addAttribute("error", error);
             return "user/userpsd-forget";
         }
         userService.resetPassword(phoneNumber, newPassword);
-        session.removeAttribute("resetCode");
-        session.removeAttribute("resetPhone");
         return "redirect:/user/login";
     }
 

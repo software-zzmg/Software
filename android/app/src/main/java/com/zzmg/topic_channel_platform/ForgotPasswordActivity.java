@@ -86,7 +86,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                 if (res != null) {
                     if (res.isSuccess()) {
                         Toast.makeText(ForgotPasswordActivity.this,
-                                "验证码已发送（模拟验证码：123456）", Toast.LENGTH_LONG).show();
+                                "验证码已发送，请查看控制台日志获取", Toast.LENGTH_LONG).show();
                     } else {
                         tilPhone.setError(res.getMessage());
                     }

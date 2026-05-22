@@ -14,6 +14,7 @@ import com.zzmg.topicchannelplatform.entity.OrdinaryUser;
 import com.zzmg.topicchannelplatform.service.CollectService;
 import com.zzmg.topicchannelplatform.service.ForumMemberService;
 import com.zzmg.topicchannelplatform.service.UserService;
+import com.zzmg.topicchannelplatform.service.VerificationCodeService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
@@ -38,13 +38,16 @@ public class ApiUserController {
     private final UserService userService;
     private final CollectService collectService;
     private final ForumMemberService forumMemberService;
+    private final VerificationCodeService verificationCodeService;
 
     public ApiUserController(UserService userService,
                              CollectService collectService,
-                             ForumMemberService forumMemberService) {
+                             ForumMemberService forumMemberService,
+                             VerificationCodeService verificationCodeService) {
         this.userService = userService;
         this.collectService = collectService;
         this.forumMemberService = forumMemberService;
+        this.verificationCodeService = verificationCodeService;
     }
 
     @PostMapping("/users/login")
@@ -217,8 +220,7 @@ public class ApiUserController {
             return ResponseEntity.badRequest()
                     .body(Map.of("success", false, "message", "该手机号已被注册"));
         }
-        session.setAttribute("registerCode", "123456");
-        session.setAttribute("registerPhone", phoneNumber);
+        verificationCodeService.sendCode("register", phoneNumber, session);
         return ResponseEntity.ok(Map.of("success", true, "message", "验证码已发送"));
     }
 
@@ -255,12 +257,11 @@ public class ApiUserController {
             return ResponseEntity.badRequest()
                     .body(Map.of("success", false, "message", "两次密码不一致"));
         }
-        String storedCode = (String) session.getAttribute("registerCode");
-        String storedPhone = (String) session.getAttribute("registerPhone");
-        if (storedCode == null || !storedCode.equals(verificationCode)
-                || !phoneNumber.equals(storedPhone)) {
+        String error = verificationCodeService.validate("register", phoneNumber,
+                verificationCode, session);
+        if (error != null) {
             return ResponseEntity.badRequest()
-                    .body(Map.of("success", false, "message", "验证码错误"));
+                    .body(Map.of("success", false, "message", error));
         }
         OrdinaryUser user = new OrdinaryUser();
         user.setPhoneNumber(phoneNumber);
@@ -270,8 +271,6 @@ public class ApiUserController {
             return ResponseEntity.badRequest()
                     .body(Map.of("success", false, "message", "该手机号已被注册"));
         }
-        session.removeAttribute("registerCode");
-        session.removeAttribute("registerPhone");
         return ResponseEntity.ok(Map.of("success", true, "message", "注册成功"));
     }
 
@@ -288,9 +287,7 @@ public class ApiUserController {
             return ResponseEntity.badRequest()
                     .body(Map.of("success", false, "message", "该手机号未注册或已注销"));
         }
-        // TODO: 这里应该调用短信服务发送验证码，暂时模拟为固定值
-        session.setAttribute("resetCode", "123456");
-        session.setAttribute("resetPhone", phoneNumber);
+        verificationCodeService.sendCode("reset", phoneNumber, session);
         return ResponseEntity.ok(Map.of("success", true, "message", "验证码已发送"));
     }
 
@@ -318,20 +315,17 @@ public class ApiUserController {
             return ResponseEntity.badRequest()
                     .body(Map.of("success", false, "message", "两次密码不一致"));
         }
-        String storedCode = (String) session.getAttribute("resetCode");
-        String storedPhone = (String) session.getAttribute("resetPhone");
-        if (storedCode == null || !storedCode.equals(verificationCode)
-                || !phoneNumber.equals(storedPhone)) {
+        String error = verificationCodeService.validate("reset", phoneNumber,
+                verificationCode, session);
+        if (error != null) {
             return ResponseEntity.badRequest()
-                    .body(Map.of("success", false, "message", "验证码错误"));
+                    .body(Map.of("success", false, "message", error));
         }
         if (userService.findByPhone(phoneNumber).isEmpty()) {
             return ResponseEntity.badRequest()
                     .body(Map.of("success", false, "message", "该手机号未注册或已注销"));
         }
         userService.resetPassword(phoneNumber, newPassword);
-        session.removeAttribute("resetCode");
-        session.removeAttribute("resetPhone");
         return ResponseEntity.ok(Map.of("success", true, "message", "密码重置成功，请重新登录"));
     }
 }

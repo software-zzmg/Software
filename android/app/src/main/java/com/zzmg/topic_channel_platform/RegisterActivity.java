@@ -88,7 +88,7 @@ public class RegisterActivity extends AppCompatActivity {
                     ApiResponse apiResponse = response.body();
                     if (apiResponse.isSuccess()) {
                         Toast.makeText(RegisterActivity.this,
-                                "验证码已发送（模拟验证码：123456）", Toast.LENGTH_LONG).show();
+                                "验证码已发送", Toast.LENGTH_LONG).show();
                     } else {
                         tilPhone.setError(apiResponse.getMessage());
                     }
