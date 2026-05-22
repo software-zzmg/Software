@@ -10,6 +10,9 @@
     <color name="surface">#FFFFFF</color>
     <color name="text_primary">#1F2937</color>
     <color name="text_secondary">#6B7280</color>
-    <color name="error">#DC2626</color>
     <color name="divider">#E5E7EB</color>
+    <color name="error">#DC2626</color>
+    <color name="success">#16A34A</color>
+    <color name="collect">#EF4444</color>
+    <color name="nav_inactive">#6B7280</color>
 </resources>
