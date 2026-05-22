@@ -2,6 +2,9 @@ package com.zzmg.topicchannelplatform.controller;
 
 import com.zzmg.topicchannelplatform.dto.UserInfoForm;
 import com.zzmg.topicchannelplatform.entity.OrdinaryUser;
+import com.zzmg.topicchannelplatform.service.CollectService;
+import com.zzmg.topicchannelplatform.service.CommentService;
+import com.zzmg.topicchannelplatform.service.ThemePostService;
 import com.zzmg.topicchannelplatform.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -25,9 +28,18 @@ import java.util.Optional;
 public class UserController {
 
     private final UserService userService;
+    private final ThemePostService themePostService;
+    private final CommentService commentService;
+    private final CollectService collectService;
 
-    public UserController(UserService userService) {
+    public UserController(UserService userService,
+                          ThemePostService themePostService,
+                          CommentService commentService,
+                          CollectService collectService) {
         this.userService = userService;
+        this.themePostService = themePostService;
+        this.commentService = commentService;
+        this.collectService = collectService;
     }
     @GetMapping("/login")
     public String loginPage() {
@@ -259,6 +271,19 @@ public class UserController {
         session.removeAttribute("resetCode");
         session.removeAttribute("resetPhone");
         return "redirect:/user/login";
+    }
+
+    @GetMapping("/home")
+    public String homePage(HttpSession session, Model model) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return "redirect:/user/login";
+        }
+        userService.findById(userId).ifPresent(u -> model.addAttribute("user", u));
+        model.addAttribute("myPosts", themePostService.findApprovedByUserId(userId));
+        model.addAttribute("myComments", commentService.findApprovedByUserId(userId));
+        model.addAttribute("myCollects", collectService.findByUserId(userId));
+        return "user/home";
     }
 
     @GetMapping("/logout")

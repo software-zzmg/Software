@@ -8,4 +8,8 @@ import java.util.List;
 public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     List<Comment> findByThemePost_ThemePostIdAndAuditStateOrderByPublishTimeAsc(Long postId, String auditState);
+
+    long countByAuditState(String auditState);
+
+    List<Comment> findByAuthor_UserIdOrderByPublishTimeDesc(String userId);
 }

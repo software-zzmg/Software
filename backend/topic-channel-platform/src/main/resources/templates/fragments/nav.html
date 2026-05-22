@@ -1,23 +1,112 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
 <body>
-<div th:fragment="nav" class="nav-bar">
-    <div class="nav-brand">
-        <a th:href="@{/}">主题频道交流平台</a>
+<div th:fragment="nav">
+    <div class="nav-bar">
+        <div class="nav-brand">
+            <a th:href="@{/}">主题频道交流平台</a>
+        </div>
+        <form method="get" th:action="@{/search}" class="nav-search">
+            <input type="text" name="keyword" th:value="${keyword}" placeholder="搜索帖子、频道、用户" required>
+            <input type="hidden" name="type" value="post">
+            <button type="submit">搜索</button>
+        </form>
+        <div style="flex:1;" th:replace="~{fragments/toast :: toast}"></div>
+        <div class="nav-links">
+            <a th:href="@{/}">首页</a>
+            <a th:if="${session.userId}" href="javascript:void(0)" id="btn-create-forum">创建频道</a>
+            <span th:if="${session.userId}" class="nav-dropdown">
+                <a href="javascript:void(0)">个人中心</a>
+                <div class="nav-dropdown-menu">
+                    <a th:href="@{/user/info}">个人资料</a>
+                    <a th:href="@{/user/home}">个人主页</a>
+                </div>
+            </span>
+            <a th:unless="${session.userId}" th:href="@{/user/login}">登录</a>
+            <a th:unless="${session.userId}" th:href="@{/user/register}">注册</a>
+        </div>
     </div>
-    <form method="get" th:action="@{/search}" class="nav-search">
-        <input type="text" name="keyword" th:value="${keyword}" placeholder="搜索帖子、频道、用户" required>
-        <input type="hidden" name="type" value="post">
-        <button type="submit">搜索</button>
-    </form>
-    <div style="flex:1;" th:replace="~{fragments/toast :: toast}"></div>
-    <div class="nav-links">
-        <a th:href="@{/}">首页</a>
-        <a th:if="${session.userId}" th:href="@{/forum/create}">创建频道</a>
-        <a th:if="${session.userId}" th:href="@{/user/info}">个人中心</a>
-        <a th:unless="${session.userId}" th:href="@{/user/login}">登录</a>
-        <a th:unless="${session.userId}" th:href="@{/user/register}">注册</a>
+
+    <!-- 创建频道弹窗 -->
+    <div th:if="${session.userId}" id="modal-create-forum" class="modal-overlay">
+        <div class="modal-card">
+            <h2>创建主题频道</h2>
+            <p id="modal-forum-error" class="error-text" style="display:none;"></p>
+            <form id="form-create-forum" class="form" onsubmit="return false">
+                <div class="form-group">
+                    <label>频道名称：</label>
+                    <input type="text" name="forumName" class="form-input" required maxlength="50">
+                </div>
+                <div class="form-group">
+                    <label>频道简介：</label>
+                    <textarea name="content" rows="5" class="form-textarea" maxlength="500" required></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">提交创建</button>
+                    <button type="button" id="btn-cancel-create" class="btn btn-outline">取消</button>
+                </div>
+            </form>
+        </div>
     </div>
+
+    <script th:if="${session.userId}">
+    (function() {
+        // 下拉菜单
+        var dropdown = document.querySelector('.nav-dropdown');
+        var dropdownMenu = dropdown.querySelector('.nav-dropdown-menu');
+        var hideTimer;
+        function showMenu() { clearTimeout(hideTimer); dropdownMenu.classList.add('active'); }
+        function hideMenu() { hideTimer = setTimeout(function() { dropdownMenu.classList.remove('active'); }, 150); }
+        dropdown.addEventListener('mouseenter', showMenu);
+        dropdown.addEventListener('mouseleave', hideMenu);
+        dropdownMenu.addEventListener('mouseenter', showMenu);
+        dropdownMenu.addEventListener('mouseleave', hideMenu);
+
+        // 创建频道弹窗
+        var modal = document.getElementById('modal-create-forum');
+        var btnOpen = document.getElementById('btn-create-forum');
+        var btnCancel = document.getElementById('btn-cancel-create');
+        var form = document.getElementById('form-create-forum');
+        var error = document.getElementById('modal-forum-error');
+
+        function open() { modal.classList.add('active'); }
+        function close() { modal.classList.remove('active'); form.reset(); error.style.display = 'none'; error.textContent = ''; }
+
+        btnOpen.addEventListener('click', function(e) { e.preventDefault(); open(); });
+        btnCancel.addEventListener('click', close);
+        modal.addEventListener('click', function(e) { if (e.target === modal) close(); });
+
+        form.addEventListener('submit', function() {
+            error.style.display = 'none';
+            var fd = new FormData(form);
+            var params = new URLSearchParams(fd).toString();
+            fetch('/forum/create', {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: params
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    close();
+                    var toast = document.createElement('div');
+                    toast.className = 'toast';
+                    toast.textContent = data.toast;
+                    document.body.appendChild(toast);
+                    setTimeout(function() { toast.style.opacity = '0'; setTimeout(function() { toast.remove(); }, 500); }, 2500);
+                    setTimeout(function() { location.reload(); }, 800);
+                } else {
+                    error.textContent = data.error || '创建失败，请重试';
+                    error.style.display = 'block';
+                }
+            })
+            .catch(function() {
+                error.textContent = '网络错误，请重试';
+                error.style.display = 'block';
+            });
+        });
+    })();
+    </script>
 </div>
 </body>
 </html>

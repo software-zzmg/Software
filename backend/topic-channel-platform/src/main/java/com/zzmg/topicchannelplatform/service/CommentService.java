@@ -61,6 +61,12 @@ public class CommentService {
         }).orElse(false);
     }
 
+    public List<Comment> findApprovedByUserId(String userId) {
+        return commentRepository.findByAuthor_UserIdOrderByPublishTimeDesc(userId).stream()
+                .filter(c -> "审核通过".equals(c.getAuditState()))
+                .toList();
+    }
+
     public void deleteById(Long commentId) {
         commentRepository.deleteById(commentId);
     }

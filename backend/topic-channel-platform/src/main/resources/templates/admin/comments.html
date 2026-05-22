@@ -12,7 +12,7 @@
 
     <p class="empty-state" th:if="${#lists.isEmpty(comments)}">暂无待审核的评论</p>
 
-    <table th:if="${!#lists.isEmpty(comments)}" class="table">
+    <div class="table-wrapper"><table th:if="${!#lists.isEmpty(comments)}" class="table">
         <thead>
             <tr>
                 <th>评论者</th>
@@ -40,7 +40,7 @@
                 </td>
             </tr>
         </tbody>
-    </table>
+    </table></div>
 
     <a th:href="@{/admin}" class="btn btn-outline">返回后台</a>
     </div>

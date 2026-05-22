@@ -10,10 +10,26 @@
     <div style="max-width:600px;margin:0 auto;padding:24px;">
         <h1 class="page-title">管理员后台</h1>
         <div class="card">
+            <style>
+                .audit-link { position:relative; display:block; text-align:center; }
+                .badge { position:absolute; top:-6px; right:-6px; min-width:20px; height:20px; padding:0 5px; background:#ef4444; color:#fff; font-size:12px; font-weight:600; line-height:20px; text-align:center; border-radius:10px; }
+            </style>
             <ul style="list-style:none;padding:0;display:flex;flex-direction:column;gap:8px;">
-                <li><a th:href="@{/admin/forums}" class="btn btn-outline" style="display:block;text-align:center;">审核频道</a></li>
-                <li><a th:href="@{/admin/posts}" class="btn btn-outline" style="display:block;text-align:center;">审核帖子</a></li>
-                <li><a th:href="@{/admin/comments}" class="btn btn-outline" style="display:block;text-align:center;">审核评论</a></li>
+                <li>
+                    <a th:href="@{/admin/forums}" class="btn btn-outline audit-link">审核频道
+                        <span class="badge" th:text="${pendingForumCount}" th:if="${pendingForumCount > 0}">0</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/admin/posts}" class="btn btn-outline audit-link">审核帖子
+                        <span class="badge" th:text="${pendingPostCount}" th:if="${pendingPostCount > 0}">0</span>
+                    </a>
+                </li>
+                <li>
+                    <a th:href="@{/admin/comments}" class="btn btn-outline audit-link">审核评论
+                        <span class="badge" th:text="${pendingCommentCount}" th:if="${pendingCommentCount > 0}">0</span>
+                    </a>
+                </li>
             </ul>
         </div>
         <a th:href="@{/}" class="btn btn-outline">返回首页</a>

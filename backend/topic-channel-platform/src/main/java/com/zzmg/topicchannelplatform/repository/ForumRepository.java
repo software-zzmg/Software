@@ -17,4 +17,6 @@ public interface ForumRepository extends JpaRepository<Forum, Long> {
             order by f.createTime desc
             """)
     List<Forum> searchApproved(@Param("keyword") String keyword);
+
+    long countByAuditState(String auditState);
 }

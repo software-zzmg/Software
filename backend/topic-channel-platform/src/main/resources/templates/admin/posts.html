@@ -12,7 +12,7 @@
 
     <p class="empty-state" th:if="${#lists.isEmpty(posts)}">暂无待审核的帖子</p>
 
-    <table th:if="${!#lists.isEmpty(posts)}" class="table">
+    <div class="table-wrapper"><table th:if="${!#lists.isEmpty(posts)}" class="table">
         <thead>
             <tr>
                 <th>标题</th>
@@ -40,7 +40,7 @@
                 </td>
             </tr>
         </tbody>
-    </table>
+    </table></div>
 
     <a th:href="@{/admin}" class="btn btn-outline">返回后台</a>
     </div>

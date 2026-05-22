@@ -17,7 +17,7 @@
 
     <p class="empty-state" th:if="${#lists.isEmpty(memberships)}">你还没有加入任何频道</p>
 
-    <table th:if="${!#lists.isEmpty(memberships)}" class="table">
+    <div class="table-wrapper"><table th:if="${!#lists.isEmpty(memberships)}" class="table">
         <thead>
             <tr>
                 <th>频道名称</th>
@@ -41,7 +41,7 @@
                 </td>
             </tr>
         </tbody>
-    </table>
+    </table></div>
 
     <a th:href="@{/}" class="btn btn-outline">返回首页</a>
         </div>

@@ -17,7 +17,7 @@
 
     <p class="empty-state" th:if="${#lists.isEmpty(collects)}">暂无收藏</p>
 
-    <table th:if="${!#lists.isEmpty(collects)}" class="table">
+    <div class="table-wrapper"><table th:if="${!#lists.isEmpty(collects)}" class="table">
         <thead>
             <tr>
                 <th>帖子标题</th>
@@ -45,7 +45,7 @@
                 </td>
             </tr>
         </tbody>
-    </table>
+    </table></div>
         </div>
     </div>
 </body>

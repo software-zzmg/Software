@@ -5,6 +5,8 @@ import com.zzmg.topicchannelplatform.entity.OrdinaryUser;
 import com.zzmg.topicchannelplatform.service.ForumMemberService;
 import com.zzmg.topicchannelplatform.service.ForumService;
 import com.zzmg.topicchannelplatform.service.ThemePostService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,6 +16,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.io.IOException;
 
 @Controller
 @RequestMapping("/forum")
@@ -67,9 +71,17 @@ public class ForumController {
     public String create(@RequestParam String forumName,
                          @RequestParam String content,
                          HttpSession session,
-                         RedirectAttributes redirectAttributes) {
+                         RedirectAttributes redirectAttributes,
+                         HttpServletRequest request,
+                         HttpServletResponse response) throws IOException {
         String userId = (String) session.getAttribute("userId");
+        boolean isAjax = "XMLHttpRequest".equals(request.getHeader("X-Requested-With"));
         if (userId == null) {
+            if (isAjax) {
+                response.setContentType("application/json;charset=UTF-8");
+                response.getWriter().write("{\"success\":false,\"error\":\"请先登录\"}");
+                return null;
+            }
             return "redirect:/user/login";
         }
         Forum forum = new Forum();
@@ -80,6 +92,11 @@ public class ForumController {
         forum.setCreator(creator);
         forumService.create(forum);
         forumMemberService.join(userId, forum.getForumId());
+        if (isAjax) {
+            response.setContentType("application/json;charset=UTF-8");
+            response.getWriter().write("{\"success\":true,\"toast\":\"已提交创建频道申请，等待审核成功后可见\"}");
+            return null;
+        }
         redirectAttributes.addFlashAttribute("toast", "已提交创建频道申请，等待审核成功后可见");
         return "redirect:/";
     }

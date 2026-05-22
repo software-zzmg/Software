@@ -12,7 +12,7 @@
 
     <p class="empty-state" th:if="${#lists.isEmpty(forums)}">暂无待审核的频道</p>
 
-    <table th:if="${!#lists.isEmpty(forums)}" class="table">
+    <div class="table-wrapper"><table th:if="${!#lists.isEmpty(forums)}" class="table">
         <thead>
             <tr>
                 <th>频道名称</th>
@@ -38,7 +38,7 @@
                 </td>
             </tr>
         </tbody>
-    </table>
+    </table></div>
 
     <a th:href="@{/admin}" class="btn btn-outline">返回后台</a>
     </div>
