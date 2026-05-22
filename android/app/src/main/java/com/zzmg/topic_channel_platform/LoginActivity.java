@@ -94,20 +94,20 @@ public class LoginActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     LoginResponse loginResponse = response.body();
                     if (loginResponse.isSuccess()) {
-                        Toast.makeText(LoginActivity.this, "Welcome, " + loginResponse.getUserName(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LoginActivity.this, "欢迎, " + loginResponse.getUserName(), Toast.LENGTH_SHORT).show();
                         setResult(RESULT_OK);
                         finish();
                     } else {
                         showError(loginResponse.getMessage());
                     }
                 } else {
-                    showError("Login failed");
+                    showError("登录失败");
                 }
             }
 
             @Override
             public void onFailure(Call<LoginResponse> call, Throwable t) {
-                showError("Network error: " + t.getMessage());
+                showError("网络错误: " + t.getMessage());
             }
         });
     }

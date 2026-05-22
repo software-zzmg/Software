@@ -46,6 +46,8 @@ public class MyCollectsActivity extends AppCompatActivity {
 
         com.zzmg.topic_channel_platform.helper.BottomNavHelper.setup(this, "collects");
 
+        findViewById(R.id.btn_back).setOnClickListener(v -> finish());
+
         swipeRefreshLayout = findViewById(R.id.swipe_refresh);
         swipeRefreshLayout.setOnRefreshListener(this::loadMyCollects);
 
@@ -66,14 +68,14 @@ public class MyCollectsActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     adapter.setPosts(response.body());
                 } else {
-                    Toast.makeText(MyCollectsActivity.this, "Error: " + response.code(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(MyCollectsActivity.this, "加载失败: " + response.code(), Toast.LENGTH_LONG).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<PostListItem>> call, Throwable t) {
                 swipeRefreshLayout.setRefreshing(false);
-                Toast.makeText(MyCollectsActivity.this, "Failed: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                Toast.makeText(MyCollectsActivity.this, "网络错误: " + t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
     }

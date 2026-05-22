@@ -54,6 +54,8 @@ public class CreatePostActivity extends AppCompatActivity {
 
         BottomNavHelper.setup(this, "create");
 
+        findViewById(R.id.btn_back).setOnClickListener(v -> finish());
+
         tvNoForums = findViewById(R.id.tv_no_forums);
         llForm = findViewById(R.id.ll_form);
         spinnerForum = findViewById(R.id.spinner_forum);
@@ -121,7 +123,7 @@ public class CreatePostActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<List<ForumItem>> call, Throwable t) {
-                Toast.makeText(CreatePostActivity.this, "Failed: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(CreatePostActivity.this, "网络错误: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -155,7 +157,7 @@ public class CreatePostActivity extends AppCompatActivity {
 
                     @Override
                     public void onFailure(Call<ApiResponse> call, Throwable t) {
-                        Toast.makeText(CreatePostActivity.this, "Failed: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(CreatePostActivity.this, "网络错误: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
     }

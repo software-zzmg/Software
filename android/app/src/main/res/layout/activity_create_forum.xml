@@ -4,15 +4,17 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="24dp">
+    android:padding="24dp"
+    android:background="@color/background">
 
     <TextView
         android:id="@+id/tv_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Create Forum"
+        android:text="创建频道"
         android:textSize="28sp"
         android:textStyle="bold"
+        android:textColor="@color/text_primary"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         android:layout_marginTop="48dp" />
@@ -22,7 +24,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:hint="Forum Name"
+        android:hint="频道名称"
         app:counterEnabled="true"
         app:counterMaxLength="50"
         app:layout_constraintTop_toBottomOf="@id/tv_title">
@@ -41,7 +43,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:hint="Description"
+        android:hint="频道简介"
         app:counterEnabled="true"
         app:counterMaxLength="500"
         app:layout_constraintTop_toBottomOf="@id/til_forum_name">
@@ -62,7 +64,7 @@
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:layout_marginTop="24dp"
-        android:text="Submit"
+        android:text="提交"
         app:layout_constraintTop_toBottomOf="@id/til_description" />
 
     <TextView
@@ -70,7 +72,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:textColor="#F44336"
+        android:textColor="@color/error"
         android:textSize="14sp"
         android:gravity="center"
         android:visibility="gone"

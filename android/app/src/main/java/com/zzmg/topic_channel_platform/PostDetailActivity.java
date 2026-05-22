@@ -77,7 +77,7 @@ public class PostDetailActivity extends AppCompatActivity {
 
         postId = getIntent().getLongExtra("postId", -1);
         if (postId == -1) {
-            Toast.makeText(this, "Invalid post ID", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "无效的帖子 ID", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
@@ -95,6 +95,8 @@ public class PostDetailActivity extends AppCompatActivity {
         findViewById(R.id.btn_submit).setOnClickListener(v -> submitComment());
 
         com.zzmg.topic_channel_platform.helper.BottomNavHelper.setup(this, "detail");
+
+        findViewById(R.id.btn_back).setOnClickListener(v -> finish());
 
         swipeRefreshLayout = findViewById(R.id.swipe_refresh);
         swipeRefreshLayout.setOnRefreshListener(() -> {
@@ -140,7 +142,7 @@ public class PostDetailActivity extends AppCompatActivity {
 
     private void updateCollectUI(boolean collected) {
         isCollected = collected;
-        btnCollect.setText(collected ? "Collected" : "Collect");
+        btnCollect.setText(collected ? "已收藏" : "收藏");
     }
 
     private class CollectCallback implements Callback<ApiResponse> {
@@ -161,7 +163,7 @@ public class PostDetailActivity extends AppCompatActivity {
 
         @Override
         public void onFailure(Call<ApiResponse> call, Throwable t) {
-            Toast.makeText(PostDetailActivity.this, "Failed: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(PostDetailActivity.this, "网络错误: " + t.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -190,13 +192,13 @@ public class PostDetailActivity extends AppCompatActivity {
                                 Toast.makeText(PostDetailActivity.this, res.getMessage(), Toast.LENGTH_SHORT).show();
                             }
                         } else {
-                            Toast.makeText(PostDetailActivity.this, "Error: " + response.code(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(PostDetailActivity.this, "加载失败: " + response.code(), Toast.LENGTH_SHORT).show();
                         }
                     }
 
                     @Override
                     public void onFailure(Call<ApiResponse> call, Throwable t) {
-                        Toast.makeText(PostDetailActivity.this, "Failed: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(PostDetailActivity.this, "网络错误: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -215,7 +217,7 @@ public class PostDetailActivity extends AppCompatActivity {
                     tvTime.setText(post.getPublishTime());
                     tvContent.setText(post.getContent());
                 } else {
-                    Toast.makeText(PostDetailActivity.this, "Post not found", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(PostDetailActivity.this, "帖子不存在", Toast.LENGTH_SHORT).show();
                     finish();
                 }
             }
@@ -223,7 +225,7 @@ public class PostDetailActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<PostDetail> call, Throwable t) {
                 swipeRefreshLayout.setRefreshing(false);
-                Toast.makeText(PostDetailActivity.this, "Failed: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                Toast.makeText(PostDetailActivity.this, "网络错误: " + t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -248,7 +250,7 @@ public class PostDetailActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<List<CommentItem>> call, Throwable t) {
                 swipeRefreshLayout.setRefreshing(false);
-                tvNoComments.setText("Failed to load comments");
+                tvNoComments.setText("加载评论失败");
                 tvNoComments.setVisibility(View.VISIBLE);
                 rvComments.setVisibility(View.GONE);
             }

@@ -45,6 +45,8 @@ public class MyForumsActivity extends AppCompatActivity {
 
         BottomNavHelper.setup(this, "my_forums");
 
+        findViewById(R.id.btn_back).setOnClickListener(v -> finish());
+
         tvNoForums = findViewById(R.id.tv_no_forums);
         rvForums = findViewById(R.id.rv_forums);
         rvForums.setLayoutManager(new LinearLayoutManager(this));
@@ -83,7 +85,7 @@ public class MyForumsActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<List<ForumListItem>> call, Throwable t) {
-                Toast.makeText(MyForumsActivity.this, "Failed: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(MyForumsActivity.this, "网络错误: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }

@@ -48,7 +48,7 @@ public class ForumAdapter extends RecyclerView.Adapter<ForumAdapter.ViewHolder> 
         ForumListItem forum = forums.get(position);
         holder.tvName.setText(forum.getForumName());
         holder.tvDescription.setText(forum.getDescription());
-        holder.tvCreator.setText("Created by " + forum.getCreatorName());
+        holder.tvCreator.setText("创建者: " + forum.getCreatorName());
 
         holder.itemView.setOnClickListener(v -> {
             if (listener != null) {

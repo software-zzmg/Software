@@ -101,17 +101,17 @@ public class MeActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<UserProfile> call, Throwable t) {
-                Toast.makeText(MeActivity.this, "Failed: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(MeActivity.this, "网络错误: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
 
     private void confirmDelete() {
         new AlertDialog.Builder(this)
-                .setTitle("Delete Account")
-                .setMessage("This will permanently delete your account. Are you sure?")
-                .setPositiveButton("Delete", (dialog, which) -> doDelete())
-                .setNegativeButton("Cancel", null)
+                .setTitle("注销账号")
+                .setMessage("此操作将永久删除您的账号，确定继续？")
+                .setPositiveButton("确定", (dialog, which) -> doDelete())
+                .setNegativeButton("取消", null)
                 .show();
     }
 
@@ -130,7 +130,7 @@ public class MeActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ApiResponse> call, Throwable t) {
-                Toast.makeText(MeActivity.this, "Failed: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(MeActivity.this, "网络错误: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -148,7 +148,7 @@ public class MeActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ApiResponse> call, Throwable t) {
-                Toast.makeText(MeActivity.this, "Failed: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(MeActivity.this, "网络错误: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }

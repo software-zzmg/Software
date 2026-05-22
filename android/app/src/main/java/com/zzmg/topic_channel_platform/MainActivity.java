@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_LOGIN && resultCode == RESULT_OK) {
-            Toast.makeText(this, "Logged in", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "登录成功", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -76,14 +76,14 @@ public class MainActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     adapter.setPosts(response.body());
                 } else {
-                    Toast.makeText(MainActivity.this, "Error: " + response.code(), Toast.LENGTH_LONG).show();
+                    Toast.makeText(MainActivity.this, "加载失败: " + response.code(), Toast.LENGTH_LONG).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<PostListItem>> call, Throwable t) {
                 swipeRefreshLayout.setRefreshing(false);
-                Toast.makeText(MainActivity.this, "Failed: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                Toast.makeText(MainActivity.this, "网络错误: " + t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
     }

@@ -54,6 +54,8 @@ public class ForumDetailActivity extends AppCompatActivity {
 
         BottomNavHelper.setup(this, "forum_detail");
 
+        findViewById(R.id.btn_back).setOnClickListener(v -> finish());
+
         tvForumName = findViewById(R.id.tv_forum_name);
         tvCreator = findViewById(R.id.tv_forum_creator);
         tvDescription = findViewById(R.id.tv_forum_description);
@@ -67,7 +69,7 @@ public class ForumDetailActivity extends AppCompatActivity {
 
         forumId = getIntent().getLongExtra("forumId", -1);
         if (forumId == -1) {
-            Toast.makeText(this, "Invalid forum ID", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "无效的频道 ID", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
@@ -93,11 +95,11 @@ public class ForumDetailActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     ForumDetail forum = response.body();
                     tvForumName.setText(forum.getForumName());
-                    tvCreator.setText("Created by " + forum.getCreatorName());
+                    tvCreator.setText("创建者: " + forum.getCreatorName());
                     tvDescription.setText(forum.getDescription());
                     updateJoinButton(forum.isJoined());
                 } else {
-                    Toast.makeText(ForumDetailActivity.this, "Forum not found", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ForumDetailActivity.this, "频道不存在", Toast.LENGTH_SHORT).show();
                     finish();
                 }
             }
@@ -105,7 +107,7 @@ public class ForumDetailActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<ForumDetail> call, Throwable t) {
                 swipeRefreshLayout.setRefreshing(false);
-                Toast.makeText(ForumDetailActivity.this, "Failed: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(ForumDetailActivity.this, "网络错误: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -130,7 +132,7 @@ public class ForumDetailActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<List<PostListItem>> call, Throwable t) {
                 swipeRefreshLayout.setRefreshing(false);
-                tvNoPosts.setText("Failed to load posts");
+                tvNoPosts.setText("加载帖子失败");
                 tvNoPosts.setVisibility(View.VISIBLE);
                 rvPosts.setVisibility(View.GONE);
             }
@@ -157,7 +159,7 @@ public class ForumDetailActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ApiResponse> call, Throwable t) {
-                Toast.makeText(ForumDetailActivity.this, "Failed: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(ForumDetailActivity.this, "网络错误: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         };
 
@@ -170,6 +172,6 @@ public class ForumDetailActivity extends AppCompatActivity {
 
     private void updateJoinButton(boolean isJoined) {
         joined = isJoined;
-        btnJoinLeave.setText(isJoined ? "Leave" : "Join");
+        btnJoinLeave.setText(isJoined ? "退出" : "加入");
     }
 }
