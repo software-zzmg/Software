@@ -11,6 +11,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.zzmg.topic_channel_platform.adapter.PostAdapter;
 import com.zzmg.topic_channel_platform.api.PostApi;
@@ -27,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int REQUEST_LOGIN = 1;
     private PostAdapter adapter;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,6 +53,9 @@ public class MainActivity extends AppCompatActivity {
 
         com.zzmg.topic_channel_platform.helper.BottomNavHelper.setup(this, "home");
 
+        swipeRefreshLayout = findViewById(R.id.swipe_refresh);
+        swipeRefreshLayout.setOnRefreshListener(this::loadPosts);
+
         loadPosts();
     }
 
@@ -67,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
         postApi.getPosts().enqueue(new Callback<List<PostListItem>>() {
             @Override
             public void onResponse(Call<List<PostListItem>> call, Response<List<PostListItem>> response) {
+                swipeRefreshLayout.setRefreshing(false);
                 if (response.isSuccessful() && response.body() != null) {
                     adapter.setPosts(response.body());
                 } else {
@@ -76,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<List<PostListItem>> call, Throwable t) {
+                swipeRefreshLayout.setRefreshing(false);
                 Toast.makeText(MainActivity.this, "Failed: " + t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });

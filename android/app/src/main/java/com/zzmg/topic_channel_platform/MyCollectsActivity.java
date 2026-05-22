@@ -10,6 +10,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.zzmg.topic_channel_platform.adapter.PostAdapter;
 import com.zzmg.topic_channel_platform.api.UserApi;
@@ -25,6 +26,7 @@ import retrofit2.Response;
 public class MyCollectsActivity extends AppCompatActivity {
 
     private PostAdapter adapter;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +46,9 @@ public class MyCollectsActivity extends AppCompatActivity {
 
         com.zzmg.topic_channel_platform.helper.BottomNavHelper.setup(this, "collects");
 
+        swipeRefreshLayout = findViewById(R.id.swipe_refresh);
+        swipeRefreshLayout.setOnRefreshListener(this::loadMyCollects);
+
         loadMyCollects();
     }
 
@@ -52,6 +57,7 @@ public class MyCollectsActivity extends AppCompatActivity {
         userApi.getMyCollects().enqueue(new Callback<List<PostListItem>>() {
             @Override
             public void onResponse(Call<List<PostListItem>> call, Response<List<PostListItem>> response) {
+                swipeRefreshLayout.setRefreshing(false);
                 if (response.code() == 401) {
                     Toast.makeText(MyCollectsActivity.this, "请先登录", Toast.LENGTH_SHORT).show();
                     finish();
@@ -66,6 +72,7 @@ public class MyCollectsActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<List<PostListItem>> call, Throwable t) {
+                swipeRefreshLayout.setRefreshing(false);
                 Toast.makeText(MyCollectsActivity.this, "Failed: " + t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });

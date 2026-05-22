@@ -13,6 +13,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.zzmg.topic_channel_platform.adapter.PostAdapter;
 import com.zzmg.topic_channel_platform.api.ForumApi;
@@ -35,6 +36,7 @@ public class ForumDetailActivity extends AppCompatActivity {
     private TextView tvNoPosts;
     private RecyclerView rvPosts;
     private PostAdapter postAdapter;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     private long forumId;
     private boolean joined;
@@ -71,6 +73,13 @@ public class ForumDetailActivity extends AppCompatActivity {
         }
 
         btnJoinLeave.setOnClickListener(v -> toggleJoin());
+
+        swipeRefreshLayout = findViewById(R.id.swipe_refresh);
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            loadForumDetail();
+            loadForumPosts();
+        });
+
         loadForumDetail();
         loadForumPosts();
     }
@@ -80,6 +89,7 @@ public class ForumDetailActivity extends AppCompatActivity {
         forumApi.getForumDetail(forumId).enqueue(new Callback<ForumDetail>() {
             @Override
             public void onResponse(Call<ForumDetail> call, Response<ForumDetail> response) {
+                swipeRefreshLayout.setRefreshing(false);
                 if (response.isSuccessful() && response.body() != null) {
                     ForumDetail forum = response.body();
                     tvForumName.setText(forum.getForumName());
@@ -94,6 +104,7 @@ public class ForumDetailActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ForumDetail> call, Throwable t) {
+                swipeRefreshLayout.setRefreshing(false);
                 Toast.makeText(ForumDetailActivity.this, "Failed: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -104,6 +115,7 @@ public class ForumDetailActivity extends AppCompatActivity {
         forumApi.getForumPosts(forumId).enqueue(new Callback<List<PostListItem>>() {
             @Override
             public void onResponse(Call<List<PostListItem>> call, Response<List<PostListItem>> response) {
+                swipeRefreshLayout.setRefreshing(false);
                 if (response.isSuccessful() && response.body() != null) {
                     postAdapter.setPosts(response.body());
                     boolean empty = response.body().isEmpty();
@@ -117,6 +129,7 @@ public class ForumDetailActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<List<PostListItem>> call, Throwable t) {
+                swipeRefreshLayout.setRefreshing(false);
                 tvNoPosts.setText("Failed to load posts");
                 tvNoPosts.setVisibility(View.VISIBLE);
                 rvPosts.setVisibility(View.GONE);

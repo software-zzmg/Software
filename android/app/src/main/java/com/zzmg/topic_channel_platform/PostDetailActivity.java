@@ -18,6 +18,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.zzmg.topic_channel_platform.adapter.CommentAdapter;
 import com.zzmg.topic_channel_platform.api.PostApi;
@@ -46,6 +47,7 @@ public class PostDetailActivity extends AppCompatActivity {
 
     private long postId;
     private boolean isCollected;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,6 +96,13 @@ public class PostDetailActivity extends AppCompatActivity {
 
         com.zzmg.topic_channel_platform.helper.BottomNavHelper.setup(this, "detail");
 
+        swipeRefreshLayout = findViewById(R.id.swipe_refresh);
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            loadPostDetail(postId);
+            loadComments(postId);
+            loadCollectStatus(postId);
+        });
+
         loadPostDetail(postId);
         loadComments(postId);
         loadCollectStatus(postId);
@@ -113,6 +122,7 @@ public class PostDetailActivity extends AppCompatActivity {
         postApi.getCollectStatus(postId).enqueue(new Callback<CollectStatusResponse>() {
             @Override
             public void onResponse(Call<CollectStatusResponse> call, Response<CollectStatusResponse> response) {
+                swipeRefreshLayout.setRefreshing(false);
                 if (response.code() == 401) {
                     return;
                 }
@@ -123,6 +133,7 @@ public class PostDetailActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<CollectStatusResponse> call, Throwable t) {
+                swipeRefreshLayout.setRefreshing(false);
             }
         });
     }
@@ -195,6 +206,7 @@ public class PostDetailActivity extends AppCompatActivity {
         postApi.getPostDetail(postId).enqueue(new Callback<PostDetail>() {
             @Override
             public void onResponse(Call<PostDetail> call, Response<PostDetail> response) {
+                swipeRefreshLayout.setRefreshing(false);
                 if (response.isSuccessful() && response.body() != null) {
                     PostDetail post = response.body();
                     tvTitle.setText(post.getTitle());
@@ -210,6 +222,7 @@ public class PostDetailActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<PostDetail> call, Throwable t) {
+                swipeRefreshLayout.setRefreshing(false);
                 Toast.makeText(PostDetailActivity.this, "Failed: " + t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
@@ -220,6 +233,7 @@ public class PostDetailActivity extends AppCompatActivity {
         postApi.getComments(postId).enqueue(new Callback<List<CommentItem>>() {
             @Override
             public void onResponse(Call<List<CommentItem>> call, Response<List<CommentItem>> response) {
+                swipeRefreshLayout.setRefreshing(false);
                 if (response.isSuccessful() && response.body() != null) {
                     commentAdapter.setComments(response.body());
                     boolean empty = response.body().isEmpty();
@@ -233,6 +247,7 @@ public class PostDetailActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<List<CommentItem>> call, Throwable t) {
+                swipeRefreshLayout.setRefreshing(false);
                 tvNoComments.setText("Failed to load comments");
                 tvNoComments.setVisibility(View.VISIBLE);
                 rvComments.setVisibility(View.GONE);
