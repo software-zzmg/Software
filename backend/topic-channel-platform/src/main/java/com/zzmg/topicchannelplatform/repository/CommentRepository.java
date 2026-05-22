@@ -11,5 +11,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     long countByAuditState(String auditState);
 
+    long countByThemePost_ThemePostIdAndAuditState(Long postId, String auditState);
+
     List<Comment> findByAuthor_UserIdOrderByPublishTimeDesc(String userId);
 }

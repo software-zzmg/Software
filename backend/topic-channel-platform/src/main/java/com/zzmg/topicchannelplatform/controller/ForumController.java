@@ -2,9 +2,13 @@ package com.zzmg.topicchannelplatform.controller;
 
 import com.zzmg.topicchannelplatform.entity.Forum;
 import com.zzmg.topicchannelplatform.entity.OrdinaryUser;
+import com.zzmg.topicchannelplatform.service.CollectService;
 import com.zzmg.topicchannelplatform.service.ForumMemberService;
 import com.zzmg.topicchannelplatform.service.ForumService;
 import com.zzmg.topicchannelplatform.service.ThemePostService;
+
+import java.util.Set;
+import java.util.stream.Collectors;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -26,13 +30,16 @@ public class ForumController {
     private final ForumService forumService;
     private final ForumMemberService forumMemberService;
     private final ThemePostService postService;
+    private final CollectService collectService;
 
     public ForumController(ForumService forumService,
                            ForumMemberService forumMemberService,
-                           ThemePostService postService) {
+                           ThemePostService postService,
+                           CollectService collectService) {
         this.forumService = forumService;
         this.forumMemberService = forumMemberService;
         this.postService = postService;
+        this.collectService = collectService;
     }
 
     @GetMapping("/list")
@@ -54,6 +61,10 @@ public class ForumController {
             if (userId != null) {
                 model.addAttribute("isMember", forumMemberService.isMember(userId, forumId));
                 model.addAttribute("isCreator", isCreator);
+                Set<Long> collectedIds = collectService.findByUserId(userId).stream()
+                        .map(c -> c.getThemePost().getThemePostId())
+                        .collect(Collectors.toSet());
+                model.addAttribute("collectedPostIds", collectedIds);
             }
             return "forum/detail";
         }).orElse("redirect:/forum/list");

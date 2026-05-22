@@ -30,6 +30,7 @@
             <button class="tab-btn active" data-tab="posts">我的帖子</button>
             <button class="tab-btn" data-tab="comments">我的评论</button>
             <button class="tab-btn" data-tab="collects">我的收藏</button>
+            <button class="tab-btn" data-tab="channels">我的频道</button>
         </div>
 
         <div class="tab-panel active" id="tab-posts">
@@ -87,6 +88,26 @@
                         <td th:text="${@timeFormatter.format(c.collectTime)}"></td>
                         <td>
                             <button class="btn btn-outline btn-sm btn-cancel-collect" th:attr="data-id=${c.themePost.themePostId}">取消收藏</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table></div>
+        </div>
+
+        <div class="tab-panel" id="tab-channels">
+            <p class="empty-state" th:if="${#lists.isEmpty(myChannels)}">暂无加入的频道</p>
+            <div class="table-wrapper"><table th:if="${!#lists.isEmpty(myChannels)}" class="table">
+                <thead>
+                    <tr><th>频道名称</th><th>频道简介</th><th>加入时间</th><th>身份</th></tr>
+                </thead>
+                <tbody>
+                    <tr th:each="m : ${myChannels}">
+                        <td><a th:href="@{/forum/detail/{id}(id=${m.forum.forumId})}" th:text="${m.forum.forumName}"></a></td>
+                        <td th:text="${m.forum.content}"></td>
+                        <td th:text="${@timeFormatter.formatDate(m.joinTime)}"></td>
+                        <td>
+                            <span th:if="${m.user.userId == m.forum.creator.userId}" style="color:#2563eb;font-weight:500;">创建者</span>
+                            <span th:unless="${m.user.userId == m.forum.creator.userId}">成员</span>
                         </td>
                     </tr>
                 </tbody>

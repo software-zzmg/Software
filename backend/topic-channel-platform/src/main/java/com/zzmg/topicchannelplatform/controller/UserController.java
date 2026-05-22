@@ -4,6 +4,7 @@ import com.zzmg.topicchannelplatform.dto.UserInfoForm;
 import com.zzmg.topicchannelplatform.entity.OrdinaryUser;
 import com.zzmg.topicchannelplatform.service.CollectService;
 import com.zzmg.topicchannelplatform.service.CommentService;
+import com.zzmg.topicchannelplatform.service.ForumMemberService;
 import com.zzmg.topicchannelplatform.service.ThemePostService;
 import com.zzmg.topicchannelplatform.service.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -31,15 +32,18 @@ public class UserController {
     private final ThemePostService themePostService;
     private final CommentService commentService;
     private final CollectService collectService;
+    private final ForumMemberService forumMemberService;
 
     public UserController(UserService userService,
                           ThemePostService themePostService,
                           CommentService commentService,
-                          CollectService collectService) {
+                          CollectService collectService,
+                          ForumMemberService forumMemberService) {
         this.userService = userService;
         this.themePostService = themePostService;
         this.commentService = commentService;
         this.collectService = collectService;
+        this.forumMemberService = forumMemberService;
     }
     @GetMapping("/login")
     public String loginPage() {
@@ -283,6 +287,7 @@ public class UserController {
         model.addAttribute("myPosts", themePostService.findApprovedByUserId(userId));
         model.addAttribute("myComments", commentService.findApprovedByUserId(userId));
         model.addAttribute("myCollects", collectService.findByUserId(userId));
+        model.addAttribute("myChannels", forumMemberService.findByUserId(userId));
         return "user/home";
     }
 

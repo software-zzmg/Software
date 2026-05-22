@@ -17,7 +17,7 @@
 
     <div class="card" style="position:relative;">
         <!-- 三点菜单按钮 -->
-        <div th:if="${isCreator || isMember}" class="forum-dots" style="position:absolute;top:12px;right:12px;">
+        <div th:if="${isCreator || isMember}" class="forum-dots" style="position:absolute;top:12px;right:12px;" th:attr="data-forum-id=${forum.forumId}">
             <button id="forum-dots-btn" class="forum-dots-btn">&#8943;</button>
             <div id="forum-dots-menu" class="forum-dots-menu">
                 <a th:if="${isCreator}" href="javascript:void(0)" id="menu-edit-forum">编辑频道</a>
@@ -115,6 +115,7 @@
         var dotsBtn = document.getElementById('forum-dots-btn');
         var dotsMenu = document.getElementById('forum-dots-menu');
         var dotsContainer = dotsBtn.parentElement;
+        var forumId = dotsContainer.getAttribute('data-forum-id');
         var hideTimer = null;
         function showMenu() { clearTimeout(hideTimer); dotsMenu.classList.add('active'); }
         function hideMenu() { hideTimer = setTimeout(function() { dotsMenu.classList.remove('active'); }, 150); }
@@ -161,9 +162,14 @@
                 method: 'POST',
                 headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: body
-            }).then(function(r) { return r.json(); }).then(function(d) {
+            }).then(function(r) {
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                return r.json();
+            }).then(function(d) {
                 if (d.success) { showToast(d.toast); if (onSuccess) onSuccess(); }
                 else { showToast(d.error || '操作失败'); }
+            }).catch(function(e) {
+                showToast('网络错误：' + e.message);
             });
         }
 
@@ -194,7 +200,7 @@
         if (menuDismiss) {
             menuDismiss.addEventListener('click', function() {
                 showConfirm('解散频道', '确定要解散该频道吗？此操作不可恢复。', function() {
-                    ajaxPost('/forum/dismiss', 'forumId=' + encodeURIComponent('${forum.forumId}'), function() { location.href = '/'; });
+                    ajaxPost('/forum/dismiss', 'forumId=' + forumId, function() { location.href = '/'; });
                 });
             });
         }
@@ -203,7 +209,7 @@
         if (menuLeave) {
             menuLeave.addEventListener('click', function() {
                 showConfirm('退出频道', '确定要退出该频道吗？', function() {
-                    ajaxPost('/forum-member/leave', 'forumId=' + encodeURIComponent('${forum.forumId}'), function() { location.reload(); });
+                    ajaxPost('/forum-member/leave', 'forumId=' + forumId, function() { location.reload(); });
                 });
             });
         }
@@ -280,9 +286,49 @@
                     <a class="post-card-channel" th:href="@{/forum/detail/{id}(id=${post.forum.forumId})}" th:text="${post.forum.forumName}"></a>
                     <span th:text="${@timeFormatter.format(post.publishTime)}"></span>
                 </div>
+                <div class="post-card-actions">
+                    <a class="action-item" th:href="'/post/detail/' + ${post.themePostId} + '#comments'">&#128172; <span th:text="${@commentService.countApprovedByPostId(post.themePostId)}">0</span></a>
+                    <a th:if="${session.userId}" href="javascript:void(0)" class="action-item collect-btn"
+                       th:attr="data-id=${post.themePostId}"
+                       th:data-collected="${collectedPostIds != null && collectedPostIds.contains(post.themePostId)}"
+                       th:classappend="${collectedPostIds != null && collectedPostIds.contains(post.themePostId) ? 'collected' : ''}">
+                       <th:block th:if="${collectedPostIds != null && collectedPostIds.contains(post.themePostId)}">&#9733; 已收藏</th:block>
+                       <th:block th:unless="${collectedPostIds != null && collectedPostIds.contains(post.themePostId)}">&#9734; 收藏</th:block>
+                    </a>
+                </div>
             </div>
         </article>
     </div>
+
+    <script th:if="${session.userId}">
+    document.querySelectorAll('.collect-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault(); e.stopPropagation();
+            var postId = this.getAttribute('data-id');
+            var collected = this.getAttribute('data-collected') === 'true';
+            var url = collected ? '/collect/cancel' : '/collect/add';
+            fetch(url, {
+                method:'POST',
+                headers:{'X-Requested-With':'XMLHttpRequest','Content-Type':'application/x-www-form-urlencoded'},
+                body:'postId=' + encodeURIComponent(postId)
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(d) {
+                if (d.success !== false) {
+                    if (collected) {
+                        btn.setAttribute('data-collected', 'false');
+                        btn.classList.remove('collected');
+                        btn.innerHTML = '&#9734; 收藏';
+                    } else {
+                        btn.setAttribute('data-collected', 'true');
+                        btn.classList.add('collected');
+                        btn.innerHTML = '&#9733; 已收藏';
+                    }
+                }
+            });
+        });
+    });
+    </script>
 
     <a th:href="@{/}" class="btn btn-outline">返回首页</a>
         </div>

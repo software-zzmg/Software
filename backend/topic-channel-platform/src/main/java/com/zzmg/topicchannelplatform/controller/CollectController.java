@@ -26,12 +26,17 @@ public class CollectController {
     }
 
     @PostMapping("/add")
-    public String add(@RequestParam Long postId, HttpSession session) {
+    public String add(@RequestParam Long postId, HttpSession session,
+                      HttpServletRequest request,
+                      HttpServletResponse response) throws IOException {
         String userId = (String) session.getAttribute("userId");
+        boolean isAjax = "XMLHttpRequest".equals(request.getHeader("X-Requested-With"));
         if (userId == null) {
+            if (isAjax) { writeJson(response, "{\"success\":false,\"error\":\"请先登录\"}"); return null; }
             return "redirect:/user/login";
         }
         collectService.collect(userId, postId);
+        if (isAjax) { writeJson(response, "{\"success\":true,\"toast\":\"已收藏\"}"); return null; }
         return "redirect:/post/detail/" + postId;
     }
 

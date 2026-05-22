@@ -23,16 +23,7 @@
     </table></div>
     <div class="form-actions">
         <a th:href="@{/user/info/edit}" class="btn btn-outline">编辑信息</a>
-        <a th:href="@{/user/password/change}" class="btn btn-outline">修改密码</a>
-        <a th:href="@{/collect/my}" class="btn btn-outline">我的收藏</a>
-        <a th:href="@{/forum-member/my}" class="btn btn-outline">我加入的频道</a>
     </div>
-    <div class="form-actions">
-        <a th:href="@{/user/logout}" class="btn btn-outline">退出登录</a>
-    </div>
-    <form method="post" th:action="@{/user/delete}" style="margin-top:20px">
-        <button type="submit" class="btn btn-danger" onclick="return confirm('确认注销账号？此操作不可恢复。')">注销账号</button>
-    </form>
     </div>
 </body>
 </html>
