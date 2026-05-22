@@ -288,6 +288,7 @@ public class ApiUserController {
             return ResponseEntity.badRequest()
                     .body(Map.of("success", false, "message", "该手机号未注册或已注销"));
         }
+        // TODO: 这里应该调用短信服务发送验证码，暂时模拟为固定值
         session.setAttribute("resetCode", "123456");
         session.setAttribute("resetPhone", phoneNumber);
         return ResponseEntity.ok(Map.of("success", true, "message", "验证码已发送"));

@@ -98,9 +98,14 @@ public class AdminPendingCommentsActivity extends AppCompatActivity {
             notifyDataSetChanged();
         }
 
-        void removeItem(int position) {
-            items.remove(position);
-            notifyItemRemoved(position);
+        void removeById(Long id) {
+            for (int i = 0; i < items.size(); i++) {
+                if (items.get(i).getId().equals(id)) {
+                    items.remove(i);
+                    notifyItemRemoved(i);
+                    break;
+                }
+            }
             tvEmpty.setVisibility(items.isEmpty() ? View.VISIBLE : View.GONE);
         }
 
@@ -118,14 +123,14 @@ public class AdminPendingCommentsActivity extends AppCompatActivity {
             h.tvBody.setText(item.getContent());
             h.tvMeta.setText("评论者: " + item.getAuthorName());
 
-            h.btnApprove.setOnClickListener(v -> audit(item.getId(), true, h.getAdapterPosition()));
-            h.btnReject.setOnClickListener(v -> audit(item.getId(), false, h.getAdapterPosition()));
+            h.btnApprove.setOnClickListener(v -> audit(item.getId(), true));
+            h.btnReject.setOnClickListener(v -> audit(item.getId(), false));
         }
 
         @Override
         public int getItemCount() { return items.size(); }
 
-        private void audit(Long id, boolean approved, int position) {
+        private void audit(Long id, boolean approved) {
             AdminApi api = RetrofitClient.getInstance().create(AdminApi.class);
             Call<ApiResponse> call = approved ? api.approveComment(id) : api.rejectComment(id);
             call.enqueue(new Callback<ApiResponse>() {
@@ -137,7 +142,7 @@ public class AdminPendingCommentsActivity extends AppCompatActivity {
                     }
                     if (response.isSuccessful() && response.body() != null && response.body().isSuccess()) {
                         Toast.makeText(AdminPendingCommentsActivity.this, response.body().getMessage(), Toast.LENGTH_SHORT).show();
-                        removeItem(position);
+                        removeById(id);
                     }
                 }
 
