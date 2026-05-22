@@ -1,6 +1,7 @@
 package com.zzmg.topicchannelplatform.controller;
 
 import com.zzmg.topicchannelplatform.dto.ChangePasswordRequest;
+import com.zzmg.topicchannelplatform.dto.ForgotPasswordRequest;
 import com.zzmg.topicchannelplatform.dto.ForumListItemDTO;
 import com.zzmg.topicchannelplatform.dto.LoginRequest;
 import com.zzmg.topicchannelplatform.dto.LoginResponse;
@@ -272,5 +273,64 @@ public class ApiUserController {
         session.removeAttribute("registerCode");
         session.removeAttribute("registerPhone");
         return ResponseEntity.ok(Map.of("success", true, "message", "注册成功"));
+    }
+
+    @PostMapping("/users/password/forgot/send-code")
+    public ResponseEntity<Map<String, Object>> sendForgotPasswordCode(
+            @RequestBody SendCodeRequest request, HttpSession session) {
+        String phoneNumber = request.getPhoneNumber();
+        if (phoneNumber == null || !phoneNumber.matches("1\\d{10}")) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "手机号格式错误"));
+        }
+        Optional<OrdinaryUser> existing = userService.findByPhone(phoneNumber);
+        if (existing.isEmpty()) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "该手机号未注册或已注销"));
+        }
+        session.setAttribute("resetCode", "123456");
+        session.setAttribute("resetPhone", phoneNumber);
+        return ResponseEntity.ok(Map.of("success", true, "message", "验证码已发送"));
+    }
+
+    @PostMapping("/users/password/reset")
+    public ResponseEntity<Map<String, Object>> resetPassword(
+            @RequestBody ForgotPasswordRequest request, HttpSession session) {
+        String phoneNumber = request.getPhoneNumber();
+        String verificationCode = request.getVerificationCode();
+        String newPassword = request.getNewPassword();
+        String confirmPassword = request.getConfirmPassword();
+
+        if (phoneNumber == null || !phoneNumber.matches("1\\d{10}")) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "手机号格式错误"));
+        }
+        if (newPassword == null || newPassword.isBlank()) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "新密码不能为空"));
+        }
+        if (newPassword.length() < 6) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "新密码长度至少6位"));
+        }
+        if (!newPassword.equals(confirmPassword)) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "两次密码不一致"));
+        }
+        String storedCode = (String) session.getAttribute("resetCode");
+        String storedPhone = (String) session.getAttribute("resetPhone");
+        if (storedCode == null || !storedCode.equals(verificationCode)
+                || !phoneNumber.equals(storedPhone)) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "验证码错误"));
+        }
+        if (userService.findByPhone(phoneNumber).isEmpty()) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "该手机号未注册或已注销"));
+        }
+        userService.resetPassword(phoneNumber, newPassword);
+        session.removeAttribute("resetCode");
+        session.removeAttribute("resetPhone");
+        return ResponseEntity.ok(Map.of("success", true, "message", "密码重置成功，请重新登录"));
     }
 }

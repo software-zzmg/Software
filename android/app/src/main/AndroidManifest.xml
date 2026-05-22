@@ -15,6 +15,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Topic_channel_platform">
         <activity
+            android:name=".ForgotPasswordActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".ForumListActivity"
             android:exported="false" />
 

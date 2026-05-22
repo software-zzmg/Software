@@ -2,6 +2,7 @@ package com.zzmg.topic_channel_platform.api;
 
 import com.zzmg.topic_channel_platform.model.ApiResponse;
 import com.zzmg.topic_channel_platform.model.ChangePasswordRequest;
+import com.zzmg.topic_channel_platform.model.ForgotPasswordRequest;
 import com.zzmg.topic_channel_platform.model.ForumListItem;
 import com.zzmg.topic_channel_platform.model.LoginRequest;
 import com.zzmg.topic_channel_platform.model.LoginResponse;
@@ -49,4 +50,10 @@ public interface UserApi {
 
     @POST("/api/users/register")
     Call<ApiResponse> register(@Body RegisterRequest request);
+
+    @POST("/api/users/password/forgot/send-code")
+    Call<ApiResponse> sendForgotPasswordCode(@Body SendCodeRequest request);
+
+    @POST("/api/users/password/reset")
+    Call<ApiResponse> resetPassword(@Body ForgotPasswordRequest request);
 }

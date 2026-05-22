@@ -57,6 +57,10 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+        findViewById(R.id.tv_forgot_password).setOnClickListener(v -> {
+            startActivity(new Intent(LoginActivity.this, ForgotPasswordActivity.class));
+        });
+
         findViewById(R.id.tv_register_link).setOnClickListener(v -> {
             startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
         });

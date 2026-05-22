@@ -1,5 +1,6 @@
 package com.zzmg.topic_channel_platform;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -55,6 +56,9 @@ public class ChangePasswordActivity extends AppCompatActivity {
         findViewById(R.id.btn_submit).setOnClickListener(v -> {
             if (validateForm()) changePassword();
         });
+
+        findViewById(R.id.tv_forgot_password).setOnClickListener(v ->
+                startActivity(new Intent(ChangePasswordActivity.this, ForgotPasswordActivity.class)));
     }
 
     private boolean validateForm() {
