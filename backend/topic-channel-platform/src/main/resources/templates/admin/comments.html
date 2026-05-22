@@ -12,7 +12,7 @@
 
     <p class="empty-state" th:if="${#lists.isEmpty(comments)}">暂无待审核的评论</p>
 
-    <table th:if="${!#lists.isEmpty(comments)}" class="table">
+    <div class="table-wrapper"><table th:if="${!#lists.isEmpty(comments)}" class="table">
         <thead>
             <tr>
                 <th>评论者</th>
@@ -29,7 +29,7 @@
                 <td>
                     <a th:href="@{/post/detail/{id}(id=${c.themePost.themePostId})}" th:text="${c.themePost.title}"></a>
                 </td>
-                <td th:text="${c.publishTime}"></td>
+                <td th:text="${@timeFormatter.format(c.publishTime)}"></td>
                 <td>
                     <form method="post" th:action="@{/admin/comments/{id}/approve(id=${c.commentId})}" style="display:inline">
                         <button type="submit" class="btn btn-primary btn-sm">通过</button>
@@ -40,7 +40,7 @@
                 </td>
             </tr>
         </tbody>
-    </table>
+    </table></div>
 
     <a th:href="@{/admin}" class="btn btn-outline">返回后台</a>
     </div>

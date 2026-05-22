@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人主页</title>
+    <link rel="stylesheet" th:href="@{/css/main.css}">
+</head>
+<body>
+    <div th:replace="~{fragments/nav :: nav}"></div>
+
+    <div class="page-wrapper">
+        <div th:replace="~{fragments/sidebar :: sidebar}"></div>
+        <div class="main-content">
+
+    <h1 class="page-title">个人主页</h1>
+
+    <div class="card" th:if="${user}">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;">
+            <div>
+                <div class="info-row"><strong>用户名称：</strong><span th:text="${user.userName}"></span></div>
+                <div class="info-row"><strong>用户ID：</strong><span th:text="${user.userId}"></span></div>
+            </div>
+            <a th:href="@{/user/info/edit}" class="btn btn-outline btn-sm">编辑信息</a>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="posts">我的帖子</button>
+            <button class="tab-btn" data-tab="comments">我的评论</button>
+            <button class="tab-btn" data-tab="collects">我的收藏</button>
+            <button class="tab-btn" data-tab="channels">我的频道</button>
+        </div>
+
+        <div class="tab-panel active" id="tab-posts">
+            <p class="empty-state" th:if="${#lists.isEmpty(myPosts)}">暂无帖子</p>
+            <div class="table-wrapper"><table th:if="${!#lists.isEmpty(myPosts)}" class="table">
+                <thead>
+                    <tr><th>标题</th><th>所属频道</th><th>发布时间</th><th>状态</th><th>操作</th></tr>
+                </thead>
+                <tbody>
+                    <tr th:each="p : ${myPosts}">
+                        <td>
+                            <a th:if="${p.auditState == '审核通过'}" th:href="@{/post/detail/{id}(id=${p.themePostId})}" th:text="${p.title}"></a>
+                            <span th:unless="${p.auditState == '审核通过'}" th:text="${p.title}"></span>
+                        </td>
+                        <td th:text="${p.forum.forumName}"></td>
+                        <td th:text="${@timeFormatter.format(p.publishTime)}"></td>
+                        <td th:text="${p.auditState}"></td>
+                        <td>
+                            <a th:if="${p.auditState == '审核通过'}" th:href="@{/post/detail/{id}(id=${p.themePostId})}" class="btn btn-outline btn-sm">查看</a>
+                            <a th:if="${p.auditState != '审核通过'}" href="javascript:void(0)" class="btn btn-outline btn-sm btn-edit-post"
+                               th:attr="data-id=${p.themePostId},data-title=${p.title},data-content=${p.content}">编辑</a>
+                        </td>
+                    </tr>
+                </tbody>
+            </table></div>
+        </div>
+
+        <div class="tab-panel" id="tab-comments">
+            <p class="empty-state" th:if="${#lists.isEmpty(myComments)}">暂无评论</p>
+            <div class="table-wrapper"><table th:if="${!#lists.isEmpty(myComments)}" class="table">
+                <thead>
+                    <tr><th>内容</th><th>所属帖子</th><th>时间</th></tr>
+                </thead>
+                <tbody>
+                    <tr th:each="c : ${myComments}">
+                        <td th:text="${c.content}"></td>
+                        <td><a th:href="@{/post/detail/{id}(id=${c.themePost.themePostId})}" th:text="${c.themePost.title}"></a></td>
+                        <td th:text="${@timeFormatter.format(c.publishTime)}"></td>
+                    </tr>
+                </tbody>
+            </table></div>
+        </div>
+
+        <div class="tab-panel" id="tab-collects">
+            <p class="empty-state" th:if="${#lists.isEmpty(myCollects)}">暂无收藏</p>
+            <div class="table-wrapper"><table th:if="${!#lists.isEmpty(myCollects)}" class="table">
+                <thead>
+                    <tr><th>帖子标题</th><th>所属频道</th><th>作者</th><th>收藏时间</th><th>操作</th></tr>
+                </thead>
+                <tbody>
+                    <tr th:each="c : ${myCollects}">
+                        <td><a th:href="@{/post/detail/{id}(id=${c.themePost.themePostId})}" th:text="${c.themePost.title}"></a></td>
+                        <td><a th:href="@{/forum/detail/{id}(id=${c.themePost.forum.forumId})}" th:text="${c.themePost.forum.forumName}"></a></td>
+                        <td th:text="${c.themePost.author.status == 'deleted'} ? '已注销用户' : ${c.themePost.author.userName}"></td>
+                        <td th:text="${@timeFormatter.format(c.collectTime)}"></td>
+                        <td>
+                            <button class="btn btn-outline btn-sm btn-cancel-collect" th:attr="data-id=${c.themePost.themePostId}">取消收藏</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table></div>
+        </div>
+
+        <div class="tab-panel" id="tab-channels">
+            <p class="empty-state" th:if="${#lists.isEmpty(myChannels)}">暂无加入的频道</p>
+            <div class="table-wrapper"><table th:if="${!#lists.isEmpty(myChannels)}" class="table">
+                <thead>
+                    <tr><th>频道名称</th><th>频道简介</th><th>加入时间</th><th>身份</th></tr>
+                </thead>
+                <tbody>
+                    <tr th:each="m : ${myChannels}">
+                        <td><a th:href="@{/forum/detail/{id}(id=${m.forum.forumId})}" th:text="${m.forum.forumName}"></a></td>
+                        <td th:text="${m.forum.content}"></td>
+                        <td th:text="${@timeFormatter.formatDate(m.joinTime)}"></td>
+                        <td>
+                            <span th:if="${m.user.userId == m.forum.creator.userId}" style="color:#2563eb;font-weight:500;">创建者</span>
+                            <span th:unless="${m.user.userId == m.forum.creator.userId}">成员</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table></div>
+        </div>
+    </div>
+
+    <!-- 编辑帖子弹窗 -->
+    <div id="modal-edit-post" class="modal-overlay">
+        <div class="modal-card">
+            <h2>编辑帖子</h2>
+            <p id="modal-edit-error" class="error-text" style="display:none;"></p>
+            <form id="form-edit-post" class="form" onsubmit="return false">
+                <input type="hidden" name="postId" id="edit-post-id">
+                <div class="form-group">
+                    <label>标题：</label>
+                    <input type="text" name="title" id="edit-post-title" class="form-input" required maxlength="100">
+                </div>
+                <div class="form-group">
+                    <label>内容：</label>
+                    <textarea name="content" id="edit-post-content" rows="8" class="form-textarea" maxlength="3000" required></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">保存修改</button>
+                    <button type="button" id="btn-cancel-edit" class="btn btn-outline">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+    (function() {
+        var btns = document.querySelectorAll('.tab-btn');
+        var panels = document.querySelectorAll('.tab-panel');
+
+        function switchTab(tab) {
+            btns.forEach(function(b) { b.classList.remove('active'); });
+            panels.forEach(function(p) { p.classList.remove('active'); });
+            document.querySelector('[data-tab="' + tab + '"]').classList.add('active');
+            document.getElementById('tab-' + tab).classList.add('active');
+            location.hash = tab;
+        }
+
+        btns.forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                switchTab(this.getAttribute('data-tab'));
+            });
+        });
+
+        var tab = location.hash.replace('#', '');
+        if (tab && document.getElementById('tab-' + tab)) {
+            switchTab(tab);
+        }
+
+        // 编辑帖子弹窗
+        var editModal = document.getElementById('modal-edit-post');
+        var editForm = document.getElementById('form-edit-post');
+        var editError = document.getElementById('modal-edit-error');
+        var editPostId = document.getElementById('edit-post-id');
+        var editTitle = document.getElementById('edit-post-title');
+        var editContent = document.getElementById('edit-post-content');
+        var cancelBtn = document.getElementById('btn-cancel-edit');
+
+        function openEdit(postId, title, content) {
+            editPostId.value = postId;
+            editTitle.value = title;
+            editContent.value = content;
+            editError.style.display = 'none';
+            editError.textContent = '';
+            editModal.classList.add('active');
+        }
+        function closeEdit() { editModal.classList.remove('active'); }
+
+        document.querySelectorAll('.btn-edit-post').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                openEdit(this.getAttribute('data-id'), this.getAttribute('data-title'), this.getAttribute('data-content'));
+            });
+        });
+        cancelBtn.addEventListener('click', closeEdit);
+        editModal.addEventListener('click', function(e) { if (e.target === editModal) closeEdit(); });
+
+        editForm.addEventListener('submit', function() {
+            editError.style.display = 'none';
+            var fd = new FormData(editForm);
+            var params = new URLSearchParams(fd).toString();
+            fetch('/post/edit', {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: params
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    closeEdit();
+                    var toast = document.createElement('div');
+                    toast.className = 'toast';
+                    toast.textContent = data.toast;
+                    document.body.appendChild(toast);
+                    setTimeout(function() { toast.style.opacity = '0'; setTimeout(function() { toast.remove(); }, 500); }, 2500);
+                    setTimeout(function() { location.reload(); }, 800);
+                } else {
+                    editError.textContent = data.error || '编辑失败，请重试';
+                    editError.style.display = 'block';
+                }
+            })
+            .catch(function() {
+                editError.textContent = '网络错误，请重试';
+                editError.style.display = 'block';
+            });
+        });
+
+        // 取消收藏
+        document.querySelectorAll('.btn-cancel-collect').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                if (!confirm('确定要取消收藏吗？')) return;
+                var postId = this.getAttribute('data-id');
+                fetch('/collect/cancel', {
+                    method: 'POST',
+                    headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: 'postId=' + encodeURIComponent(postId)
+                })
+                .then(function(r) { return r.json(); })
+                .then(function(d) {
+                    var toast = document.createElement('div');
+                    toast.className = 'toast';
+                    toast.textContent = d.toast || '已取消收藏';
+                    document.body.appendChild(toast);
+                    setTimeout(function() { toast.style.opacity = '0'; setTimeout(function() { toast.remove(); }, 500); }, 2500);
+                    setTimeout(function() { location.reload(); }, 600);
+                });
+            });
+        });
+    })();
+    </script>
+
+        </div>
+    </div>
+</body>
+</html>

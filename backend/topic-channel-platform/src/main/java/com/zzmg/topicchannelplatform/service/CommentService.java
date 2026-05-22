@@ -49,6 +49,10 @@ public class CommentService {
                 postId, "审核通过");
     }
 
+    public long countApprovedByPostId(Long postId) {
+        return commentRepository.countByThemePost_ThemePostIdAndAuditState(postId, "审核通过");
+    }
+
     public boolean canDelete(String userId, Long commentId) {
         return commentRepository.findById(commentId).map(comment -> {
             if (comment.getAuthor().getUserId().equals(userId)) {
@@ -59,6 +63,12 @@ public class CommentService {
                     .map(p -> p.getAuthor().getUserId().equals(userId))
                     .orElse(false);
         }).orElse(false);
+    }
+
+    public List<Comment> findApprovedByUserId(String userId) {
+        return commentRepository.findByAuthor_UserIdOrderByPublishTimeDesc(userId).stream()
+                .filter(c -> "审核通过".equals(c.getAuditState()))
+                .toList();
     }
 
     public void deleteById(Long commentId) {

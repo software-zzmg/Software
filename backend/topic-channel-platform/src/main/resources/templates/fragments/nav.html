@@ -1,23 +1,235 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" lang="zh-CN">
 <body>
-<div th:fragment="nav" class="nav-bar">
-    <div class="nav-brand">
-        <a th:href="@{/}">主题频道交流平台</a>
+<div th:fragment="nav">
+    <div class="nav-bar">
+        <div class="nav-brand">
+            <a th:href="@{/}">主题频道交流平台</a>
+        </div>
+        <form method="get" th:action="@{/search}" class="nav-search">
+            <input type="text" name="keyword" th:value="${keyword}" placeholder="搜索帖子、频道、用户" required>
+            <input type="hidden" name="type" value="post">
+            <button type="submit">搜索</button>
+        </form>
+        <div style="flex:1;" th:replace="~{fragments/toast :: toast}"></div>
+        <div class="nav-links">
+            <a th:href="@{/}">首页</a>
+            <a th:if="${session.userId}" href="javascript:void(0)" id="btn-quick-post">发布帖子</a>
+            <a th:if="${session.userId}" href="javascript:void(0)" id="btn-create-forum">创建频道</a>
+            <span th:if="${session.userId}" class="nav-dropdown">
+                <a href="javascript:void(0)">个人中心</a>
+                <div class="nav-dropdown-menu">
+                    <a th:href="@{/user/info}">个人资料</a>
+                    <a th:href="@{/user/home}">个人主页</a>
+                    <div class="sub-dropdown">
+                        <a href="javascript:void(0)" class="sub-trigger">账号管理 &#8250;</a>
+                        <div class="sub-dropdown-menu">
+                            <a th:href="@{/user/password/change}">修改密码</a>
+                            <button type="button" class="danger" id="btn-delete-account">注销账号</button>
+                        </div>
+                    </div>
+                    <a th:href="@{/user/logout}" style="color:#ef4444;">退出登录</a>
+                </div>
+            </span>
+            <a th:unless="${session.userId}" th:href="@{/user/login}">登录</a>
+            <a th:unless="${session.userId}" th:href="@{/user/register}">注册</a>
+        </div>
     </div>
-    <form method="get" th:action="@{/search}" class="nav-search">
-        <input type="text" name="keyword" th:value="${keyword}" placeholder="搜索帖子、频道、用户" required>
-        <input type="hidden" name="type" value="post">
-        <button type="submit">搜索</button>
-    </form>
-    <div style="flex:1;" th:replace="~{fragments/toast :: toast}"></div>
-    <div class="nav-links">
-        <a th:href="@{/}">首页</a>
-        <a th:if="${session.userId}" th:href="@{/forum/create}">创建频道</a>
-        <a th:if="${session.userId}" th:href="@{/user/info}">个人中心</a>
-        <a th:unless="${session.userId}" th:href="@{/user/login}">登录</a>
-        <a th:unless="${session.userId}" th:href="@{/user/register}">注册</a>
+
+    <!-- 创建频道弹窗 -->
+    <div th:if="${session.userId}" id="modal-create-forum" class="modal-overlay">
+        <div class="modal-card">
+            <h2>创建主题频道</h2>
+            <p id="modal-forum-error" class="error-text" style="display:none;"></p>
+            <form id="form-create-forum" class="form" onsubmit="return false">
+                <div class="form-group">
+                    <label>频道名称：</label>
+                    <input type="text" name="forumName" class="form-input" required maxlength="50">
+                </div>
+                <div class="form-group">
+                    <label>频道简介：</label>
+                    <textarea name="content" rows="5" class="form-textarea" maxlength="500" required></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">提交创建</button>
+                    <button type="button" id="btn-cancel-create" class="btn btn-outline">取消</button>
+                </div>
+            </form>
+        </div>
     </div>
+
+    <!-- 快速发帖弹窗 -->
+    <div th:if="${session.userId}" id="modal-quick-post" class="modal-overlay">
+        <div class="modal-card">
+            <h2>发布帖子</h2>
+            <p id="modal-quick-error" class="error-text" style="display:none;"></p>
+            <form id="form-quick-post" class="form" onsubmit="return false">
+                <div class="form-group">
+                    <label>选择频道：</label>
+                    <select name="forumId" class="form-input" required>
+                        <option value="">请选择频道</option>
+                        <option th:each="f : ${@forumService.findAll()}"
+                                th:if="${f.auditState == '审核通过'}"
+                                th:value="${f.forumId}"
+                                th:text="${f.forumName}"></option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>标题：</label>
+                    <input type="text" name="title" class="form-input" required maxlength="100">
+                </div>
+                <div class="form-group">
+                    <label>内容：</label>
+                    <textarea name="content" rows="8" class="form-textarea" maxlength="3000" required></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">发布</button>
+                    <button type="button" id="btn-cancel-quick" class="btn btn-outline">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 注销确认弹窗 -->
+    <div id="modal-delete-account" class="modal-overlay">
+        <div class="modal-card" style="max-width:380px;">
+            <h2>注销账号</h2>
+            <p style="color:#ef4444;margin-bottom:8px;">⚠️ 此操作不可恢复</p>
+            <p style="color:#555;margin-bottom:20px;">注销后所有数据将被永久删除，确定要继续吗？</p>
+            <div class="form-actions" style="justify-content:flex-end;">
+                <button type="button" id="btn-cancel-delete" class="btn btn-outline">取消</button>
+                <form method="post" th:action="@{/user/delete}" style="display:inline;">
+                    <button type="submit" class="btn btn-danger">确认注销</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script th:if="${session.userId}">
+    (function() {
+        // 账号管理子菜单
+        var subTrigger = document.querySelector('.sub-trigger');
+        var subMenu = document.querySelector('.sub-dropdown-menu');
+        if (subTrigger) {
+            subTrigger.addEventListener('click', function(e) {
+                e.preventDefault(); e.stopPropagation();
+                subMenu.classList.toggle('active');
+            });
+            document.addEventListener('click', function() { subMenu.classList.remove('active'); });
+        }
+
+        // 注销账号弹窗
+        var deleteBtn = document.getElementById('btn-delete-account');
+        var deleteModal = document.getElementById('modal-delete-account');
+        var deleteCancel = document.getElementById('btn-cancel-delete');
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', function() {
+                deleteModal.classList.add('active');
+                subMenu.classList.remove('active');
+                dropdownMenu.classList.remove('active');
+            });
+            deleteCancel.addEventListener('click', function() { deleteModal.classList.remove('active'); });
+            deleteModal.addEventListener('click', function(e) { if (e.target === deleteModal) deleteModal.classList.remove('active'); });
+        }
+
+        // 下拉菜单
+        var dropdown = document.querySelector('.nav-dropdown');
+        var dropdownMenu = dropdown.querySelector('.nav-dropdown-menu');
+        var hideTimer;
+        function showMenu() { clearTimeout(hideTimer); dropdownMenu.classList.add('active'); }
+        function hideMenu() { hideTimer = setTimeout(function() { dropdownMenu.classList.remove('active'); }, 150); }
+        dropdown.addEventListener('mouseenter', showMenu);
+        dropdown.addEventListener('mouseleave', hideMenu);
+        dropdownMenu.addEventListener('mouseenter', showMenu);
+        dropdownMenu.addEventListener('mouseleave', hideMenu);
+
+        // 创建频道弹窗
+        var modal = document.getElementById('modal-create-forum');
+        var btnOpen = document.getElementById('btn-create-forum');
+        var btnCancel = document.getElementById('btn-cancel-create');
+        var form = document.getElementById('form-create-forum');
+        var error = document.getElementById('modal-forum-error');
+
+        function open() { modal.classList.add('active'); }
+        function close() { modal.classList.remove('active'); form.reset(); error.style.display = 'none'; error.textContent = ''; }
+
+        btnOpen.addEventListener('click', function(e) { e.preventDefault(); open(); });
+        btnCancel.addEventListener('click', close);
+        modal.addEventListener('click', function(e) { if (e.target === modal) close(); });
+
+        form.addEventListener('submit', function() {
+            error.style.display = 'none';
+            var fd = new FormData(form);
+            var params = new URLSearchParams(fd).toString();
+            fetch('/forum/create', {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: params
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    close();
+                    var toast = document.createElement('div');
+                    toast.className = 'toast';
+                    toast.textContent = data.toast;
+                    document.body.appendChild(toast);
+                    setTimeout(function() { toast.style.opacity = '0'; setTimeout(function() { toast.remove(); }, 500); }, 2500);
+                    setTimeout(function() { location.reload(); }, 800);
+                } else {
+                    error.textContent = data.error || '创建失败，请重试';
+                    error.style.display = 'block';
+                }
+            })
+            .catch(function() {
+                error.textContent = '网络错误，请重试';
+                error.style.display = 'block';
+            });
+        });
+
+        // 快速发帖弹窗
+        var quickModal = document.getElementById('modal-quick-post');
+        var quickBtn = document.getElementById('btn-quick-post');
+        var quickCancel = document.getElementById('btn-cancel-quick');
+        var quickForm = document.getElementById('form-quick-post');
+        var quickError = document.getElementById('modal-quick-error');
+
+        quickBtn.addEventListener('click', function(e) { e.preventDefault(); quickModal.classList.add('active'); });
+        quickCancel.addEventListener('click', function() { quickModal.classList.remove('active'); quickForm.reset(); quickError.style.display = 'none'; });
+        quickModal.addEventListener('click', function(e) { if (e.target === quickModal) { quickModal.classList.remove('active'); quickForm.reset(); quickError.style.display = 'none'; } });
+
+        quickForm.addEventListener('submit', function() {
+            quickError.style.display = 'none';
+            var fd = new FormData(quickForm);
+            var params = new URLSearchParams(fd).toString();
+            fetch('/post/create', {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: params
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.success) {
+                    quickModal.classList.remove('active');
+                    quickForm.reset();
+                    var toast = document.createElement('div');
+                    toast.className = 'toast';
+                    toast.textContent = data.toast;
+                    document.body.appendChild(toast);
+                    setTimeout(function() { toast.style.opacity = '0'; setTimeout(function() { toast.remove(); }, 500); }, 2500);
+                    setTimeout(function() { location.reload(); }, 800);
+                } else {
+                    quickError.textContent = data.error || '发布失败，请重试';
+                    quickError.style.display = 'block';
+                }
+            })
+            .catch(function() {
+                quickError.textContent = '网络错误，请重试';
+                quickError.style.display = 'block';
+            });
+        });
+    })();
+    </script>
 </div>
 </body>
 </html>

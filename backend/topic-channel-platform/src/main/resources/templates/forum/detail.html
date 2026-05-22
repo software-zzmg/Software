@@ -15,67 +15,320 @@
 
     <h1 class="page-title" th:text="${forum.forumName}">频道名称</h1>
 
-    <div class="card">
+    <div class="card" style="position:relative;">
+        <!-- 三点菜单按钮 -->
+        <div th:if="${isCreator || isMember}" class="forum-dots" style="position:absolute;top:12px;right:12px;" th:attr="data-forum-id=${forum.forumId}">
+            <button id="forum-dots-btn" class="forum-dots-btn">&#8943;</button>
+            <div id="forum-dots-menu" class="forum-dots-menu">
+                <a th:if="${isCreator}" href="javascript:void(0)" id="menu-edit-forum">编辑频道</a>
+                <button th:if="${isCreator}" class="danger" id="menu-dismiss-forum">解散频道</button>
+                <button th:if="${!isCreator && isMember}" class="danger" id="menu-leave-forum">退出频道</button>
+            </div>
+        </div>
+
         <p class="info-row"><strong>简介：</strong><span th:text="${forum.content}"></span></p>
         <p class="info-row"><strong>创建者：</strong><span th:text="${forum.creator.status == 'deleted'} ? '已注销用户' : ${forum.creator.userName}"></span></p>
         <p class="info-row" th:if="${forum.auditState == '审核未通过'}"><strong>审核状态：</strong><span th:text="${forum.auditState}"></span></p>
-        <p class="info-row"><strong>创建时间：</strong><span th:text="${forum.createTime}"></span></p>
+        <p class="info-row"><strong>创建时间：</strong><span th:text="${@timeFormatter.formatDate(forum.createTime)}"></span></p>
 
-        <div th:if="${isCreator}" class="form-actions">
-            <a th:href="@{/forum/edit/{id}(id=${forum.forumId})}" class="btn btn-outline">编辑频道</a>
-            <form method="post" th:action="@{/forum/dismiss}" style="display:inline">
-                <input type="hidden" name="forumId" th:value="${forum.forumId}">
-                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('确定要解散该频道吗？')">解散频道</button>
-            </form>
-        </div>
-
+        <!-- 加入频道 -->
         <div th:if="${session.userId != null && !isCreator}">
-            <form th:if="${!isMember && forum.auditState == '审核通过'}" method="post" th:action="@{/forum-member/join}" style="display:inline">
+            <form th:if="${!isMember && forum.auditState == '审核通过'}" id="form-join-forum" style="display:inline">
                 <input type="hidden" name="forumId" th:value="${forum.forumId}">
                 <button type="submit" class="btn btn-primary">加入频道</button>
             </form>
             <p th:if="${!isMember && forum.auditState != '审核通过'}" class="empty-state">该频道尚未审核通过，暂不能加入</p>
-            <form th:if="${isMember}" method="post" th:action="@{/forum-member/leave}" style="display:inline">
-                <input type="hidden" name="forumId" th:value="${forum.forumId}">
-                <button type="submit" class="btn btn-outline" onclick="return confirm('确定要退出该频道吗？')">退出频道</button>
-            </form>
         </div>
-
         <p th:if="${session.userId == null}" class="empty-state">
             <a th:href="@{/user/login}">登录后即可加入频道</a>
         </p>
 
+        <!-- 发布新帖 -->
         <div class="form-actions">
-            <a th:if="${session.userId != null && forum.auditState == '审核通过'}" th:href="@{/post/create/{id}(id=${forum.forumId})}" class="btn btn-primary">发布新帖</a>
-            <a th:if="${session.userId != null && forum.auditState != '审核通过'}" href="#" class="btn btn-outline" onclick="alert('频道审核中，暂无法发帖');return false;">发布新帖</a>
+            <a th:if="${session.userId != null && forum.auditState == '审核通过'}" href="javascript:void(0)" id="btn-create-post" class="btn btn-primary">发布新帖</a>
+            <a th:if="${session.userId != null && forum.auditState != '审核通过'}" href="javascript:void(0)" class="btn btn-outline" id="btn-disabled-post">发布新帖</a>
         </div>
     </div>
 
+    <!-- 发布新帖弹窗 -->
+    <div th:if="${session.userId != null && forum.auditState == '审核通过'}" id="modal-create-post" class="modal-overlay">
+        <div class="modal-card">
+            <h2>发布新帖</h2>
+            <p th:text="'频道：' + ${forum.forumName}" class="info-row"></p>
+            <p id="modal-post-error" class="error-text" style="display:none;"></p>
+            <form id="form-create-post" class="form" onsubmit="return false">
+                <input type="hidden" name="forumId" th:value="${forum.forumId}">
+                <div class="form-group">
+                    <label>标题：</label>
+                    <input type="text" name="title" class="form-input" required maxlength="100">
+                </div>
+                <div class="form-group">
+                    <label>内容：</label>
+                    <textarea name="content" rows="8" class="form-textarea" maxlength="3000" required></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">发布</button>
+                    <button type="button" id="btn-cancel-post" class="btn btn-outline">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 编辑频道弹窗 -->
+    <div th:if="${isCreator}" id="modal-edit-forum" class="modal-overlay">
+        <div class="modal-card">
+            <h2>编辑频道</h2>
+            <p id="modal-edit-error" class="error-text" style="display:none;"></p>
+            <form id="form-edit-forum" class="form" onsubmit="return false">
+                <input type="hidden" name="forumId" th:value="${forum.forumId}">
+                <div class="form-group">
+                    <label>频道名称：</label>
+                    <input type="text" name="forumName" class="form-input" required maxlength="50" th:value="${forum.forumName}">
+                </div>
+                <div class="form-group">
+                    <label>频道简介：</label>
+                    <textarea name="content" rows="5" class="form-textarea" maxlength="500" required th:text="${forum.content}"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">保存修改</button>
+                    <button type="button" id="btn-cancel-edit" class="btn btn-outline">取消</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 确认弹窗 -->
+    <div id="modal-confirm" class="modal-overlay">
+        <div class="modal-card" style="max-width:360px;">
+            <h2 id="confirm-title">确认操作</h2>
+            <p id="confirm-msg" style="margin-bottom:20px;color:#555;"></p>
+            <div class="form-actions" style="justify-content:flex-end;">
+                <button type="button" id="btn-confirm-cancel" class="btn btn-outline">取消</button>
+                <button type="button" id="btn-confirm-ok" class="btn btn-danger">确认</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 三点菜单 JS -->
+    <script th:if="${isCreator || isMember}">
+    (function() {
+        var dotsBtn = document.getElementById('forum-dots-btn');
+        var dotsMenu = document.getElementById('forum-dots-menu');
+        var dotsContainer = dotsBtn.parentElement;
+        var forumId = dotsContainer.getAttribute('data-forum-id');
+        var hideTimer = null;
+        function showMenu() { clearTimeout(hideTimer); dotsMenu.classList.add('active'); }
+        function hideMenu() { hideTimer = setTimeout(function() { dotsMenu.classList.remove('active'); }, 150); }
+        dotsBtn.addEventListener('click', function(e) { e.stopPropagation(); dotsMenu.classList.contains('active') ? hideMenu() : showMenu(); });
+        dotsBtn.addEventListener('mouseenter', showMenu);
+        dotsContainer.addEventListener('mouseleave', hideMenu);
+        dotsMenu.addEventListener('mouseenter', showMenu);
+        dotsMenu.addEventListener('mouseleave', hideMenu);
+        document.addEventListener('click', function() { dotsMenu.classList.remove('active'); });
+
+        var menuEdit = document.getElementById('menu-edit-forum');
+        var menuDismiss = document.getElementById('menu-dismiss-forum');
+        var menuLeave = document.getElementById('menu-leave-forum');
+
+        // 确认弹窗
+        var confirmModal = document.getElementById('modal-confirm');
+        var confirmTitle = document.getElementById('confirm-title');
+        var confirmMsg = document.getElementById('confirm-msg');
+        var confirmBtn = document.getElementById('btn-confirm-ok');
+        var confirmCancel = document.getElementById('btn-confirm-cancel');
+        var confirmCallback = null;
+
+        function showConfirm(title, msg, cb) {
+            confirmTitle.textContent = title;
+            confirmMsg.textContent = msg;
+            confirmCallback = cb;
+            confirmModal.classList.add('active');
+        }
+        function hideConfirm() { confirmModal.classList.remove('active'); }
+        confirmCancel.addEventListener('click', hideConfirm);
+        confirmModal.addEventListener('click', function(e) { if (e.target === confirmModal) hideConfirm(); });
+        confirmBtn.addEventListener('click', function() { if (confirmCallback) { confirmCallback(); hideConfirm(); } });
+
+        function showToast(msg) {
+            var toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = msg;
+            document.body.appendChild(toast);
+            setTimeout(function() { toast.style.opacity = '0'; setTimeout(function() { toast.remove(); }, 500); }, 2500);
+        }
+
+        function ajaxPost(url, body, onSuccess) {
+            fetch(url, {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: body
+            }).then(function(r) {
+                if (!r.ok) throw new Error('HTTP ' + r.status);
+                return r.json();
+            }).then(function(d) {
+                if (d.success) { showToast(d.toast); if (onSuccess) onSuccess(); }
+                else { showToast(d.error || '操作失败'); }
+            }).catch(function(e) {
+                showToast('网络错误：' + e.message);
+            });
+        }
+
+        // 编辑频道
+        if (menuEdit) {
+            var editModal = document.getElementById('modal-edit-forum');
+            var editForm = document.getElementById('form-edit-forum');
+            var editError = document.getElementById('modal-edit-error');
+            var editBtnCancel = document.getElementById('btn-cancel-edit');
+            function openEdit() { editModal.classList.add('active'); }
+            function closeEdit() { editModal.classList.remove('active'); editError.style.display = 'none'; }
+            menuEdit.addEventListener('click', openEdit);
+            editBtnCancel.addEventListener('click', closeEdit);
+            editModal.addEventListener('click', function(e) { if (e.target === editModal) closeEdit(); });
+            editForm.addEventListener('submit', function() {
+                editError.style.display = 'none';
+                var p = new URLSearchParams(new FormData(editForm)).toString();
+                fetch('/forum/edit', { method:'POST', headers:{'X-Requested-With':'XMLHttpRequest','Content-Type':'application/x-www-form-urlencoded'}, body:p })
+                .then(function(r) { return r.json(); })
+                .then(function(d) {
+                    if (d.success) { closeEdit(); showToast(d.toast); location.reload(); }
+                    else { editError.textContent = d.error || '编辑失败'; editError.style.display = 'block'; }
+                });
+            });
+        }
+
+        // 解散频道
+        if (menuDismiss) {
+            menuDismiss.addEventListener('click', function() {
+                showConfirm('解散频道', '确定要解散该频道吗？此操作不可恢复。', function() {
+                    ajaxPost('/forum/dismiss', 'forumId=' + forumId, function() { location.href = '/'; });
+                });
+            });
+        }
+
+        // 退出频道
+        if (menuLeave) {
+            menuLeave.addEventListener('click', function() {
+                showConfirm('退出频道', '确定要退出该频道吗？', function() {
+                    ajaxPost('/forum-member/leave', 'forumId=' + forumId, function() { location.reload(); });
+                });
+            });
+        }
+    })();
+    </script>
+
+    <!-- 发布新帖 JS -->
+    <script th:if="${session.userId != null && forum.auditState == '审核通过'}">
+    (function() {
+        var modal = document.getElementById('modal-create-post');
+        var btnOpen = document.getElementById('btn-create-post');
+        var btnCancel = document.getElementById('btn-cancel-post');
+        var form = document.getElementById('form-create-post');
+        var error = document.getElementById('modal-post-error');
+        function open() { modal.classList.add('active'); }
+        function close() { modal.classList.remove('active'); form.reset(); error.style.display = 'none'; error.textContent = ''; }
+        btnOpen.addEventListener('click', function(e) { e.preventDefault(); open(); });
+        btnCancel.addEventListener('click', close);
+        modal.addEventListener('click', function(e) { if (e.target === modal) close(); });
+        form.addEventListener('submit', function() {
+            error.style.display = 'none';
+            var p = new URLSearchParams(new FormData(form)).toString();
+            fetch('/post/create', { method:'POST', headers:{'X-Requested-With':'XMLHttpRequest','Content-Type':'application/x-www-form-urlencoded'}, body:p })
+            .then(function(r) { return r.json(); })
+            .then(function(d) {
+                if (d.success) {
+                    close();
+                    var toast = document.createElement('div');
+                    toast.className = 'toast';
+                    toast.textContent = d.toast;
+                    document.body.appendChild(toast);
+                    setTimeout(function() { toast.style.opacity = '0'; setTimeout(function() { toast.remove(); }, 500); }, 2500);
+                    setTimeout(function() { location.reload(); }, 800);
+                } else { error.textContent = d.error || '发布失败'; error.style.display = 'block'; }
+            });
+        });
+    })();
+    </script>
+
+    <script th:if="${session.userId != null && forum.auditState != '审核通过'}">
+    document.getElementById('btn-disabled-post').addEventListener('click', function(e) { e.preventDefault(); alert('频道审核中，暂无法发帖'); });
+    </script>
+
+    <!-- 加入频道 JS -->
+    <script th:if="${session.userId != null && !isCreator && !isMember && forum.auditState == '审核通过'}">
+    document.getElementById('form-join-forum').addEventListener('submit', function(e) {
+        e.preventDefault();
+        var p = new URLSearchParams(new FormData(this)).toString();
+        fetch('/forum-member/join', { method:'POST', headers:{'X-Requested-With':'XMLHttpRequest','Content-Type':'application/x-www-form-urlencoded'}, body:p })
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+            var toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = d.toast || '已加入';
+            document.body.appendChild(toast);
+            setTimeout(function() { toast.style.opacity = '0'; setTimeout(function() { toast.remove(); }, 500); }, 2500);
+            setTimeout(function() { location.reload(); }, 600);
+        });
+    });
+    </script>
+
     <hr class="divider">
     <h2 class="section-title">频道帖子</h2>
-
     <p class="empty-state" th:if="${#lists.isEmpty(posts)}">暂无帖子</p>
-
     <div th:if="${!#lists.isEmpty(posts)}" class="post-list">
         <article th:each="post : ${posts}" class="post-card">
-            <a class="post-card-link"
-               th:href="@{/post/detail/{id}(id=${post.themePostId})}"
-               th:aria-label="|查看帖子：${post.title}|"></a>
+            <a class="post-card-link" th:href="@{/post/detail/{id}(id=${post.themePostId})}" th:aria-label="|查看帖子：${post.title}|"></a>
             <div class="post-card-content">
                 <h2 class="post-card-title" th:text="${post.title}"></h2>
-                <p class="post-card-summary"
-                   th:text="${post.content == null || #strings.isEmpty(post.content) ? '暂无正文摘要' : (#strings.length(post.content) > 120 ? #strings.substring(post.content, 0, 120) + '...' : post.content)}"></p>
+                <p class="post-card-summary" th:text="${post.content == null || #strings.isEmpty(post.content) ? '暂无正文摘要' : (#strings.length(post.content) > 120 ? #strings.substring(post.content, 0, 120) + '...' : post.content)}"></p>
                 <div class="post-card-meta">
                     <span th:text="${post.author.status == 'deleted'} ? '已注销用户' : ${post.author.userName}"></span>
                     <span>发布于</span>
-                    <a class="post-card-channel"
-                       th:href="@{/forum/detail/{id}(id=${post.forum.forumId})}"
-                       th:text="${post.forum.forumName}"></a>
-                    <span th:text="${post.publishTime}"></span>
+                    <a class="post-card-channel" th:href="@{/forum/detail/{id}(id=${post.forum.forumId})}" th:text="${post.forum.forumName}"></a>
+                    <span th:text="${@timeFormatter.format(post.publishTime)}"></span>
+                </div>
+                <div class="post-card-actions">
+                    <a class="action-item" th:href="'/post/detail/' + ${post.themePostId} + '#comments'">&#128172; <span th:text="${@commentService.countApprovedByPostId(post.themePostId)}">0</span></a>
+                    <a th:if="${session.userId}" href="javascript:void(0)" class="action-item collect-btn"
+                       th:attr="data-id=${post.themePostId}"
+                       th:data-collected="${collectedPostIds != null && collectedPostIds.contains(post.themePostId)}"
+                       th:classappend="${collectedPostIds != null && collectedPostIds.contains(post.themePostId) ? 'collected' : ''}">
+                       <th:block th:if="${collectedPostIds != null && collectedPostIds.contains(post.themePostId)}">&#9733; 已收藏</th:block>
+                       <th:block th:unless="${collectedPostIds != null && collectedPostIds.contains(post.themePostId)}">&#9734; 收藏</th:block>
+                    </a>
                 </div>
             </div>
         </article>
     </div>
+
+    <script th:if="${session.userId}">
+    document.querySelectorAll('.collect-btn').forEach(function(btn) {
+        btn.addEventListener('click', function(e) {
+            e.preventDefault(); e.stopPropagation();
+            var postId = this.getAttribute('data-id');
+            var collected = this.getAttribute('data-collected') === 'true';
+            var url = collected ? '/collect/cancel' : '/collect/add';
+            fetch(url, {
+                method:'POST',
+                headers:{'X-Requested-With':'XMLHttpRequest','Content-Type':'application/x-www-form-urlencoded'},
+                body:'postId=' + encodeURIComponent(postId)
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(d) {
+                if (d.success !== false) {
+                    if (collected) {
+                        btn.setAttribute('data-collected', 'false');
+                        btn.classList.remove('collected');
+                        btn.innerHTML = '&#9734; 收藏';
+                    } else {
+                        btn.setAttribute('data-collected', 'true');
+                        btn.classList.add('collected');
+                        btn.innerHTML = '&#9733; 已收藏';
+                    }
+                }
+            });
+        });
+    });
+    </script>
 
     <a th:href="@{/}" class="btn btn-outline">返回首页</a>
         </div>

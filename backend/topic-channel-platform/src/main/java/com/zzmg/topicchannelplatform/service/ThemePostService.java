@@ -74,11 +74,18 @@ public class ThemePostService {
     public List<ThemePost> findApproved() {
         return postRepository.findAll().stream()
                 .filter(p -> "审核通过".equals(p.getAuditState()))
+                .sorted((a, b) -> b.getPublishTime().compareTo(a.getPublishTime()))
                 .toList();
     }
 
     public List<ThemePost> findApprovedPosts() {
         return postRepository.findByAuditStateOrderByPublishTimeDesc("审核通过");
+    }
+
+    public List<ThemePost> findApprovedByUserId(String userId) {
+        return postRepository.findByAuthor_UserIdOrderByPublishTimeDesc(userId).stream()
+                .filter(p -> !"审核未通过".equals(p.getAuditState()))
+                .toList();
     }
 
     public Optional<ThemePost> findApprovedPostById(Long postId) {

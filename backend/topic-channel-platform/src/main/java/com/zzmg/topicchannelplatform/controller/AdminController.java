@@ -42,10 +42,13 @@ public class AdminController {
     // TODO: 添加自动审核功能
     // TODO: 优化管理员界面
     @GetMapping("")
-    public String dashboard(HttpSession session) {
+    public String dashboard(HttpSession session, Model model) {
         if (session.getAttribute("adminId") == null) {
             return "redirect:/admin/login";
         }
+        model.addAttribute("pendingForumCount", adminService.countPendingForums());
+        model.addAttribute("pendingPostCount", adminService.countPendingPosts());
+        model.addAttribute("pendingCommentCount", adminService.countPendingComments());
         return "admin/dashboard";
     }
 

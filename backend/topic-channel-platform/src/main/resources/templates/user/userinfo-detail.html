@@ -12,27 +12,18 @@
     <div style="max-width:600px;margin:0 auto;padding:24px;">
     <h1 class="page-title">个人信息</h1>
 
-    <table th:if="${user}" class="table">
+    <div class="table-wrapper"><table th:if="${user}" class="table">
         <tr><td>用户名：</td><td th:text="${user.userName}"></td></tr>
         <tr><td>手机号：</td><td th:text="${user.phoneNumber}"></td></tr>
         <tr><td>真实姓名：</td><td th:text="${user.realName}"></td></tr>
         <tr><td>性别：</td><td th:text="${user.gender}"></td></tr>
-        <tr><td>生日：</td><td th:text="${user.birthday}"></td></tr>
+        <tr><td>生日：</td><td th:text="${user.birthday != null ? #strings.substring(user.birthday.toString(), 0, 10) : ''}"></td></tr>
         <tr><td>身份证号：</td><td th:text="${user.idNumber}"></td></tr>
-        <tr><td>注册时间：</td><td th:text="${user.registerTime}"></td></tr>
-    </table>
+        <tr><td>注册时间：</td><td th:text="${#strings.substring(user.registerTime.toString(), 0, 10)}"></td></tr>
+    </table></div>
     <div class="form-actions">
         <a th:href="@{/user/info/edit}" class="btn btn-outline">编辑信息</a>
-        <a th:href="@{/user/password/change}" class="btn btn-outline">修改密码</a>
-        <a th:href="@{/collect/my}" class="btn btn-outline">我的收藏</a>
-        <a th:href="@{/forum-member/my}" class="btn btn-outline">我加入的频道</a>
     </div>
-    <div class="form-actions">
-        <a th:href="@{/user/logout}" class="btn btn-outline">退出登录</a>
-    </div>
-    <form method="post" th:action="@{/user/delete}" style="margin-top:20px">
-        <button type="submit" class="btn btn-danger" onclick="return confirm('确认注销账号？此操作不可恢复。')">注销账号</button>
-    </form>
     </div>
 </body>
 </html>

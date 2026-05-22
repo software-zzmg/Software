@@ -17,7 +17,7 @@
 
     <p class="empty-state" th:if="${#lists.isEmpty(memberships)}">你还没有加入任何频道</p>
 
-    <table th:if="${!#lists.isEmpty(memberships)}" class="table">
+    <div class="table-wrapper"><table th:if="${!#lists.isEmpty(memberships)}" class="table">
         <thead>
             <tr>
                 <th>频道名称</th>
@@ -32,7 +32,7 @@
                     <a th:href="@{/forum/detail/{id}(id=${m.forum.forumId})}" th:text="${m.forum.forumName}"></a>
                 </td>
                 <td th:text="${m.forum.content}"></td>
-                <td th:text="${m.joinTime}"></td>
+                <td th:text="${@timeFormatter.formatDate(m.joinTime)}"></td>
                 <td>
                     <form method="post" th:action="@{/forum-member/leave}" style="display:inline">
                         <input type="hidden" name="forumId" th:value="${m.forum.forumId}">
@@ -41,7 +41,7 @@
                 </td>
             </tr>
         </tbody>
-    </table>
+    </table></div>
 
     <a th:href="@{/}" class="btn btn-outline">返回首页</a>
         </div>

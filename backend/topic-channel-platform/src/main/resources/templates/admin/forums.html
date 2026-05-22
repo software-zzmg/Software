@@ -12,7 +12,7 @@
 
     <p class="empty-state" th:if="${#lists.isEmpty(forums)}">暂无待审核的频道</p>
 
-    <table th:if="${!#lists.isEmpty(forums)}" class="table">
+    <div class="table-wrapper"><table th:if="${!#lists.isEmpty(forums)}" class="table">
         <thead>
             <tr>
                 <th>频道名称</th>
@@ -27,7 +27,7 @@
                 <td th:text="${f.forumName}"></td>
                 <td th:text="${f.content}"></td>
                 <td th:text="${f.creator.userName}"></td>
-                <td th:text="${f.createTime}"></td>
+                <td th:text="${@timeFormatter.formatDate(f.createTime)}"></td>
                 <td>
                     <form method="post" th:action="@{/admin/forums/{id}/approve(id=${f.forumId})}" style="display:inline">
                         <button type="submit" class="btn btn-primary btn-sm">通过</button>
@@ -38,7 +38,7 @@
                 </td>
             </tr>
         </tbody>
-    </table>
+    </table></div>
 
     <a th:href="@{/admin}" class="btn btn-outline">返回后台</a>
     </div>
