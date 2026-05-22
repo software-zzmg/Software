@@ -9,9 +9,9 @@ a:hover { color:#1d4ed8; }
 .nav-brand { font-size:18px; font-weight:700; }
 .nav-brand a { color:#2563eb; }
 .nav-search { display:flex; align-items:center; gap:4px; }
-.nav-search input { padding:5px 10px; width:100%; max-width:280px; border:1px solid #d1d5db; border-radius:4px; font-size:13px; outline:none; }
+.nav-search input { padding:5px 10px; flex:1; max-width:280px; border:1px solid #d1d5db; border-radius:4px; font-size:13px; outline:none; min-width:0; }
 .nav-search input:focus { border-color:#2563eb; }
-.nav-search button { padding:5px 14px; background:#2563eb; color:#fff; border:none; border-radius:4px; cursor:pointer; font-size:13px; }
+.nav-search button { padding:5px 22px; background:#2563eb; color:#fff; border:1px solid #2563eb; border-radius:4px; cursor:pointer; font-size:13px; letter-spacing:4px; flex-shrink:0; white-space:nowrap; }
 .nav-search button:hover { background:#1d4ed8; }
 .nav-links { display:flex; align-items:center; gap:16px; font-size:14px; }
 .nav-links a { color:#555; }
