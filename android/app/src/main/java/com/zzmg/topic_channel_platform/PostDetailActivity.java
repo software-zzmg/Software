@@ -22,6 +22,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.zzmg.topic_channel_platform.adapter.CommentAdapter;
 import com.zzmg.topic_channel_platform.api.PostApi;
+import com.google.gson.Gson;
 import com.zzmg.topic_channel_platform.model.ApiResponse;
 import com.zzmg.topic_channel_platform.model.CollectStatusResponse;
 import com.zzmg.topic_channel_platform.model.CommentCreateRequest;
@@ -192,6 +193,10 @@ public class PostDetailActivity extends AppCompatActivity {
                             } else {
                                 Toast.makeText(PostDetailActivity.this, res.getMessage(), Toast.LENGTH_SHORT).show();
                             }
+                        } else if (response.code() == 403) {
+                            ApiResponse err = parseError(response);
+                            Toast.makeText(PostDetailActivity.this,
+                                    err != null ? err.getMessage() : "请先加入频道", Toast.LENGTH_SHORT).show();
                         } else {
                             Toast.makeText(PostDetailActivity.this, "加载失败: " + response.code(), Toast.LENGTH_SHORT).show();
                         }
@@ -256,5 +261,14 @@ public class PostDetailActivity extends AppCompatActivity {
                 rvComments.setVisibility(View.GONE);
             }
         });
+    }
+
+    private ApiResponse parseError(Response<?> response) {
+        if (response.errorBody() != null) {
+            try {
+                return new Gson().fromJson(response.errorBody().string(), ApiResponse.class);
+            } catch (Exception ignored) {}
+        }
+        return null;
     }
 }

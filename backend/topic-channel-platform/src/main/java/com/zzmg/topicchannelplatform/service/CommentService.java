@@ -30,7 +30,7 @@ public class CommentService {
     public Comment publish(Comment comment, String userId) {
         Long forumId = comment.getThemePost().getForum().getForumId();
         if (!forumMemberService.isMember(userId, forumId)) {
-            throw new IllegalStateException("只有频道成员才能评论");
+            throw new IllegalStateException("请先加入频道后再评论");
         }
         comment.setPublishTime(LocalDateTime.now());
         comment.setAuditState("待审核");
