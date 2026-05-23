@@ -210,16 +210,26 @@ public class ApiUserController {
     @PostMapping("/users/register/send-code")
     public ResponseEntity<Map<String, Object>> sendRegisterCode(
             @RequestBody SendCodeRequest request, HttpSession session) {
+        String phoneNumber = request.getPhoneNumber();
         String email = request.getEmail();
+        if (phoneNumber == null || !phoneNumber.matches("1\\d{10}")) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "手机号格式错误"));
+        }
         if (email == null || !email.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
             return ResponseEntity.badRequest()
                     .body(Map.of("success", false, "message", "邮箱格式错误"));
+        }
+        if (userService.findByPhone(phoneNumber).isPresent()) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "该手机号已被注册"));
         }
         String sendError = verificationCodeService.sendCode("register", email, session);
         if (sendError != null) {
             return ResponseEntity.badRequest()
                     .body(Map.of("success", false, "message", sendError));
         }
+        session.setAttribute("registerPhoneNumber", phoneNumber);
         return ResponseEntity.ok(Map.of("success", true, "message", "验证码已发送"));
     }
 
@@ -240,6 +250,11 @@ public class ApiUserController {
         if (email == null || !email.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
             return ResponseEntity.badRequest()
                     .body(Map.of("success", false, "message", "邮箱格式错误"));
+        }
+        String storedPhone = (String) session.getAttribute("registerPhoneNumber");
+        if (storedPhone == null || !storedPhone.equals(phoneNumber)) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "手机号与发送验证码时不一致，请重新获取验证码"));
         }
         if (userName == null || userName.isBlank()) {
             return ResponseEntity.badRequest()
