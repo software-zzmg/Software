@@ -58,9 +58,11 @@ public class ForumController {
             }
             model.addAttribute("forum", forum);
             model.addAttribute("posts", postService.findByForumId(forumId));
+            model.addAttribute("isCreator", isCreator);
             if (userId != null) {
                 model.addAttribute("isMember", forumMemberService.isMember(userId, forumId));
-                model.addAttribute("isCreator", isCreator);
+            } else {
+                model.addAttribute("isMember", false);
                 Set<Long> collectedIds = collectService.findByUserId(userId).stream()
                         .map(c -> c.getThemePost().getThemePostId())
                         .collect(Collectors.toSet());
