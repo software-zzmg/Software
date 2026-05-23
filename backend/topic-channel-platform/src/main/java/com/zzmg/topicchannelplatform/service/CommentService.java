@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CommentService {
@@ -25,6 +26,10 @@ public class CommentService {
         this.postRepository = postRepository;
         this.userRepository = userRepository;
         this.forumMemberService = forumMemberService;
+    }
+
+    public Optional<Comment> findById(Long id) {
+        return commentRepository.findById(id);
     }
 
     public Comment publish(Comment comment, String userId) {

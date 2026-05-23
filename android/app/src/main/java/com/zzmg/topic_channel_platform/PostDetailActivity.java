@@ -1,6 +1,7 @@
 package com.zzmg.topic_channel_platform;
 
 import android.os.Bundle;
+import androidx.appcompat.app.AlertDialog;
 import android.view.View;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -75,6 +76,7 @@ public class PostDetailActivity extends AppCompatActivity {
 
         rvComments.setLayoutManager(new LinearLayoutManager(this));
         commentAdapter = new CommentAdapter();
+        commentAdapter.setOnDeleteListener((comment, position) -> deleteComment(comment, position));
         rvComments.setAdapter(commentAdapter);
 
         postId = getIntent().getLongExtra("postId", -1);
@@ -261,6 +263,46 @@ public class PostDetailActivity extends AppCompatActivity {
                 rvComments.setVisibility(View.GONE);
             }
         });
+    }
+
+    private void deleteComment(com.zzmg.topic_channel_platform.model.CommentItem comment, int position) {
+        new AlertDialog.Builder(this)
+                .setTitle("Delete Comment")
+                .setMessage("Delete this comment?")
+                .setPositiveButton("Delete", (dialog, which) -> {
+                    PostApi postApi = RetrofitClient.getInstance().create(PostApi.class);
+                    postApi.deleteComment(postId, comment.getId()).enqueue(new Callback<ApiResponse>() {
+                        @Override
+                        public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+                            if (response.code() == 401) {
+                                Toast.makeText(PostDetailActivity.this, "请先登录", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            if (response.code() == 403) {
+                                Toast.makeText(PostDetailActivity.this, "只能删除自己的评论", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            if (response.isSuccessful() && response.body() != null) {
+                                ApiResponse res = response.body();
+                                Toast.makeText(PostDetailActivity.this, res.getMessage(), Toast.LENGTH_SHORT).show();
+                                if (res.isSuccess()) {
+                                    commentAdapter.removeAt(position);
+                                    if (commentAdapter.getItemCount() == 0) {
+                                        tvNoComments.setVisibility(View.VISIBLE);
+                                        rvComments.setVisibility(View.GONE);
+                                    }
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<ApiResponse> call, Throwable t) {
+                            Toast.makeText(PostDetailActivity.this, "Failed: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     private ApiResponse parseError(Response<?> response) {
