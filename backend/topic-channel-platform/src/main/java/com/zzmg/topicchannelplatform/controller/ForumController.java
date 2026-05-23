@@ -61,12 +61,12 @@ public class ForumController {
             model.addAttribute("isCreator", isCreator);
             if (userId != null) {
                 model.addAttribute("isMember", forumMemberService.isMember(userId, forumId));
-            } else {
-                model.addAttribute("isMember", false);
                 Set<Long> collectedIds = collectService.findByUserId(userId).stream()
                         .map(c -> c.getThemePost().getThemePostId())
                         .collect(Collectors.toSet());
                 model.addAttribute("collectedPostIds", collectedIds);
+            } else {
+                model.addAttribute("isMember", false);
             }
             return "forum/detail";
         }).orElse("redirect:/forum/list");
