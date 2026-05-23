@@ -30,7 +30,9 @@ public class RealEmailSender implements EmailSender {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-            helper.setFrom(from);
+            if (from != null && !from.isBlank()) {
+                helper.setFrom(from);
+            }
             helper.setTo(email);
             String subject = "register".equals(scene) ? "注册验证码" : "找回密码验证码";
             helper.setSubject(subject);
