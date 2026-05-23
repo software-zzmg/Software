@@ -129,7 +129,11 @@ public class UserController {
             model.addAttribute("error", "该手机号已被注册");
             return "user/register";
         }
-        verificationCodeService.sendCode("register", phoneNumber, session);
+        String sendError = verificationCodeService.sendCode("register", phoneNumber, session);
+        if (sendError != null) {
+            model.addAttribute("error", sendError);
+            return "user/register";
+        }
         model.addAttribute("codeSent", true);
         return "user/register";
     }
@@ -237,7 +241,11 @@ public class UserController {
             model.addAttribute("error", "该手机号未注册");
             return "user/userpsd-forget";
         }
-        verificationCodeService.sendCode("reset", phoneNumber, session);
+        String sendError = verificationCodeService.sendCode("reset", phoneNumber, session);
+        if (sendError != null) {
+            model.addAttribute("error", sendError);
+            return "user/userpsd-forget";
+        }
         model.addAttribute("resetPhone", phoneNumber);
         model.addAttribute("codeSent", true);
         return "user/userpsd-forget";

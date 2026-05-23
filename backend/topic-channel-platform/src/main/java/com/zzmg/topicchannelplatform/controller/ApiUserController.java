@@ -220,7 +220,11 @@ public class ApiUserController {
             return ResponseEntity.badRequest()
                     .body(Map.of("success", false, "message", "该手机号已被注册"));
         }
-        verificationCodeService.sendCode("register", phoneNumber, session);
+        String sendError = verificationCodeService.sendCode("register", phoneNumber, session);
+        if (sendError != null) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", sendError));
+        }
         return ResponseEntity.ok(Map.of("success", true, "message", "验证码已发送"));
     }
 
@@ -287,7 +291,11 @@ public class ApiUserController {
             return ResponseEntity.badRequest()
                     .body(Map.of("success", false, "message", "该手机号未注册或已注销"));
         }
-        verificationCodeService.sendCode("reset", phoneNumber, session);
+        String sendError = verificationCodeService.sendCode("reset", phoneNumber, session);
+        if (sendError != null) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", sendError));
+        }
         return ResponseEntity.ok(Map.of("success", true, "message", "验证码已发送"));
     }
 

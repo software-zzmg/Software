@@ -15,15 +15,27 @@ public class VerificationCodeService {
     private static final SecureRandom secureRandom = new SecureRandom();
     private static final int EXPIRE_MINUTES = 5;
     private static final int MAX_ATTEMPTS = 5;
+    private static final int SEND_INTERVAL_SECONDS = 60;
 
-    public void sendCode(String scope, String phoneNumber, HttpSession session) {
+    public String sendCode(String scope, String phoneNumber, HttpSession session) {
+        String lastSentKey = scope + "LastSentAt";
+        LocalDateTime lastSent = (LocalDateTime) session.getAttribute(lastSentKey);
+        if (lastSent != null && lastSent.plusSeconds(SEND_INTERVAL_SECONDS).isAfter(
+                LocalDateTime.now())) {
+            long remain = SEND_INTERVAL_SECONDS - java.time.Duration.between(
+                    lastSent, LocalDateTime.now()).getSeconds();
+            return "请 " + remain + " 秒后重试";
+        }
+
         String code = String.format("%06d", secureRandom.nextInt(1_000_000));
         log.info("验证码: scope={}, phone={}, code={}", scope, phoneNumber, code);
 
+        session.setAttribute(lastSentKey, LocalDateTime.now());
         session.setAttribute(scope + "PhoneNumber", phoneNumber);
         session.setAttribute(scope + "VerificationCode", code);
         session.setAttribute(scope + "CodeExpireAt", LocalDateTime.now().plusMinutes(EXPIRE_MINUTES));
         session.setAttribute(scope + "CodeAttempts", 0);
+        return null;
     }
 
     /**
