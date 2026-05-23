@@ -27,9 +27,8 @@ import retrofit2.Response;
 
 public class ForgotPasswordActivity extends AppCompatActivity {
 
-    private TextInputLayout tilPhone, tilCode, tilNewPassword, tilConfirmPassword;
-    private TextInputEditText etPhone, etCode, etNewPassword, etConfirmPassword;
-    private View tvError;
+    private TextInputLayout tilPhone, tilEmail, tilCode, tilNewPassword, tilConfirmPassword;
+    private TextInputEditText etPhone, etEmail, etCode, etNewPassword, etConfirmPassword;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,43 +42,62 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         });
 
         tilPhone = findViewById(R.id.til_phone);
+        tilEmail = findViewById(R.id.til_email);
         tilCode = findViewById(R.id.til_code);
         tilNewPassword = findViewById(R.id.til_new_password);
         tilConfirmPassword = findViewById(R.id.til_confirm_password);
 
         etPhone = findViewById(R.id.et_phone);
+        etEmail = findViewById(R.id.et_email);
         etCode = findViewById(R.id.et_code);
         etNewPassword = findViewById(R.id.et_new_password);
         etConfirmPassword = findViewById(R.id.et_confirm_password);
 
-        tvError = findViewById(R.id.tv_error);
-
         etPhone.addTextChangedListener(new ClearErrorWatcher(tilPhone));
+        etEmail.addTextChangedListener(new ClearErrorWatcher(tilEmail));
         etCode.addTextChangedListener(new ClearErrorWatcher(tilCode));
         etNewPassword.addTextChangedListener(new ClearErrorWatcher(tilNewPassword));
         etConfirmPassword.addTextChangedListener(new ClearErrorWatcher(tilConfirmPassword));
 
         findViewById(R.id.btn_send_code).setOnClickListener(v -> {
-            tvError.setVisibility(View.GONE);
-            String phone = etPhone.getText().toString().trim();
-            if (!phone.matches("1\\d{10}")) {
-                tilPhone.setError("手机号格式不正确，应为11位数字");
-                return;
-            }
-            sendCode(phone);
+            if (!validateSendForm()) return;
+            sendCode();
         });
 
         findViewById(R.id.btn_reset).setOnClickListener(v -> {
-            tvError.setVisibility(View.GONE);
             if (validateForm()) {
                 doResetPassword();
             }
         });
     }
 
-    private void sendCode(String phone) {
+    private boolean validateSendForm() {
+        boolean valid = true;
+        String phone = etPhone.getText().toString().trim();
+        String email = etEmail.getText().toString().trim();
+
+        if (phone.isEmpty()) {
+            tilPhone.setError("请输入手机号");
+            valid = false;
+        } else if (!phone.matches("1\\d{10}")) {
+            tilPhone.setError("手机号格式不正确，应为11位数字");
+            valid = false;
+        }
+
+        if (email.isEmpty() || !email.contains("@")) {
+            tilEmail.setError("邮箱格式错误");
+            valid = false;
+        }
+        return valid;
+    }
+
+    private void sendCode() {
+        String phone = etPhone.getText().toString().trim();
+        String email = etEmail.getText().toString().trim();
+
         UserApi userApi = RetrofitClient.getInstance().create(UserApi.class);
-        userApi.sendForgotPasswordCode(new SendCodeRequest(phone)).enqueue(new Callback<ApiResponse>() {
+        userApi.sendForgotPasswordCode(new SendCodeRequest(phone, email))
+                .enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
                 ApiResponse res = parseResponse(response);
@@ -88,16 +106,18 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                         Toast.makeText(ForgotPasswordActivity.this,
                                 "验证码已发送", Toast.LENGTH_LONG).show();
                     } else {
-                        tilPhone.setError(res.getMessage());
+                        showServerError(res.getMessage());
                     }
                 } else {
-                    showError("发送验证码失败");
+                    Toast.makeText(ForgotPasswordActivity.this,
+                            "发送验证码失败", Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<ApiResponse> call, Throwable t) {
-                showError("网络错误: " + t.getMessage());
+                Toast.makeText(ForgotPasswordActivity.this,
+                        "网络错误: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -105,6 +125,7 @@ public class ForgotPasswordActivity extends AppCompatActivity {
     private boolean validateForm() {
         boolean valid = true;
         String phone = etPhone.getText().toString().trim();
+        String email = etEmail.getText().toString().trim();
         String code = etCode.getText().toString().trim();
         String newPassword = etNewPassword.getText().toString().trim();
         String confirmPassword = etConfirmPassword.getText().toString().trim();
@@ -114,6 +135,11 @@ public class ForgotPasswordActivity extends AppCompatActivity {
             valid = false;
         } else if (!phone.matches("1\\d{10}")) {
             tilPhone.setError("手机号格式不正确，应为11位数字");
+            valid = false;
+        }
+
+        if (email.isEmpty() || !email.contains("@")) {
+            tilEmail.setError("邮箱格式错误");
             valid = false;
         }
 
@@ -140,13 +166,14 @@ public class ForgotPasswordActivity extends AppCompatActivity {
 
     private void doResetPassword() {
         String phone = etPhone.getText().toString().trim();
+        String email = etEmail.getText().toString().trim();
         String code = etCode.getText().toString().trim();
         String newPassword = etNewPassword.getText().toString().trim();
         String confirmPassword = etConfirmPassword.getText().toString().trim();
 
         UserApi userApi = RetrofitClient.getInstance().create(UserApi.class);
         ForgotPasswordRequest request = new ForgotPasswordRequest(
-                phone, code, newPassword, confirmPassword);
+                phone, email, code, newPassword, confirmPassword);
         userApi.resetPassword(request).enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
@@ -157,14 +184,15 @@ public class ForgotPasswordActivity extends AppCompatActivity {
                                 "密码重置成功，请重新登录", Toast.LENGTH_SHORT).show();
                         finish();
                     } else {
-                        tilCode.setError(res.getMessage());
+                        showServerError(res.getMessage());
                     }
                 }
             }
 
             @Override
             public void onFailure(Call<ApiResponse> call, Throwable t) {
-                showError("网络错误: " + t.getMessage());
+                Toast.makeText(ForgotPasswordActivity.this,
+                        "网络错误: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -181,9 +209,11 @@ public class ForgotPasswordActivity extends AppCompatActivity {
         return null;
     }
 
-    private void showError(String message) {
-        tvError.setVisibility(View.VISIBLE);
-        ((android.widget.TextView) tvError).setText(message);
+    private void showServerError(String message) {
+        if (message.contains("手机")) tilPhone.setError(message);
+        else if (message.contains("邮箱")) tilEmail.setError(message);
+        else if (message.contains("验证码")) tilCode.setError(message);
+        else Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
     }
 
     private static class ClearErrorWatcher implements TextWatcher {

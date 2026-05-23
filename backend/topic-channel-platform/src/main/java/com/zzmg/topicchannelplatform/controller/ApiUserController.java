@@ -102,9 +102,9 @@ public class ApiUserController {
             try {
                 LocalDate date = LocalDate.parse(request.getBirthday(),
                         DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-                if (date.getYear() < 100 || date.getYear() > 2026) {
+                if (date.getYear() < 1900 || date.getYear() > 2100) {
                     return ResponseEntity.badRequest()
-                            .body(Map.of("success", false, "message", "年份必须在 100-2026 之间"));
+                            .body(Map.of("success", false, "message", "年份必须在 1900-2100 之间"));
                 }
                 user.setBirthday(date.atStartOfDay());
             } catch (DateTimeParseException e) {
@@ -210,17 +210,12 @@ public class ApiUserController {
     @PostMapping("/users/register/send-code")
     public ResponseEntity<Map<String, Object>> sendRegisterCode(
             @RequestBody SendCodeRequest request, HttpSession session) {
-        String phoneNumber = request.getPhoneNumber();
-        if (phoneNumber == null || !phoneNumber.matches("1\\d{10}")) {
+        String email = request.getEmail();
+        if (email == null || !email.contains("@")) {
             return ResponseEntity.badRequest()
-                    .body(Map.of("success", false, "message", "手机号格式错误"));
+                    .body(Map.of("success", false, "message", "邮箱格式错误"));
         }
-        Optional<OrdinaryUser> existing = userService.findByPhone(phoneNumber);
-        if (existing.isPresent()) {
-            return ResponseEntity.badRequest()
-                    .body(Map.of("success", false, "message", "该手机号已被注册"));
-        }
-        String sendError = verificationCodeService.sendCode("register", phoneNumber, session);
+        String sendError = verificationCodeService.sendCode("register", email, session);
         if (sendError != null) {
             return ResponseEntity.badRequest()
                     .body(Map.of("success", false, "message", sendError));
@@ -232,6 +227,7 @@ public class ApiUserController {
     public ResponseEntity<Map<String, Object>> register(
             @RequestBody RegisterRequest request, HttpSession session) {
         String phoneNumber = request.getPhoneNumber();
+        String email = request.getEmail();
         String userName = request.getUserName();
         String password = request.getPassword();
         String confirmPassword = request.getConfirmPassword();
@@ -240,6 +236,10 @@ public class ApiUserController {
         if (phoneNumber == null || !phoneNumber.matches("1\\d{10}")) {
             return ResponseEntity.badRequest()
                     .body(Map.of("success", false, "message", "手机号格式错误"));
+        }
+        if (email == null || !email.contains("@")) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "邮箱格式错误"));
         }
         if (userName == null || userName.isBlank()) {
             return ResponseEntity.badRequest()
@@ -261,7 +261,7 @@ public class ApiUserController {
             return ResponseEntity.badRequest()
                     .body(Map.of("success", false, "message", "两次密码不一致"));
         }
-        String error = verificationCodeService.validate("register", phoneNumber,
+        String error = verificationCodeService.validate("register", email,
                 verificationCode, session);
         if (error != null) {
             return ResponseEntity.badRequest()
@@ -282,20 +282,25 @@ public class ApiUserController {
     public ResponseEntity<Map<String, Object>> sendForgotPasswordCode(
             @RequestBody SendCodeRequest request, HttpSession session) {
         String phoneNumber = request.getPhoneNumber();
+        String email = request.getEmail();
         if (phoneNumber == null || !phoneNumber.matches("1\\d{10}")) {
             return ResponseEntity.badRequest()
                     .body(Map.of("success", false, "message", "手机号格式错误"));
         }
-        Optional<OrdinaryUser> existing = userService.findByPhone(phoneNumber);
-        if (existing.isEmpty()) {
+        if (email == null || !email.contains("@")) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "邮箱格式错误"));
+        }
+        if (userService.findByPhone(phoneNumber).isEmpty()) {
             return ResponseEntity.badRequest()
                     .body(Map.of("success", false, "message", "该手机号未注册或已注销"));
         }
-        String sendError = verificationCodeService.sendCode("reset", phoneNumber, session);
+        String sendError = verificationCodeService.sendCode("reset", email, session);
         if (sendError != null) {
             return ResponseEntity.badRequest()
                     .body(Map.of("success", false, "message", sendError));
         }
+        session.setAttribute("resetPhoneNumber", phoneNumber);
         return ResponseEntity.ok(Map.of("success", true, "message", "验证码已发送"));
     }
 
@@ -303,6 +308,7 @@ public class ApiUserController {
     public ResponseEntity<Map<String, Object>> resetPassword(
             @RequestBody ForgotPasswordRequest request, HttpSession session) {
         String phoneNumber = request.getPhoneNumber();
+        String email = request.getEmail();
         String verificationCode = request.getVerificationCode();
         String newPassword = request.getNewPassword();
         String confirmPassword = request.getConfirmPassword();
@@ -310,6 +316,15 @@ public class ApiUserController {
         if (phoneNumber == null || !phoneNumber.matches("1\\d{10}")) {
             return ResponseEntity.badRequest()
                     .body(Map.of("success", false, "message", "手机号格式错误"));
+        }
+        if (email == null || !email.contains("@")) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "邮箱格式错误"));
+        }
+        String storedPhone = (String) session.getAttribute("resetPhoneNumber");
+        if (storedPhone == null || !storedPhone.equals(phoneNumber)) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "请先获取验证码"));
         }
         if (newPassword == null || newPassword.isBlank()) {
             return ResponseEntity.badRequest()
@@ -323,7 +338,7 @@ public class ApiUserController {
             return ResponseEntity.badRequest()
                     .body(Map.of("success", false, "message", "两次密码不一致"));
         }
-        String error = verificationCodeService.validate("reset", phoneNumber,
+        String error = verificationCodeService.validate("reset", email,
                 verificationCode, session);
         if (error != null) {
             return ResponseEntity.badRequest()
@@ -334,6 +349,7 @@ public class ApiUserController {
                     .body(Map.of("success", false, "message", "该手机号未注册或已注销"));
         }
         userService.resetPassword(phoneNumber, newPassword);
+        session.removeAttribute("resetPhoneNumber");
         return ResponseEntity.ok(Map.of("success", true, "message", "密码重置成功，请重新登录"));
     }
 }
