@@ -1,11 +1,11 @@
 package com.zzmg.topicchannelplatform.service.mail;
 
-import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Component;
@@ -41,7 +41,7 @@ public class RealEmailSender implements EmailSender {
             mailSender.send(message);
             log.info("邮件已发送: email={}, scene={}", email, scene);
             return true;
-        } catch (MessagingException e) {
+        } catch (MailException | jakarta.mail.MessagingException e) {
             log.error("邮件发送失败: email={}, scene={}", email, scene, e);
             return false;
         }
