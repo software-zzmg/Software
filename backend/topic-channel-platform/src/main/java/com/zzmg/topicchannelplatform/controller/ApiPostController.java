@@ -82,7 +82,9 @@ public class ApiPostController {
     }
 
     @GetMapping("/posts/{id}")
-    public ResponseEntity<PostListItemDTO> getPostDetail(@PathVariable Long id) {
+    public ResponseEntity<PostListItemDTO> getPostDetail(@PathVariable Long id,
+                                                          HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
         return postService.findApprovedPostById(id)
                 .map(p -> ResponseEntity.ok(new PostListItemDTO(
                         p.getThemePostId(),
@@ -90,9 +92,30 @@ public class ApiPostController {
                         p.getContent(),
                         p.getAuthor().getUserName(),
                         p.getForum().getForumName(),
-                        p.getPublishTime()
+                        p.getPublishTime(),
+                        userId != null && userId.equals(p.getAuthor().getUserId())
                 )))
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/posts/{id}")
+    public ResponseEntity<Map<String, Object>> deletePost(@PathVariable Long id,
+                                                           HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401)
+                    .body(Map.of("success", false, "message", "请先登录"));
+        }
+        ThemePost post = postService.findById(id).orElse(null);
+        if (post == null || !"审核通过".equals(post.getAuditState())) {
+            return ResponseEntity.notFound().build();
+        }
+        if (!userId.equals(post.getAuthor().getUserId())) {
+            return ResponseEntity.status(403)
+                    .body(Map.of("success", false, "message", "只能删除自己的帖子"));
+        }
+        postService.deleteById(id);
+        return ResponseEntity.ok(Map.of("success", true, "message", "帖子已删除"));
     }
 
     @GetMapping("/posts/{postId}/comments")

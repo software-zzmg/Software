@@ -45,7 +45,7 @@ public class PostDetailActivity extends AppCompatActivity {
     private CommentAdapter commentAdapter;
     private TextInputLayout tilComment;
     private EditText etComment;
-    private Button btnCollect;
+    private Button btnCollect, btnDeletePost;
 
     private long postId;
     private boolean isCollected;
@@ -73,6 +73,7 @@ public class PostDetailActivity extends AppCompatActivity {
         tilComment = findViewById(R.id.til_comment);
         etComment = findViewById(R.id.et_comment);
         btnCollect = findViewById(R.id.btn_collect);
+        btnDeletePost = findViewById(R.id.btn_delete_post);
 
         rvComments.setLayoutManager(new LinearLayoutManager(this));
         commentAdapter = new CommentAdapter();
@@ -87,6 +88,7 @@ public class PostDetailActivity extends AppCompatActivity {
         }
 
         btnCollect.setOnClickListener(v -> toggleCollect());
+        btnDeletePost.setOnClickListener(v -> deletePost());
 
         etComment.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -224,6 +226,7 @@ public class PostDetailActivity extends AppCompatActivity {
                     tvForum.setText(post.getForumName());
                     tvTime.setText(post.getPublishTime());
                     tvContent.setText(post.getContent());
+                    btnDeletePost.setVisibility(post.isCanDelete() ? View.VISIBLE : View.GONE);
                 } else {
                     Toast.makeText(PostDetailActivity.this, "帖子不存在", Toast.LENGTH_SHORT).show();
                     finish();
@@ -263,6 +266,42 @@ public class PostDetailActivity extends AppCompatActivity {
                 rvComments.setVisibility(View.GONE);
             }
         });
+    }
+
+    private void deletePost() {
+        new AlertDialog.Builder(this)
+                .setTitle("Delete Post")
+                .setMessage("Delete this post? This cannot be undone.")
+                .setPositiveButton("Delete", (dialog, which) -> {
+                    PostApi postApi = RetrofitClient.getInstance().create(PostApi.class);
+                    postApi.deletePost(postId).enqueue(new Callback<ApiResponse>() {
+                        @Override
+                        public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+                            if (response.code() == 401) {
+                                Toast.makeText(PostDetailActivity.this, "请先登录", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            if (response.code() == 403) {
+                                Toast.makeText(PostDetailActivity.this, "只能删除自己的帖子", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            if (response.isSuccessful() && response.body() != null) {
+                                ApiResponse res = response.body();
+                                Toast.makeText(PostDetailActivity.this, res.getMessage(), Toast.LENGTH_SHORT).show();
+                                if (res.isSuccess()) {
+                                    finish();
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<ApiResponse> call, Throwable t) {
+                            Toast.makeText(PostDetailActivity.this, "Failed: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     private void deleteComment(com.zzmg.topic_channel_platform.model.CommentItem comment, int position) {

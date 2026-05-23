@@ -44,4 +44,7 @@ public interface PostApi {
 
     @DELETE("/api/posts/{postId}/comments/{commentId}")
     Call<ApiResponse> deleteComment(@Path("postId") Long postId, @Path("commentId") Long commentId);
+
+    @DELETE("/api/posts/{id}")
+    Call<ApiResponse> deletePost(@Path("id") Long id);
 }

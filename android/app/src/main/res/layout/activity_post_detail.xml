@@ -70,6 +70,15 @@
                         android:text="收藏"
                         style="@style/Widget.Material3.Button.TextButton" />
 
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_delete_post"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="删除"
+                        android:textColor="@color/error"
+                        android:visibility="gone"
+                        style="@style/Widget.Material3.Button.TextButton" />
+
                 </LinearLayout>
 
                 <LinearLayout
