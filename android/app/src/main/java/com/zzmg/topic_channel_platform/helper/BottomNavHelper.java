@@ -12,7 +12,7 @@ import com.zzmg.topic_channel_platform.CreatePostActivity;
 import com.zzmg.topic_channel_platform.ForumListActivity;
 import com.zzmg.topic_channel_platform.MainActivity;
 import com.zzmg.topic_channel_platform.MeActivity;
-import com.zzmg.topic_channel_platform.MyCollectsActivity;
+import com.zzmg.topic_channel_platform.SearchActivity;
 import com.zzmg.topic_channel_platform.R;
 
 public class BottomNavHelper {
@@ -67,18 +67,18 @@ public class BottomNavHelper {
             }
         });
 
-        // Collects
+        // Search
         {
-            ImageView iv = activity.findViewById(R.id.iv_nav_collects);
-            TextView tv = activity.findViewById(R.id.tv_nav_collects);
-            boolean active = "collects".equals(current);
+            ImageView iv = activity.findViewById(R.id.iv_nav_search);
+            TextView tv = activity.findViewById(R.id.tv_nav_search);
+            boolean active = "search".equals(current);
             if (active) {
                 iv.setColorFilter(primary, PorterDuff.Mode.SRC_IN);
                 tv.setTextColor(primary);
             }
-            activity.findViewById(R.id.nav_collects).setOnClickListener(v -> {
+            activity.findViewById(R.id.nav_search).setOnClickListener(v -> {
                 if (!active) {
-                    Intent intent = new Intent(activity, MyCollectsActivity.class);
+                    Intent intent = new Intent(activity, SearchActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
                     activity.startActivity(intent);
                 }
