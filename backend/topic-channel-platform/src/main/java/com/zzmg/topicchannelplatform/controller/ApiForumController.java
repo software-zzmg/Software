@@ -12,6 +12,7 @@ import com.zzmg.topicchannelplatform.service.ForumService;
 import com.zzmg.topicchannelplatform.service.ThemePostService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -57,16 +58,39 @@ public class ApiForumController {
                 .filter(f -> "审核通过".equals(f.getAuditState()))
                 .map(f -> {
                     String userId = (String) session.getAttribute("userId");
+                    boolean isCreator = userId != null && userId.equals(f.getCreator().getUserId());
                     boolean joined = userId != null && forumMemberService.isMember(userId, id);
                     return ResponseEntity.ok(new ForumDetailDTO(
                             f.getForumId(),
                             f.getForumName(),
                             f.getContent(),
                             f.getCreator().getUserName(),
+                            f.getCreator().getUserId(),
+                            isCreator,
                             joined
                     ));
                 })
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @DeleteMapping("/forums/{id}")
+    public ResponseEntity<Map<String, Object>> deleteForum(
+            @PathVariable Long id, HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401)
+                    .body(Map.of("success", false, "message", "请先登录"));
+        }
+        Forum forum = forumService.findById(id).orElse(null);
+        if (forum == null) {
+            return ResponseEntity.notFound().build();
+        }
+        if (!userId.equals(forum.getCreator().getUserId())) {
+            return ResponseEntity.status(403)
+                    .body(Map.of("success", false, "message", "只有频道创建者才能解散频道"));
+        }
+        forumService.deleteById(id);
+        return ResponseEntity.ok(Map.of("success", true, "message", "频道已解散"));
     }
 
     @GetMapping("/forums/my")
