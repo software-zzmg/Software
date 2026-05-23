@@ -259,12 +259,13 @@ public class UserController {
             model.addAttribute("error", "该手机号未注册");
             return "user/userpsd-forget";
         }
-        String sendError = verificationCodeService.sendCode("reset", email, session);
+        String sendError = verificationCodeService.sendCodeForReset(phoneNumber, email, session);
         if (sendError != null) {
             model.addAttribute("error", sendError);
             return "user/userpsd-forget";
         }
         session.setAttribute("resetPhoneNumber", phoneNumber);
+        session.setAttribute("resetEmail", email);
         model.addAttribute("resetPhone", phoneNumber);
         model.addAttribute("resetEmail", email);
         model.addAttribute("codeSent", true);
@@ -285,15 +286,17 @@ public class UserController {
         model.addAttribute("resetEmail", email);
         model.addAttribute("codeSent", true);
         String storedPhone = (String) session.getAttribute("resetPhoneNumber");
-        if (storedPhone == null || !storedPhone.equals(phoneNumber)) {
-            model.addAttribute("error", "请先获取验证码");
+        String storedEmail = (String) session.getAttribute("resetEmail");
+        if (storedPhone == null || !storedPhone.equals(phoneNumber)
+                || storedEmail == null || !storedEmail.equals(email)) {
+            model.addAttribute("error", "请重新获取验证码");
             return "user/userpsd-forget";
         }
         if (!newPassword.equals(confirmPassword)) {
             model.addAttribute("error", "两次输入的密码不一致");
             return "user/userpsd-forget";
         }
-        String error = verificationCodeService.validate("reset", email,
+        String error = verificationCodeService.validateForReset(phoneNumber,
                 verificationCode, session);
         if (error != null) {
             model.addAttribute("error", error);
@@ -301,6 +304,7 @@ public class UserController {
         }
         userService.resetPassword(phoneNumber, newPassword);
         session.removeAttribute("resetPhoneNumber");
+        session.removeAttribute("resetEmail");
         return "redirect:/user/login";
     }
 
