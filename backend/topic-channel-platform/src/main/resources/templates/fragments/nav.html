@@ -17,10 +17,14 @@
             <a th:if="${session.userId}" href="javascript:void(0)" id="btn-quick-post">发布帖子</a>
             <a th:if="${session.userId}" href="javascript:void(0)" id="btn-create-forum">创建频道</a>
             <span th:if="${session.userId}" class="nav-dropdown">
-                <a href="javascript:void(0)">个人中心</a>
+                <a th:if="${rejectedForumCount == null || rejectedForumCount == 0}" href="javascript:void(0)">个人中心</a>
+                <a th:unless="${rejectedForumCount == null || rejectedForumCount == 0}" href="javascript:void(0)" class="nav-badge"
+                   th:attr="data-count=${rejectedForumCount}">个人中心</a>
                 <div class="nav-dropdown-menu">
                     <a th:href="@{/user/info}">个人资料</a>
-                    <a th:href="@{/user/home}">个人主页</a>
+                    <a th:if="${rejectedForumCount == null || rejectedForumCount == 0}" th:href="@{/user/home}">个人主页</a>
+                    <a th:unless="${rejectedForumCount == null || rejectedForumCount == 0}" th:href="@{/user/home}" class="nav-badge"
+                       th:attr="data-count=${rejectedForumCount}">个人主页</a>
                     <div class="sub-dropdown">
                         <a href="javascript:void(0)" class="sub-trigger">账号管理 &#8250;</a>
                         <div class="sub-dropdown-menu">
