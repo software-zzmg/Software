@@ -11,6 +11,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.zzmg.topic_channel_platform.adapter.ForumAdapter;
 import com.zzmg.topic_channel_platform.api.ForumApi;
@@ -27,6 +28,7 @@ import retrofit2.Response;
 public class ForumListActivity extends AppCompatActivity {
 
     private ForumAdapter adapter;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +43,9 @@ public class ForumListActivity extends AppCompatActivity {
 
         BottomNavHelper.setup(this, "forums");
 
+        findViewById(R.id.btn_create_forum).setOnClickListener(v ->
+                startActivity(new Intent(ForumListActivity.this, CreateForumActivity.class)));
+
         RecyclerView rvForums = findViewById(R.id.rv_forums);
         rvForums.setLayoutManager(new LinearLayoutManager(this));
         adapter = new ForumAdapter();
@@ -52,6 +57,9 @@ public class ForumListActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        swipeRefreshLayout = findViewById(R.id.swipe_refresh);
+        swipeRefreshLayout.setOnRefreshListener(this::loadForums);
+
         loadForums();
     }
 
@@ -60,16 +68,18 @@ public class ForumListActivity extends AppCompatActivity {
         forumApi.getForums().enqueue(new Callback<List<ForumListItem>>() {
             @Override
             public void onResponse(Call<List<ForumListItem>> call, Response<List<ForumListItem>> response) {
+                swipeRefreshLayout.setRefreshing(false);
                 if (response.isSuccessful() && response.body() != null) {
                     adapter.setForums(response.body());
                 } else {
-                    Toast.makeText(ForumListActivity.this, "Error: " + response.code(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ForumListActivity.this, "加载失败: " + response.code(), Toast.LENGTH_SHORT).show();
                 }
             }
 
             @Override
             public void onFailure(Call<List<ForumListItem>> call, Throwable t) {
-                Toast.makeText(ForumListActivity.this, "Failed: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                swipeRefreshLayout.setRefreshing(false);
+                Toast.makeText(ForumListActivity.this, "网络错误: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }

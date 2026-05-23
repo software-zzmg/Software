@@ -1,5 +1,6 @@
 package com.zzmg.topic_channel_platform;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -15,6 +16,7 @@ import androidx.core.view.WindowInsetsCompat;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.zzmg.topic_channel_platform.api.UserApi;
+import com.zzmg.topic_channel_platform.helper.BottomNavHelper;
 import com.zzmg.topic_channel_platform.model.LoginRequest;
 import com.zzmg.topic_channel_platform.model.LoginResponse;
 import com.zzmg.topic_channel_platform.network.RetrofitClient;
@@ -34,11 +36,15 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_login);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.ll_header), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            v.setPadding(v.getPaddingLeft(), systemBars.top, v.getPaddingRight(), v.getPaddingBottom());
             return insets;
         });
+
+        BottomNavHelper.setup(this, "login");
+
+        findViewById(R.id.btn_back).setOnClickListener(v -> finish());
 
         tilPhone = findViewById(R.id.til_phone);
         tilPassword = findViewById(R.id.til_password);
@@ -54,6 +60,18 @@ public class LoginActivity extends AppCompatActivity {
             if (validateForm()) {
                 doLogin();
             }
+        });
+
+        findViewById(R.id.tv_forgot_password).setOnClickListener(v -> {
+            startActivity(new Intent(LoginActivity.this, ForgotPasswordActivity.class));
+        });
+
+        findViewById(R.id.tv_admin_login).setOnClickListener(v -> {
+            startActivity(new Intent(LoginActivity.this, AdminLoginActivity.class));
+        });
+
+        findViewById(R.id.tv_register_link).setOnClickListener(v -> {
+            startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
         });
     }
 
@@ -89,20 +107,20 @@ public class LoginActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     LoginResponse loginResponse = response.body();
                     if (loginResponse.isSuccess()) {
-                        Toast.makeText(LoginActivity.this, "Welcome, " + loginResponse.getUserName(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(LoginActivity.this, "欢迎, " + loginResponse.getUserName(), Toast.LENGTH_SHORT).show();
                         setResult(RESULT_OK);
                         finish();
                     } else {
                         showError(loginResponse.getMessage());
                     }
                 } else {
-                    showError("Login failed");
+                    showError("登录失败");
                 }
             }
 
             @Override
             public void onFailure(Call<LoginResponse> call, Throwable t) {
-                showError("Network error: " + t.getMessage());
+                showError("网络错误: " + t.getMessage());
             }
         });
     }

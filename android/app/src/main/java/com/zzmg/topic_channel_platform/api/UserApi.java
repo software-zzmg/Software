@@ -2,10 +2,13 @@ package com.zzmg.topic_channel_platform.api;
 
 import com.zzmg.topic_channel_platform.model.ApiResponse;
 import com.zzmg.topic_channel_platform.model.ChangePasswordRequest;
+import com.zzmg.topic_channel_platform.model.ForgotPasswordRequest;
 import com.zzmg.topic_channel_platform.model.ForumListItem;
 import com.zzmg.topic_channel_platform.model.LoginRequest;
 import com.zzmg.topic_channel_platform.model.LoginResponse;
 import com.zzmg.topic_channel_platform.model.PostListItem;
+import com.zzmg.topic_channel_platform.model.RegisterRequest;
+import com.zzmg.topic_channel_platform.model.SendCodeRequest;
 import com.zzmg.topic_channel_platform.model.UpdateProfileRequest;
 import com.zzmg.topic_channel_platform.model.UserProfile;
 
@@ -41,4 +44,16 @@ public interface UserApi {
 
     @GET("/api/users/me/collects")
     Call<List<PostListItem>> getMyCollects();
+
+    @POST("/api/users/register/send-code")
+    Call<ApiResponse> sendRegisterCode(@Body SendCodeRequest request);
+
+    @POST("/api/users/register")
+    Call<ApiResponse> register(@Body RegisterRequest request);
+
+    @POST("/api/users/password/forgot/send-code")
+    Call<ApiResponse> sendForgotPasswordCode(@Body SendCodeRequest request);
+
+    @POST("/api/users/password/reset")
+    Call<ApiResponse> resetPassword(@Body ForgotPasswordRequest request);
 }

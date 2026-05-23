@@ -22,7 +22,7 @@
             </div>
         </form>
 
-        <p th:if="${codeSent}" style="color:#16a34a;text-align:center;margin:12px 0;">验证码已发送（模拟：123456）</p>
+        <p th:if="${codeSent}" style="color:#16a34a;text-align:center;margin:12px 0;">验证码已发送</p>
 
         <form th:if="${codeSent}" method="post" th:action="@{/user/password/reset}" class="form" style="margin-top:16px;">
             <input type="hidden" name="phoneNumber" th:value="${resetPhone}">

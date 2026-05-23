@@ -7,6 +7,7 @@ import com.zzmg.topicchannelplatform.service.CommentService;
 import com.zzmg.topicchannelplatform.service.ForumMemberService;
 import com.zzmg.topicchannelplatform.service.ThemePostService;
 import com.zzmg.topicchannelplatform.service.UserService;
+import com.zzmg.topicchannelplatform.service.VerificationCodeService;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.stereotype.Controller;
@@ -19,8 +20,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Optional;
 
@@ -29,17 +28,20 @@ import java.util.Optional;
 public class UserController {
 
     private final UserService userService;
+    private final VerificationCodeService verificationCodeService;
     private final ThemePostService themePostService;
     private final CommentService commentService;
     private final CollectService collectService;
     private final ForumMemberService forumMemberService;
 
     public UserController(UserService userService,
+                          VerificationCodeService verificationCodeService,
                           ThemePostService themePostService,
                           CommentService commentService,
                           CollectService collectService,
                           ForumMemberService forumMemberService) {
         this.userService = userService;
+        this.verificationCodeService = verificationCodeService;
         this.themePostService = themePostService;
         this.commentService = commentService;
         this.collectService = collectService;
@@ -127,8 +129,11 @@ public class UserController {
             model.addAttribute("error", "该手机号已被注册");
             return "user/register";
         }
-        session.setAttribute("registerCode", "123456");
-        session.setAttribute("registerPhone", phoneNumber);
+        String sendError = verificationCodeService.sendCode("register", phoneNumber, session);
+        if (sendError != null) {
+            model.addAttribute("error", sendError);
+            return "user/register";
+        }
         model.addAttribute("codeSent", true);
         return "user/register";
     }
@@ -148,11 +153,10 @@ public class UserController {
             model.addAttribute("codeSent", true);
             return "user/register";
         }
-        String storedCode = (String) session.getAttribute("registerCode");
-        String storedPhone = (String) session.getAttribute("registerPhone");
-        if (storedCode == null || !storedCode.equals(verificationCode)
-                || !phoneNumber.equals(storedPhone)) {
-            model.addAttribute("error", "验证码错误");
+        String error = verificationCodeService.validate("register", phoneNumber,
+                verificationCode, session);
+        if (error != null) {
+            model.addAttribute("error", error);
             model.addAttribute("codeSent", true);
             return "user/register";
         }
@@ -165,8 +169,6 @@ public class UserController {
             model.addAttribute("codeSent", true);
             return "user/register";
         }
-        session.removeAttribute("registerCode");
-        session.removeAttribute("registerPhone");
         return "redirect:/user/login";
     }
 
@@ -239,8 +241,11 @@ public class UserController {
             model.addAttribute("error", "该手机号未注册");
             return "user/userpsd-forget";
         }
-        session.setAttribute("resetCode", "123456");
-        session.setAttribute("resetPhone", phoneNumber);
+        String sendError = verificationCodeService.sendCode("reset", phoneNumber, session);
+        if (sendError != null) {
+            model.addAttribute("error", sendError);
+            return "user/userpsd-forget";
+        }
         model.addAttribute("resetPhone", phoneNumber);
         model.addAttribute("codeSent", true);
         return "user/userpsd-forget";
@@ -253,27 +258,20 @@ public class UserController {
                                 @RequestParam String verificationCode,
                                 HttpSession session,
                                 Model model) {
-        String storedPhone = (String) session.getAttribute("resetPhone");
         model.addAttribute("phoneNumber", phoneNumber);
-        model.addAttribute("resetPhone", storedPhone);
+        model.addAttribute("resetPhone", phoneNumber);
         model.addAttribute("codeSent", true);
-        model.addAttribute("verificationCode", verificationCode);
         if (!newPassword.equals(confirmPassword)) {
             model.addAttribute("error", "两次输入的密码不一致");
             return "user/userpsd-forget";
         }
-        String storedCode = (String) session.getAttribute("resetCode");
-        if (storedCode == null || !storedCode.equals(verificationCode)) {
-            model.addAttribute("error", "验证码错误");
-            return "user/userpsd-forget";
-        }
-        if (!phoneNumber.equals(storedPhone)) {
-            model.addAttribute("error", "手机号与发送验证码时不一致");
+        String error = verificationCodeService.validate("reset", phoneNumber,
+                verificationCode, session);
+        if (error != null) {
+            model.addAttribute("error", error);
             return "user/userpsd-forget";
         }
         userService.resetPassword(phoneNumber, newPassword);
-        session.removeAttribute("resetCode");
-        session.removeAttribute("resetPhone");
         return "redirect:/user/login";
     }
 

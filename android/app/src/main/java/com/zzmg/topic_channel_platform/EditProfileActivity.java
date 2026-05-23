@@ -41,6 +41,8 @@ public class EditProfileActivity extends AppCompatActivity {
 
         tilUserName = findViewById(R.id.til_user_name);
         tilBirthday = findViewById(R.id.til_birthday);
+        findViewById(R.id.btn_back).setOnClickListener(v -> finish());
+
         tilIdNumber = findViewById(R.id.til_id_number);
         etUserName = findViewById(R.id.et_user_name);
         etRealName = findViewById(R.id.et_real_name);
@@ -133,7 +135,7 @@ public class EditProfileActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<UserProfile> call, Throwable t) {
-                Toast.makeText(EditProfileActivity.this, "Failed: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(EditProfileActivity.this, "网络错误: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -165,7 +167,7 @@ public class EditProfileActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ApiResponse> call, Throwable t) {
-                Toast.makeText(EditProfileActivity.this, "Failed: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(EditProfileActivity.this, "网络错误: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }

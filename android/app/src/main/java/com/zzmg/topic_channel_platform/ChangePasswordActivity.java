@@ -1,5 +1,6 @@
 package com.zzmg.topic_channel_platform;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -13,6 +14,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.gson.Gson;
 import com.zzmg.topic_channel_platform.api.UserApi;
 import com.zzmg.topic_channel_platform.model.ApiResponse;
 import com.zzmg.topic_channel_platform.model.ChangePasswordRequest;
@@ -40,6 +42,8 @@ public class ChangePasswordActivity extends AppCompatActivity {
 
         tilOld = findViewById(R.id.til_old_password);
         tilNew = findViewById(R.id.til_new_password);
+        findViewById(R.id.btn_back).setOnClickListener(v -> finish());
+
         tilConfirm = findViewById(R.id.til_confirm_password);
         etOldPassword = findViewById(R.id.et_old_password);
         etNewPassword = findViewById(R.id.et_new_password);
@@ -52,6 +56,9 @@ public class ChangePasswordActivity extends AppCompatActivity {
         findViewById(R.id.btn_submit).setOnClickListener(v -> {
             if (validateForm()) changePassword();
         });
+
+        findViewById(R.id.tv_forgot_password).setOnClickListener(v ->
+                startActivity(new Intent(ChangePasswordActivity.this, ForgotPasswordActivity.class)));
     }
 
     private boolean validateForm() {
@@ -93,8 +100,15 @@ public class ChangePasswordActivity extends AppCompatActivity {
                     Toast.makeText(ChangePasswordActivity.this, "请先登录", Toast.LENGTH_SHORT).show();
                     return;
                 }
+                ApiResponse res = null;
                 if (response.isSuccessful() && response.body() != null) {
-                    ApiResponse res = response.body();
+                    res = response.body();
+                } else if (response.errorBody() != null) {
+                    try {
+                        res = new Gson().fromJson(response.errorBody().string(), ApiResponse.class);
+                    } catch (Exception ignored) {}
+                }
+                if (res != null) {
                     Toast.makeText(ChangePasswordActivity.this, res.getMessage(), Toast.LENGTH_SHORT).show();
                     if (res.isSuccess()) {
                         setResult(RESULT_OK);
@@ -107,7 +121,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ApiResponse> call, Throwable t) {
-                Toast.makeText(ChangePasswordActivity.this, "Failed: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(ChangePasswordActivity.this, "网络错误: " + t.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
     }

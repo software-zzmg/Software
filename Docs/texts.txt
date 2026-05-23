@@ -1,0 +1,1411 @@
+=============一、开题报告=============
+研究内容提要（限200字以内）  
+    1.基于Java的Web应用开发
+    开发基于Java的主题频道交流平台，实现用户在PC Web端的账号管理，主题频道管理，关注管理，主题帖发布，评论管理功能。
+    2.基于Android的APP开发
+    开发基于Android的主题频道交流APP，实现用户在移动客户端的账号管理，主题频道管理，关注管理，主题帖发布，评论管理功能。
+研究的目的和意义（限500-1000字）
+    当今互联网上，每个人都有自己独特的爱好和关注领域，因此我们希望开发一个为各大网民提供爱好共享、技术交流、知识拓展的双端主题交流平台。
+1、提供方便的专题交流，组织管理
+    主题频道交流平台可以让使用者快速找到自己感兴趣的平台，在平台中与其他爱好者共同交流；也可以快速创建一个自己的频道，在频道中与好友或共同爱好者交流，发贴。频道管理者也能够方便管理频道成员、频道帖子和评论内容。
+2、对各类频道事项进行管理
+当今网络上，不同爱好者圈之间差别很大，甚至毫无关系，因此每个人想找一个完全独立不掺杂其他爱好者的交流环境很困难，因此该频道交流平台保证对各个频道的严格区分，保证对各个频道事项的单独管理和操作。
+3、促进爱好者之间的交流
+每个网民的爱好不同，该交流平台希望吸引更多的网民在这里找到共同爱好者，希望他们能够在该平台畅所欲言，发帖分享生活，摆脱在其他平台由于与其他网民爱好不同导致的不敢发言、“潜水”的情况。爱好者也可以逛不同的频道，尽管是自己没听说过的，通过阅读优质内容、参与讨论、向达人学习，不断提升自己的知识水平和学习新的技能。创作者可以把自己的专业知识、作品、观点通过锁定频道直接传递给真正感兴趣的群体，提高内容的相关性和影响力，企业人员也可以锁定频道，持续在某一主题频道输出高质量内容，有助于树立专业形象，积累粉丝与口碑。创作者和企业人员都可以通过与用户的互动，了解需求与痛点，优化内容方向，获得创作灵感。
+4、提供方便的团队运营、社区管理和用户调查
+社会成员可以在明确不同的群体中进行问卷调查等形式的活动，快速调查精准锁定不同网民的需求、爱好。社区也可以专门创建频道，社区管理人员可以根据发帖，快速定位用户的意见，建议和反映的问题，同时社区管理人员也方便快速的解决问题、发布公告。
+综上所述，主题频道交流平台的目的在于搭建一个能够更加方便快捷连接爱好者之间的桥梁，通过平台，每一位爱好者都能分享生活，与同好友善交流，扩大交际圈。 
+
+
+国内外本项目的研究状况（800字左右，附不少于4篇的参考文献）
+目前，国内已有很多持续运营的主题频道交流的平台。CSDN、博客园等技术论坛，为技术人员、学生等不同群体提供了博客、问题交流的平台；贴吧、新浪微博等平台，也给普通网民提供了娱乐、交流的平台；知乎等知识类论坛，涵盖了生活、科技、娱乐等各个领域。不过，其发展也面临挑战，内容同质化现象严重，高质量原创内容较为稀少，且盈利模式较为单一。国外也有reddit、medium等平台。
+国内：
+CSDN（www.csdn.net）
+中国历史最悠久、用户量最大的IT技术社区之一，截至2025年，注册用户已超6000万。平台提供博客、论坛、技术问答、在线课程等服务，论坛按语言、框架、工具等分类，便于用户快速检索相关技术内容，适合新手学习、资源获取和职业交流。
+优点：页面信息较为丰富，主题鲜明，首页展现较多功能。首页上方提供了用户登录以及创作功能，还提供了搜索功能，便于用户直接搜索所需要的内容；左侧是功能分类栏，可以快捷地进入首页、博客、学习或者社区等分块；此外，CSDN还融合了像AI搜索、GitCode等功能，方便用户快速定位；中间区域展示资讯头条和热门开源项目等核心内容；右侧为社区推荐模块。
+
+图 1 CSDN首页
+CSDN设置了社区推荐板块，展示不同技术领域的社区，用户可以加入感兴趣的社区，参与讨论和交流。同时，博客文章下方也有评论、点赞等互动功能，方便用户与作者及其他读者进行沟通，形成良好的技术交流氛围。在首页例举出了其推荐的社区，点击相应的社区，便能够快速定位到该社区，展示相关文章。
+
+图 2 CSDN社区推荐
+缺点：界面元素较多，对于初次使用的用户可能会感到信息过载，尤其是在资讯头条和开源项目展示区域，多个项目和文章标题罗列，可能会让用户难以快速筛选出最感兴趣的内容。虽然功能丰富，但在庞大的功能体系下，一些不太常用但对特定用户很重要的功能，可能隐藏较深，用户需要花费较多时间去寻找。
+博客园（www.cnblogs.com）
+由微软亚洲研究院前研究员方倍创建，以“专注技术博客”为定位，用户群体以中高级开发者为主。文章涵盖算法优化、架构设计等高阶主题，平台无广告干扰，支持Markdown编辑、代码高亮等功能，“园子”功能按技术栈或主题分类，促进小众领域交流。
+优点：博客园的界面设计简洁明了，没有过多繁杂的元素。页面布局以文章内容展示为主，用户进入页面后能快速聚焦于技术文章本身，适合专注于阅读和获取技术知识的用户。左侧设置了详细的分类导航栏，包括分类、精华、随笔、订阅等栏目。通过这些分类，用户可以便捷地筛选自己感兴趣的文章类型，提高信息检索效率。 在界面右侧有阅读排行及推荐排行，有助于用户了解本站目前关注度较大的技术或者内容。汇聚了大量的技术达人、行业精英和热爱分享的博主，他们在编程、算法、软件开发等领域有深入的探索和实践，分享的内容具有较高的质量和深度。
+
+图 3 博客园主页
+
+图 4 博客园小组功能
+缺点：整体界面设计风格较为传统和朴素，色彩搭配单一，让人缺乏使用的耐心。除了文章阅读和简单的社区互动外，其他一些功能（如小组、园子等）的入口在界面中不够突出，使用起来很不方便。
+
+图 5 博客园被隐藏的其他功能
+ 
+百度贴吧（tieba.baidu.com）
+基于百度搜索引擎的社区，以主题吧的形式汇聚兴趣相投的用户，涵盖各种兴趣爱好和专业知识，无论是影视、音乐、游戏，还是科学、技术、文化等领域，都能在百度贴吧中找到相应的交流主题吧。
+优点：涵盖领域众多，涉及文化、科技、娱乐等众多领域。共有两千多万个吧，基本能够满足不同群体的需求。贴吧网页版还上线了辅助功能，打开辅助功能便能够开启无障碍模式，辅助视障群体使用贴吧。
+
+图 6 百度贴吧首页
+缺点：用户界面设计较为简陋，色彩搭配单一，风格较为传统。当进入某个吧以后，首先看到的是大幅广告，并且在帖子中间，也穿插着广告信息，这会降低用户的使用兴趣，影响用户的浏览体验。
+
+图 7 百度贴吧的广告
+贴吧移动端的界面设计更加符合现代审美，采取了简约风格。首页左下角设置了发帖按钮，用户可以方便快捷地发布帖子。
+但是在帖子中间仍然会有广告插入，并且与正常贴子差异不大，使用过程中可能会误点，从而影响使用体验。移动端进入某个主题吧的途径众多，且当关注的吧数量增多，直接展现在用户面前的吧会随机出现，用户为了进入没在其中的吧还需要点击“全部”按钮，以浏览所有的主题吧，这一设计增加了用户的操作。
+    
+图 8 百度贴吧app首页与进吧
+全部吧的界面，更加适合用户使用，用户管理和加入的吧能够清晰地区分，整个界面没有无关信息的干扰，便于用户在众多吧中快速地找到想要进入的吧。并且在界面顶部提供了搜索功能，用户也可以通过搜索直接找到对应的主题吧。
+
+图 9 百度贴吧“全部吧”功能
+国外：
+Reddit（www.reddit.com）
+是一个社交新闻站点，内容丰富多样，通过用户对各种主题的帖子进行分类和投票，好的内容会被顶上去。它涵盖了几乎所有领域的主题频道，如机器学习、iPhone等，是很多新闻的第一时间发源地。
+优点：左侧边栏的设计更加合理，所有内容都可折叠，用户可以根据自己的需求轻松调整界面布局。Reddit涵盖了科技、运动、艺术、生活技巧等几乎所有的兴趣领域，用户可以轻松找到自己感兴趣的小组进行交流分享，也可以创建自己的小组，吸引志同道合的用户。在测试版的answer板块，由 AI 根据 Reddit 用户的帖子和评论生成回答，便于用户快速获取相关信息。
+
+图 10 Reddit主页
+用户可以根据自己需要选择不同的视图，卡片视图单个帖子会被放大，界面设计更加简洁；而紧凑视图单页展示的帖子增多，便于快速的浏览。
+
+图 11 Reddit卡片视图
+缺点：由于 Reddit 的用户群体庞大，用户素质也各不相同，导致平台上的信息质量参差不齐。用户可以使用匿名账号进行发言，这使得用户在表达观点时更加自由和大胆，但也可能会导致一些不良信息和不负责的言论出现。
+Medium（medium.com）
+由Blogger和Twitter联合创始人埃文·威廉姆斯创办的内容创作平台，以主题为核心，内容非常集中地围绕着主题而生产。用户可以通过阅读给予好文章投票，质量高的文章即使不是热门内容也会被推荐。
+优点：Medium 提供了简单直观的用户界面，其干净的设计和无杂乱的布局，让用户在浏览和创作过程中不会受到过多干扰，操作便捷。Medium 采用订阅模式盈利，平台上没有烦人的广告，用户在阅读文章时不会受到弹窗或误点广告导致重定向的困扰，能够享受流畅、干净的阅读体验。
+
+图 12 Medium首页
+Medium 的设计理念强调内容至上，它去除了许多繁琐的装饰和功能，让用户能够专注于文章的创作本身。在写作过程中，用户不会被各种复杂的设置和选项所干扰，能够更流畅地表达自己的想法。Medium 的嵌入功能表现出色，用户可以将unsplash图片、Twitter内容等嵌入到文章中。
+
+图 13 Medium的嵌入功能
+缺点：普通用户无法创建主题，只能够在已有主题下发帖。虽然默认主题可以减少一些管理方面的麻烦，但对于一些追求个性化展示的用户来说，缺乏定制性会让他们感到不满意。
+
+
+
+
+
+
+
+
+比较上述平台如下：
+	CSDN	博客园	百度贴吧
+优点	页面信息较为丰富，主题鲜明，提供ai搜索等功能，企业官方账号入驻。	界面设计简洁明了，以内容展示为主。	用户多，吧数量众多，上线了无障碍功能。
+缺点	界面元素较多。	整体界面设计风格较为传统和朴素，色彩搭配单一。	网站界面设计较为古早，大幅广告影响使用体验。
+表1 各平台优缺点对比
+	国内	国外
+对比	界面设计、功能丰富度以及主题频道创建自由度
+特点	一些国内平台的网站，界面设计风格较为古早，不能与时俱进。国内平台集成的功能比较丰富。贴吧普通用户可以自己创建吧，贴吧的模式导致其管理较为麻烦。	国外平台多采用简约风格。而medium不支持普通用户创建主题，medium的模式导致其难以满足部分用户的个性化需求。
+表2 国内与国外
+综上所述：本项目拟开发一款包含账号管理、频道管理、主题帖发布和点赞/评论管理等功能的主题频道平台，包括Web端和配套移动端app。
+研究内容、研究方案（研究方法、技术路线）（1000字左右）
+1.基于面向对象方法的主题频道交流系统分析与设计：
+面向对象编程通过模拟现实世界的实体关系来组织代码。本系统的核心语言Java正是这么一种语言。本系统中，我们可以通过对用户、频道、帖子、评论等实体进行抽象建模，提升系统的可维护性与扩展性。
+面向对象分析与设计的过程可以分为以下阶段：
+1.业务建模（需求模型）：分析用户需求，明确功能模块。
+2.概念建模（领域模型）：构建UML类图等，抽象用户、帖子、频道、评论等核心对象。
+3.系统建模。
+4.代码设计（实现模型）。
+在此过程中，将充分利用封装、继承与多态等OO特性，保证代码的复用性与灵活性。
+
+2.基于Java的Web应用开发：
+项目Web应用拟采用IntelliJ IDEA进行开发，使用Spring Boot框架，它继承了Spring框架的特性并对其做出了简化，我们可以快速构建独立运行的 Java Web 应用。Spring Boot内置的 Tomcat 服务器可以接收浏览器的 HTTP 请求，调用Java代码处理请求，并把结果返回给客户端。
+
+3.基于HTML+CSS+JavaScript的页面开发：
+前端页面是用户使用软件的窗口，决定了用户的使用体验。前端页面也与后端功能密切联系，需要完整的操作逻辑。本项目拟使用基础的HTML+CSS+JavaScript开发Web前端页面，在使用原生JavaScript开发的基础上，学习各类JavaScript框架，如Vue的知识。
+
+4.基于Android+Java的移动端开发APP：
+项目拟采用Android Studio进行开发。Android Studio是谷歌推出的一个Android集成开发工具，它基于IntelliJ IDEA（这或许能给我们双端的开发带来顺畅的体验），其基于gradle的项目构建系统，这让我们在构建android项目的时候更加灵活。同时，Android Studio拥有大量的代码模板可以快速地帮我们构建android项目，大大方便了项目的开发。我们计划在开发中首先在安卓电脑模拟器上部署，后在手机移植。
+
+5.基于MySQL的数据管理：
+Web应用几乎都需要操作数据，我们需要实现的账号管理，主题频道管理，关注管理，主题帖管理，评论管理功能，也都离不开数据库对数据的管理功能。MySQL数据库系统适用于中小型网站使用，具有开源、灵活性强、命令执行的速度快等优点，且同学们都具备一定的使用经验，是我们项目数据库系统的不二之选。我们将配合采用Navicat与IntelliJ IDEA 内置数据库工具管理数据库，将MySQL数据库可视化，以直觉化的图形用户界面安全简单地完成信息的组织与使用，满足平台的数据管理问题。
+
+技术指标:
+1.实现对频道管理员对用户、帖子内容的管理。
+2.实现用户的注册、登录功能。
+3.实现用户发帖、评论等功能。
+
+=============二、需求获取报告=============
+一、引言
+1、编写目的
+需求获取报告的目的主要是将用户的需求明确为一个可视化的文档，消除团队开发成员对于用户需求的信息差，方便开展工作，同时也是一份支持反复确认的文档，明确确认客户需求，避免开发过程中出现成果和客户需求不一致的情况。需求获取报告相当于软件成果的先行版，可以通过审查报告发现需求矛盾，考虑过当或考虑不周的情况；同时需求获取报告相当于软件开发过程的流程图，确认开发流程，实用工具，具体实现，可以有效避免漏开发或者冗余开发。
+需求获取报告的目标阅读任务为软件设计者，开发者和客户。
+2、背景
+说明：
+1.待开发的软件系统的名称：主题频道交流平台
+2.本项目的任务提出者：马弈驰 高飞航 郑新冉 赵奕程；
+3.本项目的任务开发者：马弈驰 高飞航 郑新冉 赵奕程；
+4.用户：需要线上交流，寻找感兴趣主题的网民、需要统一管理的团队、需要传播信息，分享资源的博主等
+5.待开发的软件系统所支持的平台：网页端和移动设备APP端
+
+3、定义
+名称	说明
+账户	用户注册时登记的用户名（手机）及密码
+用户分类	用户、管理员（审核）
+账户信息管理	用户可通过该模块对自己的信息进行增加、查询、修改、删除操作，分别对应注册、登录、修改用户信息及密码、注销。管理员拥有对所有用户信息的各项操作的权限。
+创建主题频道	用户填写需要创建的主题频道的信息表单后送审
+修改主题频道信息	创建该频道的用户修改频道信息后送审
+加入主题频道	所有用户可直接加任意主题频道
+审核主题频道信息	管理员审核用户待创建的主题频道信息，可以选择允许创建或拒绝创建
+解散主题频道	创建该频道的用户可解散主题频道
+退出主题频道	用户可退出自己已加入的主题频道
+发布主题帖	频道成员可在已加入的主题频道下发布主题帖
+审核主题帖	管理员审核用户发布的主题帖，选择是否同意发布
+查看主题帖	任何用户可以查看主题帖的内容
+收藏主题帖	用户可以收藏感兴趣的主题帖
+取消收藏主题帖	用户可以取消已收藏的主题频道
+修改主题帖	发布该主题帖的频道成员可以修改主题帖
+删除主题帖	发布该主题帖的频道成员或频道管理员可以删除主题帖
+发表评论	频道成员可以在该主题频道的主题帖下发表评论或在主题帖下的评论下发表评论。
+审核评论	管理员审核用户发表的评论
+删除评论	发布该评论的频道成员或频道管理员可以删除评论
+
+
+二、任务概述
+1、目标
+如今网络走进千家万户，几乎每一个人都在网络上有一席之地，有些人人在网络上寻找感兴趣的事物事件并且关注或发表看法，有些人愁于团队管理和消息发布速度、有些人想让自己的能力被更多人看见，希望发光发热。主题频道交流平台因此而生
+（1）提供便捷自由的信息交流
+    主题频道交流平台旨在给用户足够自由的发言机会，希望在频道中，每个人都可以自由的发帖，让更多人关注自己的生活缩影，每个人都可以自由的评论，为所闻所见发表独树一帜的见解，通过平台让每个人的生活连接在一起，天涯若比邻。
+（2）提供方便的团队各类事项和成员管理
+当前社会，往往需要团队协作才能走的更远，而每一个团队领导者都或多或少的被管理整个团队的繁琐事项以及统一团队信息的困难所裹挟。主题频道交流平台目的不止用于网民间的娱乐，更是希望成为团队管理的帮手，让团队领导者可以通过平台更好的发布公告，吩咐团队事项、加快信息流动，减少团队的信息差。
+（3）让每个各个同好圈成员找到专属空间
+网络事物繁杂，每个人都有自己所喜欢的和讨厌的事物。该平台的最主要的目的是提供一个个完全独立的主题频道，每一位用户都可以在频道中找到与自己爱好相同的用户，加入独属于自己所喜欢的圈子的主题频道，频道中没有其他本不属于该频道的繁杂的帖子，只有对独特圈子的有趣事物的分享帖。
+（4）令企业和创作者快速找到目标群体
+通过平台，企业或者自媒体创作者可以创建独特的主题平台，快速聚集感兴趣的群体，企业可以因此不断输出高质量内容，积累企业的粉丝和口碑，树立专业形象；创作者可以分享自己的专业知识、技巧、作品等优质内容，提高作品的影响力。
+综上所述，主题频道交流平台的目的在于搭建一个能够更加方便快捷连接爱好者之间的桥梁，通过平台，每一位爱好者都能分享生活、畅所欲言、与同好友善交流、扩大交际圈。
+
+2、用户特点
+本系统的最终用户分为普通用户和系统管理员。
+系统管理员是整个主题频道交流平台的管理者和维护者，可以对用户的相关信息进行查询并修改，以及对主题频道创建、主题帖和评论的审核。
+普通用户是使用主题频道交流平台的主体，有普通用户及主题频道管理员两大身份。
+①作为主题频道管理员，用户创建频道后成为该频道的主题频道管理员，可以管理频道信息和频道成员；
+②作为普通用户，可查看已创建的主题频道的信息，浏览主题帖，收藏或取消收藏主题帖、加入或退出主题频道；且所有用户可在已加入的主题频道中发布主题帖和在主题帖或评论下进行评论。
+
+
+三、需求规定
+1、功能规定
+1.1模块
+1.1.1账户信息管理模块
+该模块实现对进行用户信息增添、删除、查找、修改等操作，分别对应于用户的注册、注销、登录、查找用户、修改用户信息功能。 
+①用户注册
+用户应该使用手机号作为账号并设置密码进行注册。
+在注册过程中，需要检验用户的账号（所用来注册的手机号）是否已经被注册使用过，要求同一个账号名下的账户不能被重复注册。
+用户在注册时需输入两次密码，并检验两次密码是否相同，若不相同需要重新输入。
+完成账号密码输入后需要填写对应账号接收到的验证码，正确输入验证码后注册成功并可登录系统，否则注册失败。
+管理员无需注册，账号由后台分配。
+②用户登录
+用户使用注册成功的账号并依次输入密码和验证码（系统自动生成）进行登录；或者可以通过使用账户手机号+验证码（需要系统发送）验证的方式进行登录；
+其中需要检验登录使用的账户是否存在，密码，验证码是否正确，提交登录后提示是否登录成功，登录成功则跳转系统页面。
+③修改用户信息
+登录后用户可以通过该功能修改自己的用户信息，例如：用户名（注册后初始为系统设置的默认名），个人信息、密码等项目。
+管理员可以修改任意用户的用户信息。
+④注销账号
+登录后用户可以通过该功能注销账户，注销后将不可登录，需重新注册。
+⑤查询账户
+管理员和用户登录后能够对用户账户进行查询，包括通过用户名、手机号等条件搜索用户、查看用户列表、浏览用户详细信息等。
+⑥忘记密码
+用户可以通过该功能在未登录的情况下修改指定手机号的密码，系统将给用户手机号发送验证码，通过比对用户输入的验证码与系统所发送的验证码是否一致，确保是否为用户本人操作。
+
+1.1.2主题频道管理模块
+该模块用于主题频道信息、状态的管理，实现主题频道的创建、审核、创建加入表单，主题频道信息的修改，主题频道的解散，用户可以查看主题频道。
+①创建主题频道
+用户可以填写创建表单创建主题频道，该信息包括主题频道名称、主题频道简介，需要按照表单指引填写信息提交，表单交由管理员审核。
+②审核主题频道
+管理员需要审核用户填写的创建主题频道表单或修改主题频道请求，若未通过，会通知创建频道的用户，拒绝频道创建或频道信息修改。
+③主题频道信息修改
+主题频道创建用户可以修改主题频道的名称、主题频道简介，确认修改信息后将交由管理员审核。
+④解散主题频道
+主题频道创建用户可以解散主题频道，解散后会通知所有主题频道成员。
+⑤查看主题频道
+用户可以浏览所有主题频道，或者通过关键词检索相关主题频道。
+1.1.6加入频道管理模块
+该模块实现对用户对主题频道的加入、退出、查看操作。
+①加入主题频道
+普通用户可以加入任意主题频道，将该用户设为该频道的成员。
+②退出主题频道
+用户可以退出任意已加入的主题频道，删除该用户的频道成员身份。
+③查看已加入频道
+用户可以查看已加入的主题频道。
+
+1.1.3主题帖管理模块
+该模块用于主题频道中主题帖的发布、查看、修改、删除、审核管理
+①发布主题帖
+频道成员可以按照模版创建主题帖，填写主题帖的标题、正文后发布，主题帖将会自动显示发布时间和发布主题帖的用户的用户名。
+②查看主题帖
+任何用户可以查看主题帖的内容。
+③修改主题帖
+	发布主题帖的频道成员可以修改主题帖的标题、正文。
+④删除主题帖
+发布主题帖的频道成员和频道管理员可以删除该主题帖，这将同时删除评论和收藏。
+⑤审核主题帖
+主题频道管理员审核用户要发布的主题帖。
+1.1.4评论管理模块
+该模块用于主题频道中主题帖下或评论下的评论的发表、删除、查看、审核的管理
+①发表评论
+频道成员可以在主题帖下或者在主题帖下的评论下发表评论，评论将会显示发表时间和评论发表用户的用户名。
+②删除评论
+主题频道创建者和发表评论的成员可以删除已发表的评论。
+③审核评论
+主题频道管理员审核用户将要发表的评论。
+④查看评论
+主题频道成员查看已发表的评论。
+
+1.1.5收藏管理模块
+该模块实现对主题帖的收藏、取消、查看收藏操作。
+①收藏主题帖
+用户对主题帖进行收藏，将会在用户收藏栏目中显示主题帖所属的主题频道和主题帖标题。
+②取消收藏
+用户可以取消收藏已收藏的主题帖,若主题帖被删除，收藏的主题帖自动取消。
+③查看收藏
+用户可以查看已收藏的主题帖。
+1.2确定参与者
+参与者	参与项目
+普通用户	账户信息管理、主题频道管理、主题帖管理、评论管理、收藏管理、加入频道管理
+系统管理员	账户信息管理、主题频道管理、主题帖管理、评论管理
+
+1.3确定用例（总用例图）
+
+图 1 总用例图
+1.4用例说明
+1.4.1用户注册
+用例名：用户注册
+描述：用户通过注册在本系统中添加自己的账号
+参与者：用户
+前置条件：用户所申请账号未在本系统注册
+活动图：
+
+图 1.4.1 用户注册活动图
+1.4.2用户登录
+用例名：用户登录
+描述：用户选择登录方式，通过选择的方式登录系统
+参与者：用户、管理员
+前置条件：用户登录账号已在本系统注册
+活动图：
+
+图 1.4.2 用户登录活动图
+1.4.3修改用户信息
+用例名：修改用户信息
+描述：登录账号后，用户可通过该功能修改个人资料及修改密码
+参与者：用户、管理员
+前置条件：用户已在本系统登录
+活动图：
+
+图 1.4.3 修改用户信息活动图
+1.4.4注销账号
+用例名：注销账号
+描述：用户注销自己的账号
+参与者：用户
+前置条件：用户已在本系统登录
+活动图：
+
+图 1.4.4 注销账号活动图
+1.4.5查询用户
+用例名：查询用户
+描述：管理员或用户可通过用户名或手机号查询用户的信息
+参与者：用户、管理员
+前置条件：管理员或用户已在本系统登录，用户账号已在本系统注册
+活动图：
+
+图 1.4.5查询用户活动图
+1.4.6忘记密码
+用例名：忘记密码
+描述：忘记密码的用户可通过此功能在未登录的情况下重新设置密码
+参与者：用户
+前置条件：用户账号已在本系统注册
+活动图：
+
+图 1.4.6 忘记密码活动图
+1.4.7创建主题频道
+用例名：创建主题频道
+描述：用户创建主题频道，填写基本信息并交由管理员审核
+参与者：用户，管理员
+前置条件：用户已注册到本系统
+活动图：
+
+图 1.4.7 创建主题频道活动图
+1.4.8审核主题频道
+用例名：审核主题频道
+描述：管理员审核请求创建的主题频道事务，确认信息后选择通过或不通过审核
+参与者：管理员
+前置条件：用户发出创建主题频道的请求
+活动图：
+
+图 1.4.8 审核主题频道活动图
+1.4.9主题频道信息修改
+用例名：主题频道信息修改
+描述：主题频道创建者可以修改主题频道信息，并交由管理员审核
+参与者：用户、管理员
+前置条件：主题频道已被创建，用户为主题频道创建者
+活动图：
+
+图 1.4.9 主题频道信息修改活动图
+1.4.10解散主题频道
+用例名：解散主题频道
+描述：主题频道创建者可解散主题频道，并通知所有频道成员
+参与者：用户
+前置条件：当前主题频道已创建且用户为主题频道创建者
+活动图：
+
+图 1.4.10 解散主题频道活动图
+1.4.11查看主题频道
+用例名：查看主题频道
+描述：用户可以通过查询以查看指定的主题频道信息
+参与者：用户
+前置条件：该用户已登录
+活动图：
+
+
+图 1.4.11 查看主题频道活动图
+1.4.12发布主题帖
+用例名：发布主题帖
+描述：用户可以按照模版创建主题帖，填写主题帖的标题、正文后发布，主题帖将会自动显示发布时间和发布主题帖的用户的用户名。
+参与者：用户
+前置条件：用户加入主题频道
+活动图：
+
+
+图 1.4.12 发布主题帖活动图
+1.4.13查看主题帖
+用例名：查看主题帖
+描述：用户和管理员可以查看主题帖的内容。
+参与者：用户、管理员
+前置条件：主题帖已发布
+活动图：
+
+
+图 1.4.13 查看主题帖活动图
+1.4.14修改主题贴
+用例名：修改主题贴
+描述：发布主题帖的频道成员可以修改主题帖的标题、正文。
+参与者：用户
+前置条件：主题帖已发布
+活动图：
+
+
+图 1.4.14 修改主题贴活动图
+1.4.15删除主题帖
+用例名：删除主题帖
+描述：频道管理员可删除频道内任意主题帖，其他用户只可以删除自己的主题帖。注意删除主题帖时需同时删除评论和收藏。
+参与者：用户、管理员
+前置条件：用户已在本系统登录
+活动图：
+
+
+图 1.4.15 删除主题帖活动图
+1.4.16审核主题帖
+用例名：审核主题帖
+描述：管理员需要对用户发布的主题帖进行审核，审核通过则可以成功发布，否则发布失败。
+参与者：管理员
+前置条件：用户已在本系统登录且发布了主题帖
+活动图：
+
+
+图 1.4.16 审核主题帖活动图
+1.4.17发表评论
+用例名：发表评论
+描述：用户可以对主题帖发表评论
+参与者：用户、管理员
+前置条件：用户已在本系统登录且主题帖存在
+活动图：
+
+
+图 1.4.17 发表评论活动图
+1.4.18删除评论
+用例名：删除评论
+描述：用户可以将发表过的评论删除
+参与者：用户
+前置条件：用户已在本系统登录且主题帖和评论存在
+活动图：
+
+
+图 1.4.18 删除评论活动图
+1.4.19审核评论
+用例名：审核评论
+描述：管理员需要对非管理员用户发布的评论进行审核，审核通过则可以成功发布，否则发布失败。
+参与者：管理员
+前置条件：用户已在本系统登录且发布了评论
+活动图：
+
+
+图 1.4.19 审核评论活动图
+1.4.20查看评论
+用例名：查看评论
+描述：用户可以查看某一主题帖下的所有评论
+参与者：用户
+前置条件：用户已登录
+活动图：
+
+图 1.4.20 查看评论活动图
+1.4.21收藏主题帖
+用例名：收藏主题帖
+描述：用户对主题帖进行收藏
+参与者：用户
+前置条件：用户已在本系统登录且主题帖存在
+活动图：
+
+
+图 1.4.21 收藏主题帖活动图
+1.4.22取消收藏
+用例名：取消收藏
+描述：用户取消收藏已收藏的主题帖
+参与者：用户
+前置条件：用户已在本系统登录且主题帖存在
+活动图：
+
+图 1.4.22 取消收藏活动图
+1.4.23查看收藏
+用例名：查看收藏
+描述：用户可以查看收藏过的所有主题帖
+参与者：用户
+前置条件：用户已在本系统登录且主题帖存在
+活动图：
+
+图 1.4.23 查看收藏活动图
+1.4.24加入主题频道
+用例名：加入主题频道
+描述：用户可以加入任意主题频道
+参与者：用户
+前置条件：当前主题频道已被创建
+活动图：
+
+
+图 1.4.24 加入主题频道活动图
+1.4.25退出主题频道
+用例名：退出主题频道
+描述：主题频道成员可以退出已加入的主题频道
+参与者：用户
+前置条件：该用户为频道成员
+活动图：
+
+
+图 1.4.25 退出主题频道活动图
+1.4.26查看已加入主题频道
+用例名：查看已加入主题频道
+描述：主题频道成员可以查看已经加入的主题频道
+参与者：用户
+前置条件：该用户已经加入了某个主题频道
+活动图：
+
+图 1.4.26 查看已加入主题频道活动图
+2、性能规定
+	2.1精度
+用户信息、主题频道信息、主题帖、评论都需要按照符合条件的输入进行保存，否则提示重新输入。
+
+	2.2时间特性要求
+1.服务器响应时间：小于1.5秒；
+2.注册信息验证发送时间：小于2秒；
+3.用户信息修改处理时间：小于1秒；
+4.账户登录响应时间：小于1秒；
+5.账户查询响应时间：小于1秒；
+6.账户注销响应时间：小于1秒；
+7.主题频道创建处理时间：小于1秒；
+8.频道信息修改处理时间：小于1秒；
+9.频道审核请求处理时间：小于1秒；
+10.频道解散处理时间：小于1秒；
+11.频道解散提示信息发布处理时间：小于1秒；
+12.查看主题频道处理时间小于1秒；
+13.主题帖发布处理时间：小于2秒；
+14.主题帖删除处理时间：小于1秒；
+15.主题帖审核处理时间：小于一秒；
+16.收藏主题帖处理时间：小于1秒；
+17.取消收藏主题帖处理时间：小于1秒；
+18.查看收藏处理时间：小于1秒；
+19.评论发布处理时间：小于1秒；
+20.评论审核处理时间：小于1秒；
+21.评论删除处理时间：小于1秒；
+22.查看评论处理时间：小于1秒；
+23.找回密码响应时间：小于1秒；
+
+	2.3灵活性
+1.操作方式上的变化：可以通过电脑端或手机端的浏览器进行访问；
+2.运行环境的变化：在IE 11、Firefox 42、Google Chrome 53以上的环境进行访问；
+3.精度和有效时限的变化：精度变化要对系统的影响尽量减小；
+4.计划的变化或改进：能够比较容易地根据需求进行改进。
+
+3、输入输出要求
+输入数据基本为：用户账号、用户密码、验证码、主题频道信息、收藏信息、主题帖、评论，以上输入均为字符串形式；输出数据基本为主题频道界面、收藏的主题帖界面、发布的主题帖、发表的评论。
+
+4、数据管理能力要求
+需要管理的记录个数约1万。其中分为多个表和文卷，其大小规模为：500左右。
+
+5、故障处理要求
+发生错误时保证数据完整，对于数据库发生故障时要能够及时解决故障，恢复数据，以保证数据的一致性和完整性。
+
+=============三、需求分析报告=============
+一、引言
+1、编写目的
+需求分析报告是链接用户需求和项目开发的核心桥梁，明确项目要实现的功能、目标和范围，既能统一开发人员内部的认知，也可以和客户明确交付即将开发的软件的内容，方便即时修改，避免了一定程度上的纠纷和项目风险。开发人员内部也可以明确资源分配，预估工作量，工作时长,以采取不同的开发策略。
+预期读者：软件设计者和测试者。
+
+3、定义
+名称	说明
+账号	用户注册时登记的用户名（手机号）及密码
+用户分类	用户、管理员
+账户信息管理	用户与管理员都可通过该模块对自己的信息进行增加、查询、修改、删除操作，分别对应注册、登录、修改用户信息及找回密码、注销，管理员拥有对所有用户的信息进行各项操作的权限
+创建主题频道	用户填写需要创建的主题频道的信息表单后送审
+修改主题频道信息	创建该频道的用户修改频道信息后送审
+审核主题频道信息	管理员审核用户待创建的主题频道信息，可以选择允许创建或拒绝创建
+解散主题频道	创建该频道的用户可以解散主题频道
+加入主题频道	所有用户可直接加入任意主题频道
+退出主题频道	用户可退出自己已加入的主题频道
+查看已加入频道	用户可以查看已加入的主题频道
+发布主题帖	频道成员可在已加入的主题频道下发布主题帖
+审核主题帖	管理员审核用户发布的主题帖，选择是否同意发布
+查看主题帖	任何用户可以查看主题帖的内容
+收藏主题帖	用户可以收藏感兴趣的主题帖
+取消收藏主题帖	用户可以取消已收藏的主题帖
+查看收藏	用户可以查看已收藏的主题帖
+修改主题帖	发布该主题帖的频道成员可以修改主题帖的内容
+删除主题帖	发布该主题帖的频道成员或频道管理员可以删除主题帖
+发表评论	频道成员可以在该主题频道的主题帖下发表评论或在主题帖下的评论下发表评论
+审核评论	管理员审核用户发表的评论
+查看评论	用户可以查看已发表的评论
+删除评论	发布该评论的频道成员或者频道管理员可以删除评论
+
+二、系统结构模型
+1、初始对象表
+
+初始对象/类表：
+可能的类	英文类名	简单描述
+用户	User	该类是管理员类、普通用户类的基类，用于提供两个类共有的属性和操作。
+管理员	Administrator	该类用于对管理员提供一系列信息及相关操作。
+普通用户	OrdinaryUser	该类为普通用户，可以创建、加入主题频道，发表主题帖、评论，收藏主题帖等操作。
+主题频道类	Forum	该类用于用户创建主题频道
+频道成员类	ForumMember	该类用于记录用户加入频道信息
+主题帖类	ThemePost	该类用于用户发布主题帖
+评论类	Comment	该类用于用户评论主题帖
+收藏类	Collect	该类用于用户对主题帖的收藏
+
+2、初始类图
+
+3、细化类图
+3.1属性的识别
+（注：每个属性表中的第一个属性，作为primary key）
+类名：User（用户类）
+属性表如表3.1.1所示：
+表3.1.1 User类属性表
+中文名	英文名	数据类型
+用户ID	UserID	varchar		登录密码	UserPassword	varchar
+
+类名：Administrator（管理员类）
+属性表如表3.1.2所示：
+表3.1.2 Administrator类属性表
+中文名	英文名	数据类型
+用户ID	UserID	varchar		登录密码	UserPassword	varchar
+
+类名：OrdinaryUser（普通用户类）
+属性表如表3.1.3所示：
+表3.1.3 OrdinaryUser类属性表
+中文名	英文名	数据类型
+用户ID	UserID	varchar
+手机号	PhoneNumber	varchar
+登录密码	UserPassword	varchar
+用户名称	UserName	varchar
+真实姓名	RealName	varchar
+身份证号	IDNumber	varchar
+性别	Gender	varchar
+用户生日	Birthday	datetime
+注册时间	RegisterTime	datetime
+
+类名：Forum（主题频道类）
+属性表如表3.1.5所示：
+表3.1.5 Forum类属性表
+中文名	英文名	数据类型
+主题频道ID	ForumID	varchar
+创建用户ID	UserID	varchar
+主题频道名称	ForumName	varchar
+主题频道简介	Content	varchar
+审核状态	AuditState	varchar（待审核、审核通过、审核未通过）
+创建时间	CreateTime	datetime
+
+类名：ForumMember（频道成员类）
+ 属性表如表3.1.4所示：
+表3.1.4 ForumMember类属性表
+中文名	英文名	数据类型
+用户ID	UserID	varchar
+频道ID	ForumID	varchar
+加入时间	JoinTime	datetime
+
+类名：ThemePost（主题帖类）
+属性表如表3.1.6所示：
+表3.1.6 ThemePost类属性表
+中文名	英文名	数据类型
+主题帖ID	ThemePostID	varchar
+主题频道ID	ForumID	varchar
+创建用户ID	UserID	varchar
+主题帖标题	Title	varchar
+主题帖内容	Content	varchar
+发布时间	PublishTime	datetime
+审核状态	AuditState	varchar(未审核，审核通过，审核未通过)
+
+类名：Comment(评论类)
+属性表如表3.1.7所示：
+表3.1.7 Comment类属性表
+中文名	英文名	数据类型
+评论ID	CommentID	varchar
+主题帖ID	ThemePostID	varchar
+评论者ID	UserID	varchar
+评论内容	Content	varchar
+评论时间	PublishTime	datetime
+审核状态	AuditState	varchar(未审核，审核通过，审核未通过)
+
+类名：Collect(收藏类)
+属性表如表3.1.8所示：
+表3.1.8 Collect类属性表
+中文名	英文名	数据类型
+用户ID	UserID	varchar
+主题帖ID	ThemePostID	varchar		收藏时间	CollectTime	datetime
+
+3.2操作的识别
+类名：User（用户类）
+  	操作表如表3.2.1所示：
+表3.2.1 User类操作表
+中文名	英文名	返回值类型
+添加用户	addUser()	bool
+删除用户	deleteUser()	bool
+返回用户ID	getUserID()	varchar
+设置用户ID	setUserId()	bool
+返回用户电话	getUserPhone()	varchar
+设置用户电话	setUserPhone ()	bool
+返回用户密码	getUserPassword()	varchar
+设置用户密码	setUserPassword()	bool
+
+类名：Administrator（管理员类）
+  	操作表如表3.2.2所示：
+表3.2.2 Administrator类操作表
+中文名	文名	数据类型
+添加用户	addUser()	bool
+删除用户	deleteUser()	bool
+返回用户ID	getUserID()	varchar
+返回用户电话	getUserPhone()	varchar
+返回用户密码	getUserPassword()	varchar
+审核频道	setForumAudit()	bool
+审核评论	setCommentAudit()	bool
+审核帖子	setPostAudit()	bool
+查询用户	searchUser()	bool
+
+类名：OrdinaryUser（普通用户类）
+  	操作表如表3.2.3所示：
+表3.2.3 OrdinaryUser类操作表
+中文名	文名	数据类型
+添加用户	addUser()	bool
+删除用户	deleteUser()	bool
+返回用户ID	getUserID()	varchar
+设置用户ID	setUserId()	bool
+返回用户名	getUserName()	varchar
+设置用户名	setUserName()	bool
+返回用户电话	getUserPhone()	varchar
+设置用户电话	setUserPhone ()	bool
+返回用户密码	getUserPassword()	varchar
+设置用户密码	setUserPassword()	bool
+返回用户真实姓名	getRealName()	varchar
+设置用户真实姓名	setRealName()	bool
+返回用户身份证号	getIDNumber()	varchar
+设置用户身份证号	setIDNumber()	bool
+返回用户性别	getGender()	varchar
+设置用户性别	setGender()	bool
+返回用户生日	getBirthday()	datetime
+设置用户生日	setBirthday()	bool
+查找用户	checkUer()	bool
+
+类名：ForumMember（频道成员类）
+  	操作表如表3.2.4所示：
+表3.2.4 ForumMember类操作表
+中文名	英文名	数据类型
+返回用户ID	getUserID()	varchar
+设置用户ID	setUserId()	bool
+返回主题频道ID	getForumID()	varchar
+设置主题频道ID	setForumID()	bool
+返回加入时间	getJoinTime()	datetime
+设置加入时间	setJoinTime()	bool				加入频道	joinForum()	bool
+退出频道	exitForum()	bool
+
+类名：Forum（主题频道类）
+属性表如表3.2.5所示：
+表3.2.5 Forum类操作表
+中文名	英文名	返回值类型
+创建主题频道	addForum()	bool
+解散主题频道	DismissForum()	bool
+返回主题频道ID	getForumID()	varchar
+设置主题频道ID	setForumID()	bool
+返回创建用户ID	getAuthorId()	varchar
+设置创建用户ID	setAuthorID()	bool
+返回主题频道名称	getForumName()	varchar
+设置主题频道名称	setForumName()	bool
+修改主题频道名称	modifyForumName()	bool
+返回主题频道简介	getForumContent()	varchar
+编写主题频道简介	setForumContent()	bool
+修改主题频道简介	modifyForumContent()	bool
+返回频道审核状态	getAuditState()	varchar
+设置频道审核状态	setAuditState()	bool
+返回创建时间	getCreateTime()	datetime
+设置创建时间	setCreateTime()	bool
+查询频道	checkForum()	bool
+
+类名：ThemePost（主题帖类）
+操作表如表3.2.6所示：
+表3.2.6 ThemePost类操作表
+操作名称	函数名	返回值类型
+发布主题帖	publishThemePost()	bool
+删除主题帖	deleteThemePost()	bool
+设置主题帖ID	setActivityID	bool
+返回主题帖ID	getActivityID	varchar
+设置主题帖标题	setThemePostTitle()	bool
+返回主题帖标题	getThemePostTitle()	text
+返回主题帖内容	setThemePostContent()	bool
+设置主题帖内容	getThemePostContent()	text
+设置帖审核状态	setAuditState()	bool
+返回帖审核状态	getAuditState()	varchar(未审核，审核通过，审核未通过)
+返回发布时间	getPublishTime()	datetime
+设置发布时间	setPublishTime()	bool
+返回创建用户ID	getAuthorID()	varchar
+设置创建用户ID	setAuthorID()	bool
+搜寻主题帖	SearchThemePost()	bool
+
+类名：Comment(评论类)
+操作表如表3.2.7所示：
+	表3.2.7 Comment类操作表
+
+操作名称	函数名	返回值类型
+发表评论	publishComment()	bool
+删除评论	deleteComment()	bool
+设置评论ID	setCommentID()	bool
+返回评论ID	getCommentID()	varchar
+设置发表用户ID	setAuthorID()	bool
+返回发表用户ID	getAuthorID()	varchar
+设置发布时间	setPublishTime()	bool
+返回发布时间	getPublishTime()	datetime
+
+类名：Collect(收藏类)
+操作表如表3.2.8所示：
+表3.2.8 Collect类操作表
+操作名称	函数名	返回值类型
+收藏	Collect()	bool
+取消收藏	CancelCollect()	bool
+设置用户ID	setUserID()	bool
+返回用户ID	getUserID()	varchar
+设置主题帖ID	setPostID()	bool
+返回主题帖ID	getPostID()	varchar
+设置收藏时间	setCollectTime()	bool
+返回收藏时间	getCollectTime()	datetime
+
+4、三层精化类图
+4.1对Administrator类的三层划分
+界面层： 
+名称	描述
+login.html(signupOrdinaryUser)	登录界面
+index.html	首页	alert.html	提示弹窗页面
+audit-userlist.html	审核用户列表页面
+audit-userdetail.html	审核用户详情页面
+audit-forum.html	审核主题频道页面
+audit-comment.html	审核评论页面
+audit-themepost.html	审核主题帖页面
+事务层：Administrator.java 管理员类
+数据层：Administrator.dat 管理员信息表
+
+4.2对OrdinaryUser类的三层划分
+界面层： 
+名称	描述
+register.html(signinOrdinaryUser)	注册页面
+login.html(signin)	登录页面
+index.html	首页
+userinfo-detail.html(getUserInfo)	个人信息详情页面
+userinfo-list.html(searchUser)	个人信息列表页面
+userinfo-edit.html(changeUserInfo)	个人信息编辑界面
+userpsd-edit.html(changePassword)	密码修改页面	userpsd-forget.html(forgetPassword)	密码找回页面
+error.html	错误提示页面
+事务层：OrdinaryUser.java 普通用户类
+数据层：OrdinaryUser.dat 普通用户信息表
+
+4.3对ForumMember类的三层划分
+界面层：
+名称	描述
+joinforum-list.html(displayJoinForum)	已加入的频道列表页面
+事务层：ForumMember.java 频道成员类
+数据层：ForumMember.dat 频道成员信息表
+
+4.3对Forum类的三层划分
+界面层：
+名称	描述	forum-edit.html(EditForum)	主题频道编辑页面		forum-list.html(SearchForum)	主题频道列表页面	forum-detail.html(DisplayForum)	主题频道详情页面
+事务层：Forum.java 主题频道类
+数据层：Forum.dat 主题频道信息表
+
+4.4对ThemePost类的三层划分
+界面层：
+名称	描述	post-list.html(SearchPost)	主题帖列表页面
+post-edit.html(EditPost)	主题帖编辑页面
+post-detail.html(DisplayPost)	主题帖详情页面
+事务层：ThemePost.java 主题帖类
+数据层：ThemePost.dat 主题帖信息表
+
+4.5对Comment类的三层划分
+界面层：
+名称	描述
+comment-edit.html(EditComment)	评论编辑页面
+comment-list.html(DisplayComment)	评论列表页面
+comment-detail.html	评论详情页面
+事务层：Comment.java 评论管理类
+数据层：Comment.dat 评论信息表
+
+4.6对Collect类的三层划分
+界面层：
+名称	描述
+collect-list.html(displayCollect)	收藏列表页面
+事务层：Collect.java 收藏类
+数据层：Collect.dat 收藏信息表
+
+=============四、需求分析报告=============
+引言
+1、编写目的
+需求说明书目的是使用户和软件开发者双方对该软件有一个共同的理解，使之成为整个开发工作的基础。便于用户、开发人员进行理解和交流，反映出用户问题的结构，可以作为软件开发工作的基础和依据，并作为确认测试和验收的依据。
+预期读者：软件设计者和测试者。
+
+2、背景
+说明：
+1.待开发的软件系统的名称：主题频道交流平台 
+2.本项目的任务提出者：马弈驰 赵奕程 高飞航 郑新冉；
+3.本项目的任务开发者：马弈驰 赵奕程 高飞航 郑新冉；
+4.用户：需要线上交流，寻找感兴趣主题的网民、需要统一管理的团队、需要传播信息，分享资源的博主
+5.实现该软件的计算中心或计算机网络：南京航空航天大学计算中心。
+
+3、定义
+名称	说明
+账号	用户注册时登记的用户名（手机号）及密码
+用户分类	用户、管理员
+账户信息管理	用户与管理员都可通过该模块对自己的信息进行增加、查询、修改、删除操作，分别对应注册、登录、修改用户信息及找回密码、注销，管理员拥有对所有用户的信息进行各项操作的权限
+创建主题频道	用户填写需要创建的主题频道的信息表单后送审
+修改主题频道信息	创建该频道的用户修改频道信息后送审
+审核主题频道信息	管理员审核用户待创建的主题频道信息，可以选择允许创建或拒绝创建
+解散主题频道	创建该频道的用户可以解散主题频道
+加入主题频道	所有用户可直接加入任意主题频道
+退出主题频道	用户可退出自己已加入的主题频道
+查看已加入频道	用户可以查看已加入的主题频道
+发布主题帖	频道成员可在已加入的主题频道下发布主题帖
+审核主题帖	管理员审核用户发布的主题帖，选择是否同意发布
+查看主题帖	任何用户可以查看主题帖的内容
+收藏主题帖	用户可以收藏感兴趣的主题帖
+取消收藏主题帖	用户可以取消已收藏的主题帖
+查看收藏	用户可以查看已收藏的主题帖
+修改主题帖	发布该主题帖的频道成员可以修改主题帖的内容
+删除主题帖	发布该主题帖的频道成员或频道管理员可以删除主题帖
+发表评论	频道成员可以在该主题频道的主题帖下发表评论或在主题帖下的评论下发表评论
+审核评论	管理员审核用户发表的评论
+查看评论	用户可以查看已发表的评论
+删除评论	发布该评论的频道成员或者频道管理员可以删除评论
+4、参考文献
+编号	参考资料	作者
+1	《软件工程（第四版）》，高等教育出版社，2019	齐治昌等
+
+二、界面设计
+
+
+1、OrdinaryUser类
+register.html	注册页面
+web：
+
+app:
+
+
+
+
+login.html	登录页面
+web:
+
+app:
+
+
+
+
+index.html	首页
+web:
+
+app:
+
+
+userinfo-detail.html	查看个人信息页面
+alert.html	注销提示弹窗页面
+web:
+
+app:
+
+
+userinfo-edit.html	个人信息编辑界面
+web:
+
+app:
+
+userpsd-edit.html	密码修改页面
+web:
+
+
+app:
+
+
+userpsd-forget.html	密码找回页面
+web:
+
+app:
+
+2、Administrator类
+audit-user.html	审核用户页面
+alert.html	注销提示弹窗页面
+web:
+
+app:
+
+
+
+
+audit-userdetail.html	审核用户详情页面
+alert.html	删除提示弹窗页面
+web:
+
+app:
+
+
+
+
+audit-forum.html	审核主题频道页面
+web:
+
+
+app:
+
+
+
+audit-comment.html	审核评论界面
+web:
+
+app:
+
+
+
+audit-themepost.html	审核主题帖页面
+web:
+
+
+app:
+
+
+
+3、ForumMember类
+joinforum-list.html	已加入的频道列表页面
+web:
+
+
+app:
+
+4、Forum类
+forum-edit.html	主题频道编辑页面
+web:
+
+app:
+
+
+forum-list.html	主题频道查询列表页面
+web:
+
+app:
+
+
+forum-detail.html	主题频道详情页面
+alert.html	解散频道提示弹窗页面
+web:
+
+app:
+
+5、ThemePost类
+post-edit.html	主题帖编辑页面
+web:
+
+app:
+
+
+post-detail.html(DisplayPost)	主题帖详情页面
+comment-edit.html(EditComment)	评论编辑页面
+comment-list.html(DisplayComment)	评论列表页面
+alert.html	删除提示弹窗页面
+web:
+
+app:
+
+
+
+6、Comment类
+comment-detail.html	评论详情页面
+
+web:
+
+app:
+
+7、Collect类
+collect-list.html	收藏列表页面
+web:
+
+app:
+
+三、事务逻辑设计
+1、OrdinaryUser类
+登录处理
+Procedure login
+Begin
+    choose the method of login
+    If (choose the Account password login) then
+        get the  phonenumber and userPassword from signin.html
+        find the password in the database
+        If (inputPassWord != Password indatabase )
+then
+            display error hint
+        Else
+            goto index.html
+        End if
+End login
+
+注册处理
+Procedure signup
+Begin
+    get the new_user's info from signup.html
+    find the  phonenumber in the database
+    If (the phonenumber existed in the database or twice password not same) then
+        show error hint
+    Else
+        send the verification to the user with SMS
+        get and check the verification from signupOrdinaryUser.html
+        If (the verification is not correct) then
+            show error hint and let the user try again
+        Else
+            add user's info to database
+            goto signin.html
+        End if
+    End if
+End signup
+
+修改个人信息处理
+Procedure changeUserInfo
+Begin 
+    get the changed userinfo from changeUserInfo.html
+    find the user and the user's info in database
+    input the new info into database
+    goto getUserInfo.html
+End changeUserInfo
+
+修改密码处理
+Procedure changepassword
+Begin
+    get the originalpassword from changepassword.html
+send the verification to the user with SMS
+    If the (verification is correct) then
+        get two new_password which is inputted by the user twice
+        If (the two new_password is the same) then
+            find the user's info in the database
+            change the old_password into the new password
+            goto getUserInfo.html
+        Else
+            show error hint
+        End if
+    Else
+        show error hint
+    End if
+End changepassword
+
+找回密码处理
+Procedure forgetPassword
+Begin
+if (forgetPassword()) then
+get info from account_entrybox
+if (account exists )then
+send the verification to the user with SMS
+    If the (verification is correct) then
+        get two new_password which is inputted by the user twice
+        If (the two new_password is the same) then
+Update the user's info in the database
+goto login.html
+        Else
+            show error hint
+        END if
+    Else
+        show error hint
+    END if
+Else
+show error hint
+END if
+END if
+End forgetPassword
+
+查询用户处理
+Procedure searchUser
+Begin
+   get the info in the search box
+If (info is empty) then 
+show error hint
+Else
+get info from database
+display result in searchUser.html
+End if
+End searchUser
+
+个人主页处理
+Procedure getUserInfo
+Begin
+If (login())
+get info from database
+displaty result in getUserInfo.html
+Else
+show error hint
+End if
+End getUserInfo
+
+注销账号处理
+Procedure deleteUser
+Begin
+    get the cancelUser submit from getUserInfo.html
+    show cancelUser.html
+    get the result from cancelUser.html
+    If (the reuslt is yes) then
+        find the user in database
+        delete the user data in the database
+        goto signin.html
+    Else
+        return to getUserInfo.html
+    End if
+End deleteUser
+2、Administrator类
+登录处理
+Procedure login
+Begin
+    choose the method of login
+    If (choose the Account password login) then
+        get the  phonenumber and userPassword from signin.html
+        find the  password in the database
+        If  (usermailbox exist but inputPassWord != Password indatabase )
+		 then
+            display error hint
+        Else
+            goto index.html
+        End if
+End login
+
+管理用户账号处理
+Procedure manageUser
+Begin
+   get the info in the search box
+If (info is empty) then 
+get all the user info in the database
+display the info in manageUser.html
+Else then
+search the corret info in database
+displaty result in manageUser.html
+End if
+End manageUser
+
+管理员审核(主题频道，主题帖，评论)处理
+Procedure Audit
+Begin
+    choose the type of audit action
+    If (the action is auditVolunteerActivity) then
+        goto auditVolunteerActivity.html
+        choose the designated auditVolunteerActivity.html info
+        get the submitted operation and perform operation   
+    Else if (the action is auditThemePost) then
+        goto auditThemePost.html
+        choose the designated auditThemePost info
+        get the submitted operation and perform operation 
+Else if (the action is Comment) then
+goto auditComment.html
+choose the designated auditThemePost info
+        get the submitted operation and perform operation 
+    End if
+End Audit
+3、ForumMember类
+查看已加入的频道
+PROCEDURE displayJoinForum
+BEGIN 
+get the userID in OridinaryUser database
+search userID in ForumMember databse
+For (the ForumID in search result)
+search the ForumID in Forum database
+If (the UserID in Forum database == UserID in OridinaryUser Database) 
+then 
+join the search result info in MyManager array
+Else then
+join the search result info in MyJoin array
+       End If
+End for
+dispaly the info in MyManager and MyJoin array in dispalyJoinForum.html
+END createActivity
+
+加入主题频道
+PROCEDURE joinForum
+BEGIN
+if (login() = true) then
+add UserID ForumID and Jointime in ForumMember database
+End If
+END joinForum
+
+退出主题频道
+PROCEDURE exitForum
+BEGIN
+if (login() &&ifForumMember()) then
+			delete info in ForumMember database
+END if
+END exitForum
+
+4、Forum类
+创建主题频道
+PROCEDURE addForum
+BEGIN
+If (login()=true) then
+			get the info in addForum.html
+get the action in button
+If (button is yes) then
+get the audit result form auditForum.html
+If (result is yes) then
+add the info to Forum database
+End If
+send audit result to user
+  	 	Else then
+goto index.html
+END If
+END addForum
+
+查看主题频道
+PROCEDURE DisplayForum
+BEGIN
+if (now at SearchForum.html) then
+get info from search Box
+search info from database
+display result in SearchForum.html
+else 
+get info from database
+display result in DisplayForum.html
+END if
+END DisplayForum
+
+编辑主题频道
+PROCEDURE editForum
+BEGIN
+If (login()=ture and UserID in Forum database = UserID login) then
+If (button is yes) then
+get the new_info in editForum.html
+update the new_info in Forum database
+Else
+goto DisplayForum.html
+End If
+End If
+END editForum
+
+解散主题频道
+PROCEDURE dismissForum
+BEGIN
+If (login()=ture and UserID in Forum database = UserID login) then
+get the action in dismissForum
+If (action is yes)then
+delete the info in Forum database
+send the message to ForumMember in ForumMember database
+Else then
+goto DisplayForum.html
+END If
+END If
+END dismissForum
+
+5、ThemePost类
+发布主题帖处理
+Procedure AddPost
+Begin
+If(Login() = true) then
+get info in addPost.html
+get audit result
+if (audit is yes) then
+add info in Post database
+else then
+send message to user
+End If
+End if
+End AddPost
+
+删除主题帖处理
+Procedure DeletePost
+Begin 
+If(login() = true)  then
+If (userId = UserID in Post database) then
+delete info in Post database
+End If
+End if
+End DeleteThemePost
+
+编辑主题帖处理
+PROCEDURE editPost
+BEGIN
+if (login()=true) then
+if (userId = UserID in Post database) then
+get info in editPost.html
+update info in Post database
+End If
+End If
+END editPost
+
+查看主题帖处理
+PROCEDURE DisplayPost
+BEGIN
+if (now at SearchPost.html) then
+get info in search Box
+search info from Post database
+display result in searchPost.html
+elif (get in any Forum)
+get info from database
+display result in DisplayPost.html
+else
+return
+END if
+END DisplayPost
+6、Collect类
+收藏/取消收藏处理
+Procedure Collect
+Begin 
+If(login()=true)  then
+Find the ThemePost
+Enter the ThemePost
+if (clickCollect()&&!collect) then
+add info to database
+elif (clickCollect()&&collect) then
+delete info from database
+else 
+return
+End if
+End Collect
+
+查看收藏处理
+Procedure DisplayCollect
+Begin 
+If(login()=true)  then
+get info from database
+display result in DisplayCollect.html
+End if
+End DisplayCollect
+
+7、Comment类
+发表评论
+Procedure publishComment
+Begin 
+If(login()=true)  then
+Find the ThemePost
+Enter the ThemePost
+Enter the comment
+End if
+End publishComment
+
+删除评论
+Procedure deleteComment
+Begin 
+If(login()=true)  then
+Find the ThemePost
+Enter the ThemePost
+Find the comment
+Click delete
+End if
+End deleteComment
+
+查看评论
+Procedure DisplayComment
+Begin
+if(login()=true)	then
+Find the ThemePost
+Enter the ThemePost
+display result in DisplayComment.html
+End if
+End DisplayComment
+

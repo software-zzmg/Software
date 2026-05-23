@@ -18,6 +18,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.zzmg.topic_channel_platform.adapter.CommentAdapter;
 import com.zzmg.topic_channel_platform.api.PostApi;
@@ -46,6 +47,7 @@ public class PostDetailActivity extends AppCompatActivity {
 
     private long postId;
     private boolean isCollected;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,7 +56,8 @@ public class PostDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_post_detail);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            int dp20 = (int) (20 * getResources().getDisplayMetrics().density);
+            v.setPadding(dp20, systemBars.top, dp20, systemBars.bottom);
             return insets;
         });
 
@@ -75,7 +78,7 @@ public class PostDetailActivity extends AppCompatActivity {
 
         postId = getIntent().getLongExtra("postId", -1);
         if (postId == -1) {
-            Toast.makeText(this, "Invalid post ID", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "无效的帖子 ID", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
@@ -93,6 +96,15 @@ public class PostDetailActivity extends AppCompatActivity {
         findViewById(R.id.btn_submit).setOnClickListener(v -> submitComment());
 
         com.zzmg.topic_channel_platform.helper.BottomNavHelper.setup(this, "detail");
+
+        findViewById(R.id.btn_back).setOnClickListener(v -> finish());
+
+        swipeRefreshLayout = findViewById(R.id.swipe_refresh);
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            loadPostDetail(postId);
+            loadComments(postId);
+            loadCollectStatus(postId);
+        });
 
         loadPostDetail(postId);
         loadComments(postId);
@@ -113,6 +125,7 @@ public class PostDetailActivity extends AppCompatActivity {
         postApi.getCollectStatus(postId).enqueue(new Callback<CollectStatusResponse>() {
             @Override
             public void onResponse(Call<CollectStatusResponse> call, Response<CollectStatusResponse> response) {
+                swipeRefreshLayout.setRefreshing(false);
                 if (response.code() == 401) {
                     return;
                 }
@@ -123,13 +136,14 @@ public class PostDetailActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<CollectStatusResponse> call, Throwable t) {
+                swipeRefreshLayout.setRefreshing(false);
             }
         });
     }
 
     private void updateCollectUI(boolean collected) {
         isCollected = collected;
-        btnCollect.setText(collected ? "Collected" : "Collect");
+        btnCollect.setText(collected ? "已收藏" : "收藏");
     }
 
     private class CollectCallback implements Callback<ApiResponse> {
@@ -150,7 +164,7 @@ public class PostDetailActivity extends AppCompatActivity {
 
         @Override
         public void onFailure(Call<ApiResponse> call, Throwable t) {
-            Toast.makeText(PostDetailActivity.this, "Failed: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(PostDetailActivity.this, "网络错误: " + t.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -179,13 +193,13 @@ public class PostDetailActivity extends AppCompatActivity {
                                 Toast.makeText(PostDetailActivity.this, res.getMessage(), Toast.LENGTH_SHORT).show();
                             }
                         } else {
-                            Toast.makeText(PostDetailActivity.this, "Error: " + response.code(), Toast.LENGTH_SHORT).show();
+                            Toast.makeText(PostDetailActivity.this, "加载失败: " + response.code(), Toast.LENGTH_SHORT).show();
                         }
                     }
 
                     @Override
                     public void onFailure(Call<ApiResponse> call, Throwable t) {
-                        Toast.makeText(PostDetailActivity.this, "Failed: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(PostDetailActivity.this, "网络错误: " + t.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -195,6 +209,7 @@ public class PostDetailActivity extends AppCompatActivity {
         postApi.getPostDetail(postId).enqueue(new Callback<PostDetail>() {
             @Override
             public void onResponse(Call<PostDetail> call, Response<PostDetail> response) {
+                swipeRefreshLayout.setRefreshing(false);
                 if (response.isSuccessful() && response.body() != null) {
                     PostDetail post = response.body();
                     tvTitle.setText(post.getTitle());
@@ -203,14 +218,15 @@ public class PostDetailActivity extends AppCompatActivity {
                     tvTime.setText(post.getPublishTime());
                     tvContent.setText(post.getContent());
                 } else {
-                    Toast.makeText(PostDetailActivity.this, "Post not found", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(PostDetailActivity.this, "帖子不存在", Toast.LENGTH_SHORT).show();
                     finish();
                 }
             }
 
             @Override
             public void onFailure(Call<PostDetail> call, Throwable t) {
-                Toast.makeText(PostDetailActivity.this, "Failed: " + t.getMessage(), Toast.LENGTH_LONG).show();
+                swipeRefreshLayout.setRefreshing(false);
+                Toast.makeText(PostDetailActivity.this, "网络错误: " + t.getMessage(), Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -220,6 +236,7 @@ public class PostDetailActivity extends AppCompatActivity {
         postApi.getComments(postId).enqueue(new Callback<List<CommentItem>>() {
             @Override
             public void onResponse(Call<List<CommentItem>> call, Response<List<CommentItem>> response) {
+                swipeRefreshLayout.setRefreshing(false);
                 if (response.isSuccessful() && response.body() != null) {
                     commentAdapter.setComments(response.body());
                     boolean empty = response.body().isEmpty();
@@ -233,7 +250,8 @@ public class PostDetailActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<List<CommentItem>> call, Throwable t) {
-                tvNoComments.setText("Failed to load comments");
+                swipeRefreshLayout.setRefreshing(false);
+                tvNoComments.setText("加载评论失败");
                 tvNoComments.setVisibility(View.VISIBLE);
                 rvComments.setVisibility(View.GONE);
             }

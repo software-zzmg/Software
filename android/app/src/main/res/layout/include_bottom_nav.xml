@@ -1,41 +1,162 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="56dp"
-    android:orientation="horizontal"
-    android:background="?android:attr/colorBackground"
-    android:elevation="8dp">
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/surface">
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_nav_create"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:text="Create"
-        style="@style/Widget.Material3.Button.TextButton" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@color/divider" />
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_nav_home"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:text="Home"
-        style="@style/Widget.Material3.Button.TextButton" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/bottom_nav_height"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp">
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_nav_forums"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:text="Forums"
-        style="@style/Widget.Material3.Button.TextButton" />
+        <LinearLayout
+            android:id="@+id/nav_forums"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground">
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_nav_me"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:layout_weight="1"
-        android:text="Me"
-        style="@style/Widget.Material3.Button.TextButton" />
+            <ImageView
+                android:id="@+id/iv_nav_forums"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/baseline_forum_24"
+                android:contentDescription="频道" />
+
+            <TextView
+                android:id="@+id/tv_nav_forums"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="频道"
+                android:textSize="11sp"
+                android:textColor="@color/nav_inactive"
+                android:layout_marginTop="2dp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/nav_home"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground">
+
+            <ImageView
+                android:id="@+id/iv_nav_home"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/baseline_home_24"
+                android:contentDescription="首页" />
+
+            <TextView
+                android:id="@+id/tv_nav_home"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="首页"
+                android:textSize="11sp"
+                android:textColor="@color/nav_inactive"
+                android:layout_marginTop="2dp" />
+
+        </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_nav_create"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+
+            app:icon="@drawable/baseline_add_24"
+            app:iconGravity="textTop"
+            app:iconSize="28dp"
+
+            android:padding="7dp"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:insetLeft="0dp"
+            android:insetRight="0dp"
+
+            app:cornerRadius="16dp"
+            app:backgroundTint="@color/primary"
+            android:layout_marginStart="4dp"
+            android:layout_marginEnd="4dp" />
+
+        <LinearLayout
+            android:id="@+id/nav_collects"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground">
+
+            <ImageView
+                android:id="@+id/iv_nav_collects"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/baseline_bookmark_24"
+                android:contentDescription="收藏" />
+
+            <TextView
+                android:id="@+id/tv_nav_collects"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="收藏"
+                android:textSize="11sp"
+                android:textColor="@color/nav_inactive"
+                android:layout_marginTop="2dp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/nav_me"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground">
+
+            <ImageView
+                android:id="@+id/iv_nav_me"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/baseline_person_24"
+                android:contentDescription="我的" />
+
+            <TextView
+                android:id="@+id/tv_nav_me"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="我的"
+                android:textSize="11sp"
+                android:textColor="@color/nav_inactive"
+                android:layout_marginTop="2dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
 
 </LinearLayout>

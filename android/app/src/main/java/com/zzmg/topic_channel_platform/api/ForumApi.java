@@ -1,6 +1,7 @@
 package com.zzmg.topic_channel_platform.api;
 
 import com.zzmg.topic_channel_platform.model.ApiResponse;
+import com.zzmg.topic_channel_platform.model.ForumCreateRequest;
 import com.zzmg.topic_channel_platform.model.ForumDetail;
 import com.zzmg.topic_channel_platform.model.ForumItem;
 import com.zzmg.topic_channel_platform.model.ForumListItem;
@@ -9,6 +10,7 @@ import com.zzmg.topic_channel_platform.model.PostListItem;
 import java.util.List;
 
 import retrofit2.Call;
+import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
@@ -31,4 +33,7 @@ public interface ForumApi {
 
     @POST("/api/forums/{id}/leave")
     Call<ApiResponse> leave(@Path("id") Long id);
+
+    @POST("/api/forums")
+    Call<ApiResponse> createForum(@Body ForumCreateRequest request);
 }
