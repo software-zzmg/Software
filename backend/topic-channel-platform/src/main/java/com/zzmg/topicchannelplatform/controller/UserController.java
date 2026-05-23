@@ -118,18 +118,24 @@ public class UserController {
 
     @PostMapping("/register/send-code")
     public String sendRegisterCode(@RequestParam String phoneNumber,
+                                   @RequestParam String email,
                                    HttpSession session,
                                    Model model) {
         model.addAttribute("phoneNumber", phoneNumber);
+        model.addAttribute("email", email);
         if (!phoneNumber.matches("1\\d{10}")) {
             model.addAttribute("error", "手机号格式错误");
+            return "user/register";
+        }
+        if (email == null || !email.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
+            model.addAttribute("error", "邮箱格式错误");
             return "user/register";
         }
         if (userService.findByPhone(phoneNumber).isPresent()) {
             model.addAttribute("error", "该手机号已被注册");
             return "user/register";
         }
-        String sendError = verificationCodeService.sendCode("register", phoneNumber, session);
+        String sendError = verificationCodeService.sendCode("register", email, session);
         if (sendError != null) {
             model.addAttribute("error", sendError);
             return "user/register";
@@ -140,6 +146,7 @@ public class UserController {
 
     @PostMapping("/register")
     public String register(@RequestParam String phoneNumber,
+                           @RequestParam String email,
                            @RequestParam String userName,
                            @RequestParam String userPassword,
                            @RequestParam String confirmPassword,
@@ -147,13 +154,14 @@ public class UserController {
                            HttpSession session,
                            Model model) {
         model.addAttribute("phoneNumber", phoneNumber);
+        model.addAttribute("email", email);
         model.addAttribute("userName", userName);
         if (!userPassword.equals(confirmPassword)) {
             model.addAttribute("error", "两次输入的密码不一致");
             model.addAttribute("codeSent", true);
             return "user/register";
         }
-        String error = verificationCodeService.validate("register", phoneNumber,
+        String error = verificationCodeService.validate("register", email,
                 verificationCode, session);
         if (error != null) {
             model.addAttribute("error", error);
@@ -234,44 +242,69 @@ public class UserController {
 
     @PostMapping("/password/forgot/send-code")
     public String sendResetCode(@RequestParam String phoneNumber,
+                                @RequestParam String email,
                                 HttpSession session,
                                 Model model) {
         model.addAttribute("phoneNumber", phoneNumber);
+        model.addAttribute("email", email);
+        if (phoneNumber == null || !phoneNumber.matches("1\\d{10}")) {
+            model.addAttribute("error", "手机号格式错误");
+            return "user/userpsd-forget";
+        }
+        if (email == null || !email.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
+            model.addAttribute("error", "邮箱格式错误");
+            return "user/userpsd-forget";
+        }
         if (userService.findByPhone(phoneNumber).isEmpty()) {
             model.addAttribute("error", "该手机号未注册");
             return "user/userpsd-forget";
         }
-        String sendError = verificationCodeService.sendCode("reset", phoneNumber, session);
+        String sendError = verificationCodeService.sendCodeForReset(phoneNumber, email, session);
         if (sendError != null) {
             model.addAttribute("error", sendError);
             return "user/userpsd-forget";
         }
+        session.setAttribute("resetPhoneNumber", phoneNumber);
+        session.setAttribute("resetEmail", email);
         model.addAttribute("resetPhone", phoneNumber);
+        model.addAttribute("resetEmail", email);
         model.addAttribute("codeSent", true);
         return "user/userpsd-forget";
     }
 
     @PostMapping("/password/reset")
     public String resetPassword(@RequestParam String phoneNumber,
+                                @RequestParam String email,
                                 @RequestParam String newPassword,
                                 @RequestParam String confirmPassword,
                                 @RequestParam String verificationCode,
                                 HttpSession session,
                                 Model model) {
         model.addAttribute("phoneNumber", phoneNumber);
+        model.addAttribute("email", email);
         model.addAttribute("resetPhone", phoneNumber);
+        model.addAttribute("resetEmail", email);
         model.addAttribute("codeSent", true);
+        String storedPhone = (String) session.getAttribute("resetPhoneNumber");
+        String storedEmail = (String) session.getAttribute("resetEmail");
+        if (storedPhone == null || !storedPhone.equals(phoneNumber)
+                || storedEmail == null || !storedEmail.equals(email)) {
+            model.addAttribute("error", "请重新获取验证码");
+            return "user/userpsd-forget";
+        }
         if (!newPassword.equals(confirmPassword)) {
             model.addAttribute("error", "两次输入的密码不一致");
             return "user/userpsd-forget";
         }
-        String error = verificationCodeService.validate("reset", phoneNumber,
+        String error = verificationCodeService.validateForReset(phoneNumber,
                 verificationCode, session);
         if (error != null) {
             model.addAttribute("error", error);
             return "user/userpsd-forget";
         }
         userService.resetPassword(phoneNumber, newPassword);
+        session.removeAttribute("resetPhoneNumber");
+        session.removeAttribute("resetEmail");
         return "redirect:/user/login";
     }
 

@@ -1,10 +1,10 @@
 package com.zzmg.topic_channel_platform.model;
 
-public class SendCodeRequest {
+public class SendCodeRequestAndroid {
     private String phoneNumber;
     private String email;
 
-    public SendCodeRequest(String phoneNumber, String email) {
+    public SendCodeRequestAndroid(String phoneNumber, String email) {
         this.phoneNumber = phoneNumber;
         this.email = email;
     }
