@@ -211,7 +211,7 @@ public class ApiUserController {
     public ResponseEntity<Map<String, Object>> sendRegisterCode(
             @RequestBody SendCodeRequest request, HttpSession session) {
         String email = request.getEmail();
-        if (email == null || !email.contains("@")) {
+        if (email == null || !email.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
             return ResponseEntity.badRequest()
                     .body(Map.of("success", false, "message", "邮箱格式错误"));
         }
@@ -237,7 +237,7 @@ public class ApiUserController {
             return ResponseEntity.badRequest()
                     .body(Map.of("success", false, "message", "手机号格式错误"));
         }
-        if (email == null || !email.contains("@")) {
+        if (email == null || !email.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
             return ResponseEntity.badRequest()
                     .body(Map.of("success", false, "message", "邮箱格式错误"));
         }
@@ -287,7 +287,7 @@ public class ApiUserController {
             return ResponseEntity.badRequest()
                     .body(Map.of("success", false, "message", "手机号格式错误"));
         }
-        if (email == null || !email.contains("@")) {
+        if (email == null || !email.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
             return ResponseEntity.badRequest()
                     .body(Map.of("success", false, "message", "邮箱格式错误"));
         }
@@ -317,7 +317,7 @@ public class ApiUserController {
             return ResponseEntity.badRequest()
                     .body(Map.of("success", false, "message", "手机号格式错误"));
         }
-        if (email == null || !email.contains("@")) {
+        if (email == null || !email.matches("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$")) {
             return ResponseEntity.badRequest()
                     .body(Map.of("success", false, "message", "邮箱格式错误"));
         }

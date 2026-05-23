@@ -3,6 +3,9 @@ spring:
     url: jdbc:mysql://localhost:3306/topic_channel_platform?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&createDatabaseIfNotExist=true
     username: root
     password: 1234
+  mail:
+    username: 1278276395@qq.com
+    password: xtyvvjgloehljhhh
 
 mail:
   mock: false
