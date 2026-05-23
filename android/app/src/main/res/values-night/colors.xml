@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base -->
+    <color name="white">#FFFFFFFF</color>
+
+    <!-- Brand -->
+    <color name="primary">#3B82F6</color>
+    <color name="primary_dark">#2563EB</color>
+    <color name="primary_light">#1E3A5F</color>
+
+    <!-- Background -->
+    <color name="background">#0F172A</color>
+    <color name="surface">#111827</color>
+    <color name="surface_secondary">#1E293B</color>
+
+    <!-- Text -->
+    <color name="text_primary">#F3F4F6</color>
+    <color name="text_secondary">#9CA3AF</color>
+
+    <!-- Divider & nav -->
+    <color name="divider">#334155</color>
+    <color name="nav_inactive">#9CA3AF</color>
+
+    <!-- Status -->
+    <color name="secondary">#818CF8</color>
+    <color name="secondary_dark">#6366F1</color>
+    <color name="secondary_container">#1E1B4B</color>
+    <color name="error">#EF4444</color>
+    <color name="error_container">#450A0A</color>
+    <color name="success">#22C55E</color>
+    <color name="collect">#EF4444</color>
+</resources>

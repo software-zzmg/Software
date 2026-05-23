@@ -8,10 +8,15 @@
     <color name="primary_light">#DBEAFE</color>
     <color name="background">#F8FAFC</color>
     <color name="surface">#FFFFFF</color>
+    <color name="surface_secondary">#F1F5F9</color>
     <color name="text_primary">#1F2937</color>
     <color name="text_secondary">#6B7280</color>
     <color name="divider">#E5E7EB</color>
+    <color name="secondary">#6366F1</color>
+    <color name="secondary_dark">#4F46E5</color>
+    <color name="secondary_container">#E0E7FF</color>
     <color name="error">#DC2626</color>
+    <color name="error_container">#FEE2E2</color>
     <color name="success">#16A34A</color>
     <color name="collect">#EF4444</color>
     <color name="nav_inactive">#6B7280</color>
