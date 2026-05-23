@@ -36,6 +36,20 @@ spring:
     suffix: .html
     # 开发期关闭缓存，方便修改模板后即时刷新
     cache: false
+
+  mail:
+    host: ${MAIL_HOST:smtp.qq.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+
+mail:
+  # mock: true
+  mock: false
+
   
 server:
   servlet:
