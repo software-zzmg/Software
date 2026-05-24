@@ -61,6 +61,7 @@ public class ThemePostController {
             model.addAttribute("post", post);
             model.addAttribute("currentUserId", userId);
             model.addAttribute("isAuthor", isAuthor);
+            model.addAttribute("isForumCreator", isForumCreator);
             model.addAttribute("isMember", userId != null && forumMemberService.isMember(userId, post.getForum().getForumId()));
             model.addAttribute("isCollected", userId != null && collectService.isCollected(userId, postId));
             List<Comment> comments = commentService.findByThemePostId(postId);
@@ -200,7 +201,7 @@ public class ThemePostController {
         Long forumId = postService.findById(postId)
                 .map(p -> p.getForum().getForumId())
                 .orElse(null);
-        if (postService.isAuthor(userId, postId)) {
+        if (postService.canDelete(userId, postId)) {
             postService.deleteById(postId);
         }
         if (isAjax) {

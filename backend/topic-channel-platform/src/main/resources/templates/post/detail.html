@@ -17,10 +17,10 @@
 
     <div class="card" style="position:relative;">
         <!-- 三点菜单按钮 -->
-        <div th:if="${isAuthor}" class="forum-dots" style="position:absolute;top:12px;right:12px;" th:attr="data-post-id=${post.themePostId}">
+        <div th:if="${isAuthor || isForumCreator}" class="forum-dots" style="position:absolute;top:12px;right:12px;" th:attr="data-post-id=${post.themePostId}">
             <button id="post-dots-btn" class="forum-dots-btn">&#8943;</button>
             <div id="post-dots-menu" class="forum-dots-menu">
-                <a href="javascript:void(0)" id="menu-edit-post">编辑帖子</a>
+                <a th:if="${isAuthor}" href="javascript:void(0)" id="menu-edit-post">编辑帖子</a>
                 <button class="danger" id="menu-delete-post">删除帖子</button>
             </div>
         </div>
@@ -111,7 +111,64 @@
         </div>
     </div>
 
-    <script th:if="${isAuthor}">
+    <script>
+    (function() {
+        function showToast(msg) {
+            var t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
+            document.body.appendChild(t);
+            setTimeout(function() { t.style.opacity = '0'; setTimeout(function() { t.remove(); }, 500); }, 2500);
+        }
+
+        // 确认弹窗
+        var confirmModal = document.getElementById('modal-confirm');
+        var confirmTitle = document.getElementById('confirm-title');
+        var confirmMsg = document.getElementById('confirm-msg');
+        var confirmBtn = document.getElementById('btn-confirm-ok');
+        var confirmCancel = document.getElementById('btn-confirm-cancel');
+        var confirmCallback = null;
+        function showConfirm(title, msg, cb) {
+            confirmTitle.textContent = title; confirmMsg.textContent = msg; confirmCallback = cb;
+            confirmModal.classList.add('active');
+        }
+        function hideConfirm() { confirmModal.classList.remove('active'); }
+        confirmCancel.addEventListener('click', hideConfirm);
+        confirmModal.addEventListener('click', function(e) { if (e.target === confirmModal) hideConfirm(); });
+        confirmBtn.addEventListener('click', function() { if (confirmCallback) { confirmCallback(); hideConfirm(); } });
+
+        // 评论三点菜单 - 事件委托
+        document.addEventListener('click', function(e) {
+            var btn = e.target.closest('.comment-dots-btn');
+            if (btn) {
+                e.stopPropagation();
+                var menu = btn.parentElement.querySelector('.comment-dots-menu');
+                var wasActive = menu.classList.contains('active');
+                document.querySelectorAll('.comment-dots-menu.active').forEach(function(m) { m.classList.remove('active'); });
+                if (!wasActive) menu.classList.add('active');
+                return;
+            }
+            var del = e.target.closest('.btn-delete-comment');
+            if (del) {
+                var cid = del.getAttribute('data-id');
+                document.querySelectorAll('.comment-dots-menu.active').forEach(function(m) { m.classList.remove('active'); });
+                showConfirm('删除评论', '确定要删除该评论吗？', function() {
+                    fetch('/comment/delete', {
+                        method:'POST',
+                        headers:{'X-Requested-With':'XMLHttpRequest','Content-Type':'application/x-www-form-urlencoded'},
+                        body:'commentId=' + encodeURIComponent(cid)
+                    })
+                    .then(function(r) { return r.json(); })
+                    .then(function(d) { if (d.success) { showToast(d.toast); location.reload(); } });
+                });
+                return;
+            }
+            if (!e.target.closest('.comment-dots-btn')) {
+                document.querySelectorAll('.comment-dots-menu.active').forEach(function(m) { m.classList.remove('active'); });
+            }
+        });
+    })();
+    </script>
+
+    <script th:if="${isAuthor || isForumCreator}">
     (function() {
         // 三点菜单
         var dotsBtn = document.getElementById('post-dots-btn');
@@ -150,68 +207,40 @@
         confirmModal.addEventListener('click', function(e) { if (e.target === confirmModal) hideConfirm(); });
         confirmBtn.addEventListener('click', function() { if (confirmCallback) { confirmCallback(); hideConfirm(); } });
 
-        // 编辑帖子
-        var editModal = document.getElementById('modal-edit-post');
-        var editForm = document.getElementById('form-edit-post');
-        var editError = document.getElementById('modal-edit-error');
-        var editBtnCancel = document.getElementById('btn-cancel-edit');
-        var originalTitle = editForm.querySelector('[name="title"]').value;
-        var originalContent = editForm.querySelector('[name="content"]').value;
-        function openEdit() { editModal.classList.add('active'); }
-        function closeEdit() {
-            editModal.classList.remove('active');
-            editForm.querySelector('[name="title"]').value = originalTitle;
-            editForm.querySelector('[name="content"]').value = originalContent;
-            editError.style.display = 'none'; editError.textContent = '';
-        }
-        document.getElementById('menu-edit-post').addEventListener('click', openEdit);
-        editBtnCancel.addEventListener('click', closeEdit);
-        editModal.addEventListener('click', function(e) { if (e.target === editModal) closeEdit(); });
-        editForm.addEventListener('submit', function() {
-            editError.style.display = 'none';
-            var p = new URLSearchParams(new FormData(editForm)).toString();
-            fetch('/post/edit', { method:'POST', headers:{'X-Requested-With':'XMLHttpRequest','Content-Type':'application/x-www-form-urlencoded'}, body:p })
-            .then(function(r) { return r.json(); })
-            .then(function(d) {
-                if (d.success) {
-                    originalTitle = editForm.querySelector('[name="title"]').value;
-                    originalContent = editForm.querySelector('[name="content"]').value;
-                    closeEdit(); showToast(d.toast);
-                    setTimeout(function() { location.reload(); }, 800);
-                } else { editError.textContent = d.error || '编辑失败'; editError.style.display = 'block'; }
-            });
-        });
-
-        // 评论三点菜单 - 事件委托
-        document.addEventListener('click', function(e) {
-            var btn = e.target.closest('.comment-dots-btn');
-            if (btn) {
-                e.stopPropagation();
-                var menu = btn.parentElement.querySelector('.comment-dots-menu');
-                var wasActive = menu.classList.contains('active');
-                document.querySelectorAll('.comment-dots-menu.active').forEach(function(m) { m.classList.remove('active'); });
-                if (!wasActive) menu.classList.add('active');
-                return;
+        // 编辑帖子（仅作者可见）
+        var menuEdit = document.getElementById('menu-edit-post');
+        if (menuEdit) {
+            var editModal = document.getElementById('modal-edit-post');
+            var editForm = document.getElementById('form-edit-post');
+            var editError = document.getElementById('modal-edit-error');
+            var editBtnCancel = document.getElementById('btn-cancel-edit');
+            var originalTitle = editForm.querySelector('[name="title"]').value;
+            var originalContent = editForm.querySelector('[name="content"]').value;
+            function openEdit() { editModal.classList.add('active'); }
+            function closeEdit() {
+                editModal.classList.remove('active');
+                editForm.querySelector('[name="title"]').value = originalTitle;
+                editForm.querySelector('[name="content"]').value = originalContent;
+                editError.style.display = 'none'; editError.textContent = '';
             }
-            var del = e.target.closest('.btn-delete-comment');
-            if (del) {
-                var cid = del.getAttribute('data-id');
-                document.querySelectorAll('.comment-dots-menu.active').forEach(function(m) { m.classList.remove('active'); });
-                showConfirm('删除评论', '确定要删除该评论吗？', function() {
-                    fetch('/comment/delete', {
-                        method:'POST',
-                        headers:{'X-Requested-With':'XMLHttpRequest','Content-Type':'application/x-www-form-urlencoded'},
-                        body:'commentId=' + encodeURIComponent(cid)
-                    })
-                    .then(function(r) { return r.json(); })
-                    .then(function(d) { if (d.success) { showToast(d.toast); location.reload(); } });
+            menuEdit.addEventListener('click', openEdit);
+            editBtnCancel.addEventListener('click', closeEdit);
+            editModal.addEventListener('click', function(e) { if (e.target === editModal) closeEdit(); });
+            editForm.addEventListener('submit', function() {
+                editError.style.display = 'none';
+                var p = new URLSearchParams(new FormData(editForm)).toString();
+                fetch('/post/edit', { method:'POST', headers:{'X-Requested-With':'XMLHttpRequest','Content-Type':'application/x-www-form-urlencoded'}, body:p })
+                .then(function(r) { return r.json(); })
+                .then(function(d) {
+                    if (d.success) {
+                        originalTitle = editForm.querySelector('[name="title"]').value;
+                        originalContent = editForm.querySelector('[name="content"]').value;
+                        closeEdit(); showToast(d.toast);
+                        setTimeout(function() { location.reload(); }, 800);
+                    } else { editError.textContent = d.error || '编辑失败'; editError.style.display = 'block'; }
                 });
-                return;
-            }
-            if (!e.target.closest('.comment-dots-btn')) {
-                document.querySelectorAll('.comment-dots-menu.active').forEach(function(m) { m.classList.remove('active'); });
-            }
-        });
+            });
+        }
 
         // 删除帖子
         document.getElementById('menu-delete-post').addEventListener('click', function() {
