@@ -95,7 +95,10 @@ public class ApiPostController {
                         p.getAuthor().getUserName(),
                         p.getForum().getForumName(),
                         p.getPublishTime(),
-                        userId != null && userId.equals(p.getAuthor().getUserId())
+                        userId != null && (
+                            userId.equals(p.getAuthor().getUserId())
+                            || userId.equals(p.getForum().getCreator().getUserId())
+                        )
                 )))
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -147,9 +150,10 @@ public class ApiPostController {
         if (post == null || !"审核通过".equals(post.getAuditState())) {
             return ResponseEntity.notFound().build();
         }
-        if (!userId.equals(post.getAuthor().getUserId())) {
+        if (!userId.equals(post.getAuthor().getUserId())
+                && !userId.equals(post.getForum().getCreator().getUserId())) {
             return ResponseEntity.status(403)
-                    .body(Map.of("success", false, "message", "只能删除自己的帖子"));
+                    .body(Map.of("success", false, "message", "无权删除此帖子"));
         }
         postService.deleteById(id);
         return ResponseEntity.ok(Map.of("success", true, "message", "帖子已删除"));

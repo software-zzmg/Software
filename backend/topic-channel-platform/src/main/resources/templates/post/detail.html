@@ -17,10 +17,10 @@
 
     <div class="card" style="position:relative;">
         <!-- 三点菜单按钮 -->
-        <div th:if="${isAuthor}" class="forum-dots" style="position:absolute;top:12px;right:12px;" th:attr="data-post-id=${post.themePostId}">
+        <div th:if="${isAuthor || isForumCreator}" class="forum-dots" style="position:absolute;top:12px;right:12px;" th:attr="data-post-id=${post.themePostId}">
             <button id="post-dots-btn" class="forum-dots-btn">&#8943;</button>
             <div id="post-dots-menu" class="forum-dots-menu">
-                <a href="javascript:void(0)" id="menu-edit-post">编辑帖子</a>
+                <a th:if="${isAuthor}" href="javascript:void(0)" id="menu-edit-post">编辑帖子</a>
                 <button class="danger" id="menu-delete-post">删除帖子</button>
             </div>
         </div>
@@ -111,7 +111,7 @@
         </div>
     </div>
 
-    <script th:if="${isAuthor}">
+    <script th:if="${isAuthor || isForumCreator}">
     (function() {
         // 三点菜单
         var dotsBtn = document.getElementById('post-dots-btn');
