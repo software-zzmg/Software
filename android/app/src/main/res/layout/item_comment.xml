@@ -27,6 +27,18 @@
             android:textSize="11sp"
             android:textColor="@color/text_secondary" />
 
+        <TextView
+            android:id="@+id/tv_comment_delete"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:text="@string/delete_comment"
+            android:textSize="11sp"
+            android:textColor="@color/error"
+            android:visibility="gone"
+            android:clickable="true"
+            android:focusable="true" />
+
     </LinearLayout>
 
     <TextView

@@ -141,7 +141,7 @@ public class ForumController {
                 forumService.update(forum);
             }
         });
-        if (isAjax) { writeJson(response, "{\"success\":true,\"toast\":\"频道信息已更新\"}"); return null; }
+        if (isAjax) { writeJson(response, "{\"success\":true,\"toast\":\"修改成功，待审核通过后生效\"}"); return null; }
         return "redirect:/forum/detail/" + forumId;
     }
 

@@ -17,6 +17,15 @@ import java.util.List;
 public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHolder> {
 
     private final List<CommentItem> comments = new ArrayList<>();
+    private OnDeleteListener onDeleteListener;
+
+    public interface OnDeleteListener {
+        void onDelete(CommentItem comment, int position);
+    }
+
+    public void setOnDeleteListener(OnDeleteListener listener) {
+        this.onDeleteListener = listener;
+    }
 
     public void setComments(List<CommentItem> comments) {
         this.comments.clear();
@@ -24,6 +33,13 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
             this.comments.addAll(comments);
         }
         notifyDataSetChanged();
+    }
+
+    public void removeAt(int position) {
+        if (position >= 0 && position < comments.size()) {
+            comments.remove(position);
+            notifyItemRemoved(position);
+        }
     }
 
     @NonNull
@@ -40,6 +56,12 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
         holder.tvAuthor.setText(comment.getAuthorName());
         holder.tvTime.setText(comment.getPublishTime());
         holder.tvContent.setText(comment.getContent());
+        holder.tvDelete.setVisibility(comment.isCanDelete() ? View.VISIBLE : View.GONE);
+        holder.tvDelete.setOnClickListener(v -> {
+            if (onDeleteListener != null) {
+                onDeleteListener.onDelete(comment, holder.getAdapterPosition());
+            }
+        });
     }
 
     @Override
@@ -48,13 +70,14 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.ViewHold
     }
 
     static class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvAuthor, tvTime, tvContent;
+        TextView tvAuthor, tvTime, tvContent, tvDelete;
 
         ViewHolder(View itemView) {
             super(itemView);
             tvAuthor = itemView.findViewById(R.id.tv_comment_author);
             tvTime = itemView.findViewById(R.id.tv_comment_time);
             tvContent = itemView.findViewById(R.id.tv_comment_content);
+            tvDelete = itemView.findViewById(R.id.tv_comment_delete);
         }
     }
 }

@@ -288,7 +288,7 @@
         </p>
         <p th:text="${c.content}"></p>
         <!-- 评论删除三点 -->
-        <div th:if="${currentUserId != null && (currentUserId == c.author.userId || isAuthor)}"
+        <div th:if="${currentUserId != null && (currentUserId == c.author.userId || isAuthor || isForumCreator)}"
              class="forum-dots" style="position:absolute;top:8px;right:8px;">
             <button class="forum-dots-btn comment-dots-btn">&#8943;</button>
             <div class="forum-dots-menu comment-dots-menu">

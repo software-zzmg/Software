@@ -1,7 +1,9 @@
 package com.zzmg.topic_channel_platform;
 
 import android.os.Bundle;
+import androidx.appcompat.app.AlertDialog;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.widget.Button;
@@ -22,10 +24,12 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.zzmg.topic_channel_platform.adapter.CommentAdapter;
 import com.zzmg.topic_channel_platform.api.PostApi;
+import com.google.gson.Gson;
 import com.zzmg.topic_channel_platform.model.ApiResponse;
 import com.zzmg.topic_channel_platform.model.CollectStatusResponse;
 import com.zzmg.topic_channel_platform.model.CommentCreateRequest;
 import com.zzmg.topic_channel_platform.model.CommentItem;
+import com.zzmg.topic_channel_platform.model.PostCreateRequest;
 import com.zzmg.topic_channel_platform.model.PostDetail;
 import com.zzmg.topic_channel_platform.network.RetrofitClient;
 
@@ -43,7 +47,7 @@ public class PostDetailActivity extends AppCompatActivity {
     private CommentAdapter commentAdapter;
     private TextInputLayout tilComment;
     private EditText etComment;
-    private Button btnCollect;
+    private Button btnCollect, btnEditPost, btnDeletePost;
 
     private long postId;
     private boolean isCollected;
@@ -71,9 +75,12 @@ public class PostDetailActivity extends AppCompatActivity {
         tilComment = findViewById(R.id.til_comment);
         etComment = findViewById(R.id.et_comment);
         btnCollect = findViewById(R.id.btn_collect);
+        btnEditPost = findViewById(R.id.btn_edit_post);
+        btnDeletePost = findViewById(R.id.btn_delete_post);
 
         rvComments.setLayoutManager(new LinearLayoutManager(this));
         commentAdapter = new CommentAdapter();
+        commentAdapter.setOnDeleteListener((comment, position) -> deleteComment(comment, position));
         rvComments.setAdapter(commentAdapter);
 
         postId = getIntent().getLongExtra("postId", -1);
@@ -84,6 +91,8 @@ public class PostDetailActivity extends AppCompatActivity {
         }
 
         btnCollect.setOnClickListener(v -> toggleCollect());
+        btnEditPost.setOnClickListener(v -> showEditPostDialog());
+        btnDeletePost.setOnClickListener(v -> deletePost());
 
         etComment.addTextChangedListener(new TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -150,7 +159,7 @@ public class PostDetailActivity extends AppCompatActivity {
         @Override
         public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
             if (response.code() == 401) {
-                Toast.makeText(PostDetailActivity.this, "请先登录", Toast.LENGTH_SHORT).show();
+                Toast.makeText(PostDetailActivity.this, getString(R.string.not_logged_in), Toast.LENGTH_SHORT).show();
                 return;
             }
             if (response.isSuccessful() && response.body() != null) {
@@ -181,7 +190,7 @@ public class PostDetailActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
                         if (response.code() == 401) {
-                            Toast.makeText(PostDetailActivity.this, "请先登录", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(PostDetailActivity.this, getString(R.string.not_logged_in), Toast.LENGTH_SHORT).show();
                             return;
                         }
                         if (response.isSuccessful() && response.body() != null) {
@@ -192,6 +201,10 @@ public class PostDetailActivity extends AppCompatActivity {
                             } else {
                                 Toast.makeText(PostDetailActivity.this, res.getMessage(), Toast.LENGTH_SHORT).show();
                             }
+                        } else if (response.code() == 403) {
+                            ApiResponse err = parseError(response);
+                            Toast.makeText(PostDetailActivity.this,
+                                    err != null ? err.getMessage() : "请先加入频道", Toast.LENGTH_SHORT).show();
                         } else {
                             Toast.makeText(PostDetailActivity.this, "加载失败: " + response.code(), Toast.LENGTH_SHORT).show();
                         }
@@ -217,6 +230,8 @@ public class PostDetailActivity extends AppCompatActivity {
                     tvForum.setText(post.getForumName());
                     tvTime.setText(post.getPublishTime());
                     tvContent.setText(post.getContent());
+                    btnEditPost.setVisibility(post.isCanEdit() ? View.VISIBLE : View.GONE);
+                    btnDeletePost.setVisibility(post.isCanDelete() ? View.VISIBLE : View.GONE);
                 } else {
                     Toast.makeText(PostDetailActivity.this, "帖子不存在", Toast.LENGTH_SHORT).show();
                     finish();
@@ -256,5 +271,142 @@ public class PostDetailActivity extends AppCompatActivity {
                 rvComments.setVisibility(View.GONE);
             }
         });
+    }
+
+    private void showEditPostDialog() {
+        android.widget.EditText etTitle = new android.widget.EditText(this);
+        etTitle.setText(tvTitle.getText());
+        android.widget.EditText etContent = new android.widget.EditText(this);
+        etContent.setText(tvContent.getText());
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setPadding(48, 16, 48, 0);
+        layout.addView(etTitle);
+        layout.addView(etContent);
+        ((LinearLayout.LayoutParams) etContent.getLayoutParams()).topMargin = 16;
+
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.edit_post)
+                .setView(layout)
+                .setPositiveButton(R.string.save, (dialog, which) -> {
+                    String title = etTitle.getText().toString().trim();
+                    String content = etContent.getText().toString().trim();
+                    if (title.isEmpty() || content.isEmpty()) {
+                        Toast.makeText(this, R.string.all_fields_required, Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    PostApi postApi = RetrofitClient.getInstance().create(PostApi.class);
+                    postApi.editPost(postId, new PostCreateRequest(null, title, content))
+                            .enqueue(new Callback<ApiResponse>() {
+                                @Override
+                                public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+                                    if (response.isSuccessful() && response.body() != null
+                                            && response.body().isSuccess()) {
+                                        Toast.makeText(PostDetailActivity.this,
+                                                response.body().getMessage(), Toast.LENGTH_SHORT).show();
+                                        tvTitle.setText(title);
+                                        tvContent.setText(content);
+                                    } else if (response.code() == 403) {
+                                        Toast.makeText(PostDetailActivity.this,
+                                                R.string.only_author_can_edit, Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(PostDetailActivity.this,
+                                                R.string.edit_failed, Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                                @Override
+                                public void onFailure(Call<ApiResponse> call, Throwable t) {
+                                    Toast.makeText(PostDetailActivity.this,
+                                            R.string.network_error, Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
+
+    private void deletePost() {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.delete_post_confirm_title)
+                .setMessage(R.string.delete_post_confirm_msg)
+                .setPositiveButton(R.string.delete_post, (dialog, which) -> {
+                    PostApi postApi = RetrofitClient.getInstance().create(PostApi.class);
+                    postApi.deletePost(postId).enqueue(new Callback<ApiResponse>() {
+                        @Override
+                        public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+                            if (response.code() == 401) {
+                                Toast.makeText(PostDetailActivity.this, getString(R.string.not_logged_in), Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            if (response.code() == 403) {
+                                Toast.makeText(PostDetailActivity.this, "只能删除自己的帖子", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            if (response.isSuccessful() && response.body() != null) {
+                                ApiResponse res = response.body();
+                                Toast.makeText(PostDetailActivity.this, res.getMessage(), Toast.LENGTH_SHORT).show();
+                                if (res.isSuccess()) {
+                                    finish();
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<ApiResponse> call, Throwable t) {
+                            Toast.makeText(PostDetailActivity.this, R.string.network_error, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
+
+    private void deleteComment(com.zzmg.topic_channel_platform.model.CommentItem comment, int position) {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.delete_comment_confirm_title)
+                .setMessage(R.string.delete_comment_confirm_msg)
+                .setPositiveButton(R.string.delete_comment, (dialog, which) -> {
+                    PostApi postApi = RetrofitClient.getInstance().create(PostApi.class);
+                    postApi.deleteComment(postId, comment.getId()).enqueue(new Callback<ApiResponse>() {
+                        @Override
+                        public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+                            if (response.code() == 401) {
+                                Toast.makeText(PostDetailActivity.this, getString(R.string.not_logged_in), Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            if (response.code() == 403) {
+                                Toast.makeText(PostDetailActivity.this, "只能删除自己的评论", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                            if (response.isSuccessful() && response.body() != null) {
+                                ApiResponse res = response.body();
+                                Toast.makeText(PostDetailActivity.this, res.getMessage(), Toast.LENGTH_SHORT).show();
+                                if (res.isSuccess()) {
+                                    commentAdapter.removeAt(position);
+                                    if (commentAdapter.getItemCount() == 0) {
+                                        tvNoComments.setVisibility(View.VISIBLE);
+                                        rvComments.setVisibility(View.GONE);
+                                    }
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<ApiResponse> call, Throwable t) {
+                            Toast.makeText(PostDetailActivity.this, R.string.network_error, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                })
+                .setNegativeButton(R.string.cancel, null)
+                .show();
+    }
+
+    private ApiResponse parseError(Response<?> response) {
+        if (response.errorBody() != null) {
+            try {
+                return new Gson().fromJson(response.errorBody().string(), ApiResponse.class);
+            } catch (Exception ignored) {}
+        }
+        return null;
     }
 }

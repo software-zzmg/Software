@@ -3,7 +3,9 @@ package com.zzmg.topicchannelplatform.controller;
 import com.zzmg.topicchannelplatform.dto.CommentCreateRequest;
 import com.zzmg.topicchannelplatform.dto.CommentItemDTO;
 import com.zzmg.topicchannelplatform.dto.PostCreateRequest;
+import com.zzmg.topicchannelplatform.dto.PostEditRequest;
 import com.zzmg.topicchannelplatform.dto.PostListItemDTO;
+import com.zzmg.topicchannelplatform.entity.Comment;
 import com.zzmg.topicchannelplatform.entity.ThemePost;
 import com.zzmg.topicchannelplatform.service.CollectService;
 import com.zzmg.topicchannelplatform.service.CommentService;
@@ -12,9 +14,11 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -80,7 +84,9 @@ public class ApiPostController {
     }
 
     @GetMapping("/posts/{id}")
-    public ResponseEntity<PostListItemDTO> getPostDetail(@PathVariable Long id) {
+    public ResponseEntity<PostListItemDTO> getPostDetail(@PathVariable Long id,
+                                                          HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
         return postService.findApprovedPostById(id)
                 .map(p -> ResponseEntity.ok(new PostListItemDTO(
                         p.getThemePostId(),
@@ -88,26 +94,118 @@ public class ApiPostController {
                         p.getContent(),
                         p.getAuthor().getUserName(),
                         p.getForum().getForumName(),
-                        p.getPublishTime()
+                        p.getPublishTime(),
+                        userId != null && userId.equals(p.getAuthor().getUserId()),
+                        userId != null && (
+                            userId.equals(p.getAuthor().getUserId())
+                            || userId.equals(p.getForum().getCreator().getUserId())
+                        )
                 )))
                 .orElse(ResponseEntity.notFound().build());
     }
 
+    @PutMapping("/posts/{id}")
+    public ResponseEntity<Map<String, Object>> editPost(@PathVariable Long id,
+                                                          @RequestBody PostEditRequest request,
+                                                          HttpSession session) {
+        if (request.getTitle() == null || request.getTitle().isBlank()) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "标题不能为空"));
+        }
+        if (request.getTitle().length() > 100) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "标题不能超过100字"));
+        }
+        if (request.getContent() == null || request.getContent().isBlank()) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "内容不能为空"));
+        }
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401)
+                    .body(Map.of("success", false, "message", "请先登录"));
+        }
+        ThemePost post = postService.findById(id).orElse(null);
+        if (post == null || !"审核通过".equals(post.getAuditState())) {
+            return ResponseEntity.notFound().build();
+        }
+        if (!userId.equals(post.getAuthor().getUserId())) {
+            return ResponseEntity.status(403)
+                    .body(Map.of("success", false, "message", "只能编辑自己的帖子"));
+        }
+        post.setTitle(request.getTitle());
+        post.setContent(request.getContent());
+        postService.update(post);
+        return ResponseEntity.ok(Map.of("success", true, "message", "修改成功"));
+    }
+
+    @DeleteMapping("/posts/{id}")
+    public ResponseEntity<Map<String, Object>> deletePost(@PathVariable Long id,
+                                                           HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401)
+                    .body(Map.of("success", false, "message", "请先登录"));
+        }
+        ThemePost post = postService.findById(id).orElse(null);
+        if (post == null || !"审核通过".equals(post.getAuditState())) {
+            return ResponseEntity.notFound().build();
+        }
+        if (!userId.equals(post.getAuthor().getUserId())
+                && !userId.equals(post.getForum().getCreator().getUserId())) {
+            return ResponseEntity.status(403)
+                    .body(Map.of("success", false, "message", "无权删除此帖子"));
+        }
+        postService.deleteById(id);
+        return ResponseEntity.ok(Map.of("success", true, "message", "帖子已删除"));
+    }
+
     @GetMapping("/posts/{postId}/comments")
-    public ResponseEntity<List<CommentItemDTO>> getComments(@PathVariable Long postId) {
+    public ResponseEntity<List<CommentItemDTO>> getComments(@PathVariable Long postId,
+                                                             HttpSession session) {
         if (postService.findApprovedPostById(postId).isEmpty()) {
             return ResponseEntity.notFound().build();
         }
+        String userId = (String) session.getAttribute("userId");
         return ResponseEntity.ok(
                 commentService.findApprovedCommentsByPostId(postId).stream()
                         .map(c -> new CommentItemDTO(
                                 c.getCommentId(),
                                 c.getContent(),
                                 c.getAuthor().getUserName(),
-                                c.getPublishTime()
+                                c.getPublishTime(),
+                                userId != null && (
+                                    userId.equals(c.getAuthor().getUserId())
+                                    || userId.equals(c.getThemePost().getAuthor().getUserId())
+                                    || userId.equals(c.getThemePost().getForum().getCreator().getUserId())
+                                )
                         ))
                         .toList()
         );
+    }
+
+    @DeleteMapping("/posts/{postId}/comments/{commentId}")
+    public ResponseEntity<Map<String, Object>> deleteComment(
+            @PathVariable Long postId, @PathVariable Long commentId, HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401)
+                    .body(Map.of("success", false, "message", "请先登录"));
+        }
+        Comment comment = commentService.findById(commentId).orElse(null);
+        if (comment == null || !comment.getThemePost().getThemePostId().equals(postId)) {
+            return ResponseEntity.notFound().build();
+        }
+        boolean isAuthor = userId.equals(comment.getAuthor().getUserId());
+        boolean isPostAuthor = userId.equals(comment.getThemePost().getAuthor().getUserId());
+        boolean isForumCreator = userId.equals(
+                comment.getThemePost().getForum().getCreator().getUserId());
+        if (!isAuthor && !isPostAuthor && !isForumCreator) {
+            return ResponseEntity.status(403)
+                    .body(Map.of("success", false, "message", "无权删除此评论"));
+        }
+        commentService.deleteById(commentId);
+        return ResponseEntity.ok(Map.of("success", true, "message", "评论已删除"));
     }
 
     @PostMapping("/posts/{postId}/comments")

@@ -22,7 +22,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="管理员登录"
+            android:text="@string/admin_login"
             android:textSize="20sp"
             android:textStyle="bold"
             android:textColor="@color/text_primary" />
@@ -42,7 +42,7 @@
             android:id="@+id/tv_admin_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="管理员登录"
+            android:text="@string/admin_login"
             android:textSize="24sp"
             android:textStyle="bold"
             android:textColor="@color/text_primary"
@@ -52,7 +52,7 @@
             android:id="@+id/til_admin_id"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="管理员账号">
+            android:hint="@string/user_name">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/et_admin_id"
@@ -67,7 +67,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:hint="密码"
+            android:hint="@string/password"
             app:passwordToggleEnabled="true">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -83,7 +83,7 @@
             android:layout_width="match_parent"
             android:layout_height="52dp"
             android:layout_marginTop="24dp"
-            android:text="登录"
+            android:text="@string/login"
             app:cornerRadius="12dp"
             app:backgroundTint="@color/primary"
             android:textColor="@color/white"

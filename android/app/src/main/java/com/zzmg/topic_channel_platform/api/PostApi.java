@@ -12,8 +12,10 @@ import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Path;
 
 public interface PostApi {
@@ -40,4 +42,13 @@ public interface PostApi {
 
     @POST("/api/posts/{postId}/collect/cancel")
     Call<ApiResponse> cancelCollect(@Path("postId") Long postId);
+
+    @DELETE("/api/posts/{postId}/comments/{commentId}")
+    Call<ApiResponse> deleteComment(@Path("postId") Long postId, @Path("commentId") Long commentId);
+
+    @DELETE("/api/posts/{id}")
+    Call<ApiResponse> deletePost(@Path("id") Long id);
+
+    @PUT("/api/posts/{id}")
+    Call<ApiResponse> editPost(@Path("id") Long id, @Body PostCreateRequest request);
 }

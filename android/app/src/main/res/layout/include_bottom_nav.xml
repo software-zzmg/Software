@@ -41,7 +41,7 @@
                 android:id="@+id/tv_nav_forums"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="频道"
+                android:text="@string/nav_forums"
                 android:textSize="11sp"
                 android:textColor="@color/nav_inactive"
                 android:layout_marginTop="2dp" />
@@ -70,7 +70,7 @@
                 android:id="@+id/tv_nav_home"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="首页"
+                android:text="@string/nav_home"
                 android:textSize="11sp"
                 android:textColor="@color/nav_inactive"
                 android:layout_marginTop="2dp" />
@@ -87,6 +87,7 @@
             app:icon="@drawable/baseline_add_24"
             app:iconGravity="textTop"
             app:iconSize="28dp"
+            app:tint="@android:color/white"
 
             android:padding="7dp"
             android:insetTop="0dp"
@@ -100,7 +101,7 @@
             android:layout_marginEnd="4dp" />
 
         <LinearLayout
-            android:id="@+id/nav_collects"
+            android:id="@+id/nav_search"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
@@ -111,17 +112,17 @@
             android:background="?attr/selectableItemBackground">
 
             <ImageView
-                android:id="@+id/iv_nav_collects"
+                android:id="@+id/iv_nav_search"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:src="@drawable/baseline_bookmark_24"
-                android:contentDescription="收藏" />
+                android:src="@drawable/baseline_search_24"
+                android:contentDescription="搜索" />
 
             <TextView
-                android:id="@+id/tv_nav_collects"
+                android:id="@+id/tv_nav_search"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="收藏"
+                android:text="@string/nav_search"
                 android:textSize="11sp"
                 android:textColor="@color/nav_inactive"
                 android:layout_marginTop="2dp" />
@@ -150,7 +151,7 @@
                 android:id="@+id/tv_nav_me"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="我的"
+                android:text="@string/nav_me"
                 android:textSize="11sp"
                 android:textColor="@color/nav_inactive"
                 android:layout_marginTop="2dp" />

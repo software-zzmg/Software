@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CommentService {
@@ -27,10 +28,14 @@ public class CommentService {
         this.forumMemberService = forumMemberService;
     }
 
+    public Optional<Comment> findById(Long id) {
+        return commentRepository.findById(id);
+    }
+
     public Comment publish(Comment comment, String userId) {
         Long forumId = comment.getThemePost().getForum().getForumId();
         if (!forumMemberService.isMember(userId, forumId)) {
-            throw new IllegalStateException("只有频道成员才能评论");
+            throw new IllegalStateException("请先加入频道后再评论");
         }
         comment.setPublishTime(LocalDateTime.now());
         comment.setAuditState("待审核");
@@ -58,10 +63,10 @@ public class CommentService {
             if (comment.getAuthor().getUserId().equals(userId)) {
                 return true;
             }
-            Long postId = comment.getThemePost().getThemePostId();
-            return postRepository.findById(postId)
-                    .map(p -> p.getAuthor().getUserId().equals(userId))
-                    .orElse(false);
+            if (comment.getThemePost().getAuthor().getUserId().equals(userId)) {
+                return true;
+            }
+            return comment.getThemePost().getForum().getCreator().getUserId().equals(userId);
         }).orElse(false);
     }
 

@@ -39,7 +39,7 @@ public class ThemePostService {
 
     public ThemePost publish(ThemePost post, String userId) {
         if (!forumMemberService.isMember(userId, post.getForum().getForumId())) {
-            throw new IllegalStateException("只有频道成员才能发帖");
+            throw new IllegalStateException("请先加入频道后再发帖");
         }
         post.setPublishTime(LocalDateTime.now());
         post.setAuditState("待审核");
