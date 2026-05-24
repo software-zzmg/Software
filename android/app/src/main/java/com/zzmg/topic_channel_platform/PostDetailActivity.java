@@ -3,6 +3,7 @@ package com.zzmg.topic_channel_platform;
 import android.os.Bundle;
 import androidx.appcompat.app.AlertDialog;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.widget.Button;
@@ -28,6 +29,7 @@ import com.zzmg.topic_channel_platform.model.ApiResponse;
 import com.zzmg.topic_channel_platform.model.CollectStatusResponse;
 import com.zzmg.topic_channel_platform.model.CommentCreateRequest;
 import com.zzmg.topic_channel_platform.model.CommentItem;
+import com.zzmg.topic_channel_platform.model.PostCreateRequest;
 import com.zzmg.topic_channel_platform.model.PostDetail;
 import com.zzmg.topic_channel_platform.network.RetrofitClient;
 
@@ -45,7 +47,7 @@ public class PostDetailActivity extends AppCompatActivity {
     private CommentAdapter commentAdapter;
     private TextInputLayout tilComment;
     private EditText etComment;
-    private Button btnCollect, btnDeletePost;
+    private Button btnCollect, btnEditPost, btnDeletePost;
 
     private long postId;
     private boolean isCollected;
@@ -73,6 +75,7 @@ public class PostDetailActivity extends AppCompatActivity {
         tilComment = findViewById(R.id.til_comment);
         etComment = findViewById(R.id.et_comment);
         btnCollect = findViewById(R.id.btn_collect);
+        btnEditPost = findViewById(R.id.btn_edit_post);
         btnDeletePost = findViewById(R.id.btn_delete_post);
 
         rvComments.setLayoutManager(new LinearLayoutManager(this));
@@ -88,6 +91,7 @@ public class PostDetailActivity extends AppCompatActivity {
         }
 
         btnCollect.setOnClickListener(v -> toggleCollect());
+        btnEditPost.setOnClickListener(v -> showEditPostDialog());
         btnDeletePost.setOnClickListener(v -> deletePost());
 
         etComment.addTextChangedListener(new TextWatcher() {
@@ -226,6 +230,7 @@ public class PostDetailActivity extends AppCompatActivity {
                     tvForum.setText(post.getForumName());
                     tvTime.setText(post.getPublishTime());
                     tvContent.setText(post.getContent());
+                    btnEditPost.setVisibility(post.isCanDelete() ? View.VISIBLE : View.GONE);
                     btnDeletePost.setVisibility(post.isCanDelete() ? View.VISIBLE : View.GONE);
                 } else {
                     Toast.makeText(PostDetailActivity.this, "帖子不存在", Toast.LENGTH_SHORT).show();
@@ -266,6 +271,58 @@ public class PostDetailActivity extends AppCompatActivity {
                 rvComments.setVisibility(View.GONE);
             }
         });
+    }
+
+    private void showEditPostDialog() {
+        android.widget.EditText etTitle = new android.widget.EditText(this);
+        etTitle.setText(tvTitle.getText());
+        android.widget.EditText etContent = new android.widget.EditText(this);
+        etContent.setText(tvContent.getText());
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setPadding(48, 16, 48, 0);
+        layout.addView(etTitle);
+        layout.addView(etContent);
+        ((LinearLayout.LayoutParams) etContent.getLayoutParams()).topMargin = 16;
+
+        new AlertDialog.Builder(this)
+                .setTitle("Edit Post")
+                .setView(layout)
+                .setPositiveButton("Save", (dialog, which) -> {
+                    String title = etTitle.getText().toString().trim();
+                    String content = etContent.getText().toString().trim();
+                    if (title.isEmpty() || content.isEmpty()) {
+                        Toast.makeText(this, "All fields required", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    PostApi postApi = RetrofitClient.getInstance().create(PostApi.class);
+                    postApi.editPost(postId, new PostCreateRequest(null, title, content))
+                            .enqueue(new Callback<ApiResponse>() {
+                                @Override
+                                public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+                                    if (response.isSuccessful() && response.body() != null
+                                            && response.body().isSuccess()) {
+                                        Toast.makeText(PostDetailActivity.this,
+                                                response.body().getMessage(), Toast.LENGTH_SHORT).show();
+                                        tvTitle.setText(title);
+                                        tvContent.setText(content);
+                                    } else if (response.code() == 403) {
+                                        Toast.makeText(PostDetailActivity.this,
+                                                "只能编辑自己的帖子", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(PostDetailActivity.this,
+                                                "Edit failed: " + response.code(), Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                                @Override
+                                public void onFailure(Call<ApiResponse> call, Throwable t) {
+                                    Toast.makeText(PostDetailActivity.this,
+                                            "Failed: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     private void deletePost() {

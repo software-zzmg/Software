@@ -57,6 +57,8 @@ public class ForumDetailActivity extends AppCompatActivity {
 
         BottomNavHelper.setup(this, "forum_detail");
 
+        findViewById(R.id.btn_back).setOnClickListener(v -> finish());
+
         tvForumName = findViewById(R.id.tv_forum_name);
         tvCreator = findViewById(R.id.tv_forum_creator);
         tvDescription = findViewById(R.id.tv_forum_description);
