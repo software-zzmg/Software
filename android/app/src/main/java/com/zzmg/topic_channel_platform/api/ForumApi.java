@@ -14,6 +14,7 @@ import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.DELETE;
 import retrofit2.http.POST;
+import retrofit2.http.PUT;
 import retrofit2.http.Path;
 
 public interface ForumApi {
@@ -40,4 +41,7 @@ public interface ForumApi {
 
     @DELETE("/api/forums/{id}")
     Call<ApiResponse> deleteForum(@Path("id") Long id);
+
+    @PUT("/api/forums/{id}")
+    Call<ApiResponse> editForum(@Path("id") Long id, @Body ForumCreateRequest request);
 }

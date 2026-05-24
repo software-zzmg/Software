@@ -4,6 +4,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,6 +21,7 @@ import com.zzmg.topic_channel_platform.adapter.PostAdapter;
 import com.zzmg.topic_channel_platform.api.ForumApi;
 import com.zzmg.topic_channel_platform.helper.BottomNavHelper;
 import com.zzmg.topic_channel_platform.model.ApiResponse;
+import com.zzmg.topic_channel_platform.model.ForumCreateRequest;
 import com.zzmg.topic_channel_platform.model.ForumDetail;
 import com.zzmg.topic_channel_platform.model.PostListItem;
 import com.zzmg.topic_channel_platform.network.RetrofitClient;
@@ -33,7 +35,7 @@ import retrofit2.Response;
 public class ForumDetailActivity extends AppCompatActivity {
 
     private TextView tvForumName, tvCreator, tvDescription;
-    private Button btnJoinLeave;
+    private Button btnJoinLeave, btnEditForum;
     private TextView tvNoPosts;
     private RecyclerView rvPosts;
     private PostAdapter postAdapter;
@@ -59,6 +61,7 @@ public class ForumDetailActivity extends AppCompatActivity {
         tvCreator = findViewById(R.id.tv_forum_creator);
         tvDescription = findViewById(R.id.tv_forum_description);
         btnJoinLeave = findViewById(R.id.btn_join_leave);
+        btnEditForum = findViewById(R.id.btn_edit_forum);
         tvNoPosts = findViewById(R.id.tv_no_posts);
         rvPosts = findViewById(R.id.rv_posts);
 
@@ -74,6 +77,7 @@ public class ForumDetailActivity extends AppCompatActivity {
         }
 
         btnJoinLeave.setOnClickListener(v -> handleAction());
+        btnEditForum.setOnClickListener(v -> showEditDialog());
         loadForumDetail();
         loadForumPosts();
     }
@@ -131,12 +135,68 @@ public class ForumDetailActivity extends AppCompatActivity {
         isCreator = creator;
         joined = member;
         if (creator) {
+            btnEditForum.setVisibility(View.VISIBLE);
             btnJoinLeave.setText("Dismiss Channel");
-        } else if (member) {
-            btnJoinLeave.setText("Leave");
         } else {
-            btnJoinLeave.setText("Join");
+            btnEditForum.setVisibility(View.GONE);
+            if (member) {
+                btnJoinLeave.setText("Leave");
+            } else {
+                btnJoinLeave.setText("Join");
+            }
         }
+    }
+
+    private void showEditDialog() {
+        android.widget.EditText etName = new android.widget.EditText(this);
+        etName.setText(tvForumName.getText());
+        android.widget.EditText etDesc = new android.widget.EditText(this);
+        etDesc.setText(tvDescription.getText());
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        layout.setPadding(48, 16, 48, 0);
+        layout.addView(etName);
+        layout.addView(etDesc);
+        ((LinearLayout.LayoutParams) etDesc.getLayoutParams()).topMargin = 16;
+
+        new AlertDialog.Builder(this)
+                .setTitle("Edit Channel")
+                .setView(layout)
+                .setPositiveButton("Save", (dialog, which) -> {
+                    String name = etName.getText().toString().trim();
+                    String desc = etDesc.getText().toString().trim();
+                    if (name.isEmpty() || desc.isEmpty()) {
+                        Toast.makeText(this, "All fields required", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    ForumApi forumApi = RetrofitClient.getInstance().create(ForumApi.class);
+                    forumApi.editForum(forumId, new ForumCreateRequest(name, desc))
+                            .enqueue(new Callback<ApiResponse>() {
+                                @Override
+                                public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
+                                    if (response.isSuccessful() && response.body() != null
+                                            && response.body().isSuccess()) {
+                                        Toast.makeText(ForumDetailActivity.this,
+                                                response.body().getMessage(), Toast.LENGTH_SHORT).show();
+                                        tvForumName.setText(name);
+                                        tvDescription.setText(desc);
+                                    } else if (response.code() == 403) {
+                                        Toast.makeText(ForumDetailActivity.this,
+                                                "Only the creator can edit", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        Toast.makeText(ForumDetailActivity.this,
+                                                "Edit failed", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                                @Override
+                                public void onFailure(Call<ApiResponse> call, Throwable t) {
+                                    Toast.makeText(ForumDetailActivity.this,
+                                            "Failed: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     private void handleAction() {

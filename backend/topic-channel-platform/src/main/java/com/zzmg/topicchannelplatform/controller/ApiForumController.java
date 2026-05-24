@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -71,6 +72,38 @@ public class ApiForumController {
                     ));
                 })
                 .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PutMapping("/forums/{id}")
+    public ResponseEntity<Map<String, Object>> editForum(
+            @PathVariable Long id, @RequestBody ForumCreateRequest request,
+            HttpSession session) {
+        String userId = (String) session.getAttribute("userId");
+        if (userId == null) {
+            return ResponseEntity.status(401)
+                    .body(Map.of("success", false, "message", "请先登录"));
+        }
+        Forum forum = forumService.findById(id).orElse(null);
+        if (forum == null || !"审核通过".equals(forum.getAuditState())) {
+            return ResponseEntity.notFound().build();
+        }
+        if (!userId.equals(forum.getCreator().getUserId())) {
+            return ResponseEntity.status(403)
+                    .body(Map.of("success", false, "message", "只有频道创建者才能修改频道信息"));
+        }
+        if (request.getForumName() == null || request.getForumName().isBlank()) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "频道名不能为空"));
+        }
+        if (request.getDescription() == null || request.getDescription().isBlank()) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("success", false, "message", "频道简介不能为空"));
+        }
+        forum.setForumName(request.getForumName());
+        forum.setContent(request.getDescription());
+        forumService.update(forum);
+        return ResponseEntity.ok(
+                Map.of("success", true, "message", "修改成功，待审核通过后生效"));
     }
 
     @DeleteMapping("/forums/{id}")

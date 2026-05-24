@@ -80,10 +80,19 @@
                     android:textColor="@color/text_primary" />
 
                 <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_edit_forum"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:layout_marginTop="24dp"
+                    android:text="Edit Channel"
+                    android:visibility="gone"
+                    style="@style/Widget.Material3.Button.OutlinedButton" />
+
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_join_leave"
                     android:layout_width="match_parent"
                     android:layout_height="56dp"
-                    android:layout_marginTop="24dp" />
+                    android:layout_marginTop="8dp" />
 
                 <View
                     android:layout_width="match_parent"
