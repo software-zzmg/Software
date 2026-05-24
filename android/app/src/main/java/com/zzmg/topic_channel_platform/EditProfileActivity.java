@@ -3,6 +3,7 @@ package com.zzmg.topic_channel_platform;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -50,6 +51,11 @@ public class EditProfileActivity extends AppCompatActivity {
         etBirthday = findViewById(R.id.et_birthday);
         etIdNumber = findViewById(R.id.et_id_number);
 
+        String[] genders = {"男", "女", "保密"};
+        ArrayAdapter<String> genderAdapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_dropdown_item_1line, genders);
+        ((android.widget.AutoCompleteTextView) etGender).setAdapter(genderAdapter);
+
         etUserName.addTextChangedListener(new ClearErrorWatcher(tilUserName));
         etBirthday.addTextChangedListener(new ClearErrorWatcher(tilBirthday));
         etIdNumber.addTextChangedListener(new ClearErrorWatcher(tilIdNumber));
@@ -81,16 +87,19 @@ public class EditProfileActivity extends AppCompatActivity {
                 valid = false;
             } else {
                 String[] parts = birthday.split("-");
+                int year = Integer.parseInt(parts[0]);
                 int month = Integer.parseInt(parts[1]);
                 int day = Integer.parseInt(parts[2]);
-                if (month < 1 || month > 12) {
+                if (year < 1900 || year > 2100) {
+                    tilBirthday.setError("年份必须在 1900-2100 之间");
+                    valid = false;
+                } else if (month < 1 || month > 12) {
                     tilBirthday.setError("月份必须在 1-12 之间");
                     valid = false;
                 } else {
                     int maxDay;
                     switch (month) {
                         case 2:
-                            int year = Integer.parseInt(parts[0]);
                             boolean leap = (year % 4 == 0 && year % 100 != 0) || year % 400 == 0;
                             maxDay = leap ? 29 : 28;
                             break;
