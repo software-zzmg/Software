@@ -35,6 +35,12 @@ public class SidebarControllerAdvice {
                             .map(ForumMember::getForum)
                             .filter(f -> "审核通过".equals(f.getAuditState()))
                             .toList());
+
+            long rejectedCount = memberships.stream()
+                    .map(ForumMember::getForum)
+                    .filter(f -> "审核未通过".equals(f.getAuditState()))
+                    .count();
+            model.addAttribute("rejectedForumCount", rejectedCount);
         }
 
         model.addAttribute("sidebarAllForums", forumService.findAll());

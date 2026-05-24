@@ -71,6 +71,13 @@ public class ThemePostService {
                 .orElse(false);
     }
 
+    public boolean canDelete(String userId, Long postId) {
+        return postRepository.findById(postId)
+                .map(p -> p.getAuthor().getUserId().equals(userId)
+                        || p.getForum().getCreator().getUserId().equals(userId))
+                .orElse(false);
+    }
+
     public List<ThemePost> findApproved() {
         return postRepository.findAll().stream()
                 .filter(p -> "审核通过".equals(p.getAuditState()))

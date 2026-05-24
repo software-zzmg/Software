@@ -30,7 +30,9 @@
             <button class="tab-btn active" data-tab="posts">我的帖子</button>
             <button class="tab-btn" data-tab="comments">我的评论</button>
             <button class="tab-btn" data-tab="collects">我的收藏</button>
-            <button class="tab-btn" data-tab="channels">我的频道</button>
+            <button th:if="${rejectedForumCount == null || rejectedForumCount == 0}" class="tab-btn" data-tab="channels">我的频道</button>
+            <button th:unless="${rejectedForumCount == null || rejectedForumCount == 0}" class="tab-btn tab-badge" data-tab="channels"
+                    th:attr="data-count=${rejectedForumCount}">我的频道</button>
         </div>
 
         <div class="tab-panel active" id="tab-posts">
@@ -98,16 +100,32 @@
             <p class="empty-state" th:if="${#lists.isEmpty(myChannels)}">暂无加入的频道</p>
             <div class="table-wrapper"><table th:if="${!#lists.isEmpty(myChannels)}" class="table">
                 <thead>
-                    <tr><th>频道名称</th><th>频道简介</th><th>加入时间</th><th>身份</th></tr>
+                    <tr><th>频道名称</th><th>频道简介</th><th>加入时间</th><th>状态</th><th>身份</th><th>操作</th></tr>
                 </thead>
                 <tbody>
                     <tr th:each="m : ${myChannels}">
-                        <td><a th:href="@{/forum/detail/{id}(id=${m.forum.forumId})}" th:text="${m.forum.forumName}"></a></td>
+                        <td>
+                            <a th:if="${m.forum.auditState == '审核通过'}" th:href="@{/forum/detail/{id}(id=${m.forum.forumId})}" th:text="${m.forum.forumName}"></a>
+                            <span th:unless="${m.forum.auditState == '审核通过'}" th:text="${m.forum.forumName}" style="color:#999;"></span>
+                        </td>
                         <td th:text="${m.forum.content}"></td>
                         <td th:text="${@timeFormatter.formatDate(m.joinTime)}"></td>
                         <td>
+                            <span th:if="${m.forum.auditState == '待审核'}" style="color:#f59e0b;">待审核</span>
+                            <span th:if="${m.forum.auditState == '审核未通过'}" style="color:#ef4444;">审核未通过</span>
+                            <span th:if="${m.forum.auditState == '审核通过'}" style="color:#10b981;">审核通过</span>
+                        </td>
+                        <td>
                             <span th:if="${m.user.userId == m.forum.creator.userId}" style="color:#2563eb;font-weight:500;">创建者</span>
                             <span th:unless="${m.user.userId == m.forum.creator.userId}">成员</span>
+                        </td>
+                        <td>
+                            <button th:if="${m.user.userId == m.forum.creator.userId && m.forum.auditState == '审核未通过'}"
+                                    class="btn-icon-remove btn-dismiss-forum"
+                                    th:attr="data-id=${m.forum.forumId}" title="解散频道">&times;</button>
+                            <button th:if="${m.user.userId != m.forum.creator.userId && m.forum.auditState == '审核未通过'}"
+                                    class="btn-icon-remove btn-leave-forum"
+                                    th:attr="data-id=${m.forum.forumId}" title="退出频道">&times;</button>
                         </td>
                     </tr>
                 </tbody>
@@ -216,6 +234,35 @@
             .catch(function() {
                 editError.textContent = '网络错误，请重试';
                 editError.style.display = 'block';
+            });
+        });
+
+        // 解散/退出未通过的频道
+        function removeChannel(forumId, url) {
+            fetch(url, {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: 'forumId=' + encodeURIComponent(forumId)
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(d) {
+                var toast = document.createElement('div');
+                toast.className = 'toast';
+                toast.textContent = d.toast || '操作成功';
+                document.body.appendChild(toast);
+                setTimeout(function() { toast.style.opacity = '0'; setTimeout(function() { toast.remove(); }, 500); }, 2500);
+                setTimeout(function() { location.reload(); }, 600);
+            });
+        }
+
+        document.querySelectorAll('.btn-dismiss-forum').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                removeChannel(this.getAttribute('data-id'), '/forum/dismiss');
+            });
+        });
+        document.querySelectorAll('.btn-leave-forum').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                removeChannel(this.getAttribute('data-id'), '/forum-member/leave');
             });
         });
 

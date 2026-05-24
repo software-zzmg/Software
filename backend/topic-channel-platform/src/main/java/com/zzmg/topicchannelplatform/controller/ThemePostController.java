@@ -201,11 +201,7 @@ public class ThemePostController {
         Long forumId = postService.findById(postId)
                 .map(p -> p.getForum().getForumId())
                 .orElse(null);
-        boolean isAuthor = postService.isAuthor(userId, postId);
-        boolean isForumCreator = postService.findById(postId)
-                .map(p -> p.getForum().getCreator().getUserId().equals(userId))
-                .orElse(false);
-        if (isAuthor || isForumCreator) {
+        if (postService.canDelete(userId, postId)) {
             postService.deleteById(postId);
         }
         if (isAjax) {
