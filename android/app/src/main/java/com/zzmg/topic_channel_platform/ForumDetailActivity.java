@@ -73,7 +73,7 @@ public class ForumDetailActivity extends AppCompatActivity {
 
         forumId = getIntent().getLongExtra("forumId", -1);
         if (forumId == -1) {
-            Toast.makeText(this, "Invalid forum ID", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.invalid_forum_id, Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
@@ -92,18 +92,19 @@ public class ForumDetailActivity extends AppCompatActivity {
                 if (response.isSuccessful() && response.body() != null) {
                     ForumDetail forum = response.body();
                     tvForumName.setText(forum.getForumName());
-                    tvCreator.setText("Created by " + forum.getCreatorName());
+                    tvCreator.setText(getString(R.string.forum_created_by, forum.getCreatorName()));
                     tvDescription.setText(forum.getDescription());
                     updateActionButton(forum.isCreator(), forum.isJoined());
                 } else {
-                    Toast.makeText(ForumDetailActivity.this, "Forum not found", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ForumDetailActivity.this, R.string.forum_not_found, Toast.LENGTH_SHORT).show();
                     finish();
                 }
             }
 
             @Override
             public void onFailure(Call<ForumDetail> call, Throwable t) {
-                Toast.makeText(ForumDetailActivity.this, "Failed: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(ForumDetailActivity.this,
+                        getString(R.string.network_error), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -126,7 +127,7 @@ public class ForumDetailActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<List<PostListItem>> call, Throwable t) {
-                tvNoPosts.setText("Failed to load posts");
+                tvNoPosts.setText(R.string.load_failed);
                 tvNoPosts.setVisibility(View.VISIBLE);
                 rvPosts.setVisibility(View.GONE);
             }
@@ -138,13 +139,13 @@ public class ForumDetailActivity extends AppCompatActivity {
         joined = member;
         if (creator) {
             btnEditForum.setVisibility(View.VISIBLE);
-            btnJoinLeave.setText("Dismiss Channel");
+            btnJoinLeave.setText(R.string.dismiss_forum);
         } else {
             btnEditForum.setVisibility(View.GONE);
             if (member) {
-                btnJoinLeave.setText("Leave");
+                btnJoinLeave.setText(R.string.leave_forum);
             } else {
-                btnJoinLeave.setText("Join");
+                btnJoinLeave.setText(R.string.join_forum);
             }
         }
     }
@@ -162,13 +163,13 @@ public class ForumDetailActivity extends AppCompatActivity {
         ((LinearLayout.LayoutParams) etDesc.getLayoutParams()).topMargin = 16;
 
         new AlertDialog.Builder(this)
-                .setTitle("Edit Channel")
+                .setTitle(R.string.edit_forum)
                 .setView(layout)
-                .setPositiveButton("Save", (dialog, which) -> {
+                .setPositiveButton(R.string.save, (dialog, which) -> {
                     String name = etName.getText().toString().trim();
                     String desc = etDesc.getText().toString().trim();
                     if (name.isEmpty() || desc.isEmpty()) {
-                        Toast.makeText(this, "All fields required", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, R.string.all_fields_required, Toast.LENGTH_SHORT).show();
                         return;
                     }
                     ForumApi forumApi = RetrofitClient.getInstance().create(ForumApi.class);
@@ -184,30 +185,30 @@ public class ForumDetailActivity extends AppCompatActivity {
                                         tvDescription.setText(desc);
                                     } else if (response.code() == 403) {
                                         Toast.makeText(ForumDetailActivity.this,
-                                                "Only the creator can edit", Toast.LENGTH_SHORT).show();
+                                                R.string.unauthorized_edit_forum, Toast.LENGTH_SHORT).show();
                                     } else {
                                         Toast.makeText(ForumDetailActivity.this,
-                                                "Edit failed", Toast.LENGTH_SHORT).show();
+                                                R.string.edit_failed, Toast.LENGTH_SHORT).show();
                                     }
                                 }
                                 @Override
                                 public void onFailure(Call<ApiResponse> call, Throwable t) {
                                     Toast.makeText(ForumDetailActivity.this,
-                                            "Failed: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                                            getString(R.string.network_error), Toast.LENGTH_SHORT).show();
                                 }
                             });
                 })
-                .setNegativeButton("Cancel", null)
+                .setNegativeButton(R.string.cancel, null)
                 .show();
     }
 
     private void handleAction() {
         if (isCreator) {
             new AlertDialog.Builder(this)
-                    .setTitle("Dismiss Channel")
-                    .setMessage("Dismiss this channel? This cannot be undone.")
-                    .setPositiveButton("Dismiss", (dialog, which) -> deleteForum())
-                    .setNegativeButton("Cancel", null)
+                    .setTitle(R.string.dismiss_forum_confirm_title)
+                    .setMessage(R.string.dismiss_forum_confirm_msg)
+                    .setPositiveButton(R.string.dismiss_forum, (dialog, which) -> deleteForum())
+                    .setNegativeButton(R.string.cancel, null)
                     .show();
         } else if (joined) {
             leave();
@@ -232,11 +233,13 @@ public class ForumDetailActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
                 if (response.code() == 401) {
-                    Toast.makeText(ForumDetailActivity.this, "请先登录", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ForumDetailActivity.this,
+                            R.string.not_logged_in, Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if (response.code() == 403) {
-                    Toast.makeText(ForumDetailActivity.this, "Only the creator can dismiss", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ForumDetailActivity.this,
+                            R.string.unauthorized_dismiss_forum, Toast.LENGTH_SHORT).show();
                     return;
                 }
                 if (response.isSuccessful() && response.body() != null) {
@@ -250,7 +253,8 @@ public class ForumDetailActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<ApiResponse> call, Throwable t) {
-                Toast.makeText(ForumDetailActivity.this, "Failed: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(ForumDetailActivity.this,
+                        getString(R.string.network_error), Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -263,7 +267,8 @@ public class ForumDetailActivity extends AppCompatActivity {
         @Override
         public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
             if (response.code() == 401) {
-                Toast.makeText(ForumDetailActivity.this, "请先登录", Toast.LENGTH_SHORT).show();
+                Toast.makeText(ForumDetailActivity.this,
+                        R.string.not_logged_in, Toast.LENGTH_SHORT).show();
                 return;
             }
             if (response.isSuccessful() && response.body() != null) {
@@ -281,7 +286,8 @@ public class ForumDetailActivity extends AppCompatActivity {
 
         @Override
         public void onFailure(Call<ApiResponse> call, Throwable t) {
-            Toast.makeText(ForumDetailActivity.this, "Failed: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(ForumDetailActivity.this,
+                    getString(R.string.network_error), Toast.LENGTH_SHORT).show();
         }
     }
 }

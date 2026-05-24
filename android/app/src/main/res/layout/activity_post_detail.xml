@@ -27,7 +27,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="帖子详情"
+                android:text="@string/post_detail"
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:textColor="@color/text_primary" />
@@ -67,14 +67,14 @@
                         android:id="@+id/btn_collect"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="收藏"
+                        android:text="@string/collect"
                         style="@style/Widget.Material3.Button.TextButton" />
 
                     <com.google.android.material.button.MaterialButton
                         android:id="@+id/btn_edit_post"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="编辑"
+                        android:text="@string/edit_post"
                         android:visibility="gone"
                         style="@style/Widget.Material3.Button.TextButton" />
 
@@ -82,7 +82,7 @@
                         android:id="@+id/btn_delete_post"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="删除"
+                        android:text="@string/delete_post"
                         android:textColor="@color/error"
                         android:visibility="gone"
                         style="@style/Widget.Material3.Button.TextButton" />
@@ -160,7 +160,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
-                    android:text="暂无评论"
+                    android:text="@string/no_comments"
                     android:textSize="14sp"
                     android:textColor="@color/text_secondary" />
 

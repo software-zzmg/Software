@@ -41,7 +41,7 @@
                 android:id="@+id/tv_nav_forums"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="频道"
+                android:text="@string/nav_forums"
                 android:textSize="11sp"
                 android:textColor="@color/nav_inactive"
                 android:layout_marginTop="2dp" />
@@ -70,7 +70,7 @@
                 android:id="@+id/tv_nav_home"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="首页"
+                android:text="@string/nav_home"
                 android:textSize="11sp"
                 android:textColor="@color/nav_inactive"
                 android:layout_marginTop="2dp" />
@@ -122,7 +122,7 @@
                 android:id="@+id/tv_nav_search"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="搜索"
+                android:text="@string/nav_search"
                 android:textSize="11sp"
                 android:textColor="@color/nav_inactive"
                 android:layout_marginTop="2dp" />
@@ -151,7 +151,7 @@
                 android:id="@+id/tv_nav_me"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="我的"
+                android:text="@string/nav_me"
                 android:textSize="11sp"
                 android:textColor="@color/nav_inactive"
                 android:layout_marginTop="2dp" />

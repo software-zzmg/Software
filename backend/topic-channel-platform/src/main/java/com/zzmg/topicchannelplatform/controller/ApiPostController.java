@@ -95,6 +95,7 @@ public class ApiPostController {
                         p.getAuthor().getUserName(),
                         p.getForum().getForumName(),
                         p.getPublishTime(),
+                        userId != null && userId.equals(p.getAuthor().getUserId()),
                         userId != null && (
                             userId.equals(p.getAuthor().getUserId())
                             || userId.equals(p.getForum().getCreator().getUserId())

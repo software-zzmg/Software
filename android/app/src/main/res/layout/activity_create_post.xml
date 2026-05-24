@@ -43,7 +43,7 @@
             android:id="@+id/tv_no_forums"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="请先加入频道后再发帖"
+            android:text="@string/no_forum_to_post"
             android:textSize="16sp"
             android:gravity="center"
             android:layout_marginTop="48dp"

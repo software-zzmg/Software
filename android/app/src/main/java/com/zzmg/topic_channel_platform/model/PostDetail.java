@@ -7,6 +7,7 @@ public class PostDetail {
     private String authorName;
     private String forumName;
     private String publishTime;
+    private boolean canEdit;
     private boolean canDelete;
 
     public Long getId() { return id; }
@@ -21,6 +22,8 @@ public class PostDetail {
     public void setForumName(String forumName) { this.forumName = forumName; }
     public String getPublishTime() { return publishTime; }
     public void setPublishTime(String publishTime) { this.publishTime = publishTime; }
+    public boolean isCanEdit() { return canEdit; }
+    public void setCanEdit(boolean e) { this.canEdit = e; }
     public boolean isCanDelete() { return canDelete; }
     public void setCanDelete(boolean d) { this.canDelete = d; }
 }
