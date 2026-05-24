@@ -63,10 +63,10 @@ public class CommentService {
             if (comment.getAuthor().getUserId().equals(userId)) {
                 return true;
             }
-            Long postId = comment.getThemePost().getThemePostId();
-            return postRepository.findById(postId)
-                    .map(p -> p.getAuthor().getUserId().equals(userId))
-                    .orElse(false);
+            if (comment.getThemePost().getAuthor().getUserId().equals(userId)) {
+                return true;
+            }
+            return comment.getThemePost().getForum().getCreator().getUserId().equals(userId);
         }).orElse(false);
     }
 

@@ -169,7 +169,11 @@ public class ApiPostController {
                                 c.getContent(),
                                 c.getAuthor().getUserName(),
                                 c.getPublishTime(),
-                                userId != null && userId.equals(c.getAuthor().getUserId())
+                                userId != null && (
+                                    userId.equals(c.getAuthor().getUserId())
+                                    || userId.equals(c.getThemePost().getAuthor().getUserId())
+                                    || userId.equals(c.getThemePost().getForum().getCreator().getUserId())
+                                )
                         ))
                         .toList()
         );
@@ -187,9 +191,13 @@ public class ApiPostController {
         if (comment == null || !comment.getThemePost().getThemePostId().equals(postId)) {
             return ResponseEntity.notFound().build();
         }
-        if (!userId.equals(comment.getAuthor().getUserId())) {
+        boolean isAuthor = userId.equals(comment.getAuthor().getUserId());
+        boolean isPostAuthor = userId.equals(comment.getThemePost().getAuthor().getUserId());
+        boolean isForumCreator = userId.equals(
+                comment.getThemePost().getForum().getCreator().getUserId());
+        if (!isAuthor && !isPostAuthor && !isForumCreator) {
             return ResponseEntity.status(403)
-                    .body(Map.of("success", false, "message", "只能删除自己的评论"));
+                    .body(Map.of("success", false, "message", "无权删除此评论"));
         }
         commentService.deleteById(commentId);
         return ResponseEntity.ok(Map.of("success", true, "message", "评论已删除"));
