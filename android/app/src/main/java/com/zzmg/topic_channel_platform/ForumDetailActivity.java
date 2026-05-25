@@ -16,6 +16,7 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.zzmg.topic_channel_platform.adapter.PostAdapter;
 import com.zzmg.topic_channel_platform.api.ForumApi;
@@ -36,6 +37,7 @@ public class ForumDetailActivity extends AppCompatActivity {
 
     private TextView tvForumName, tvCreator, tvDescription;
     private Button btnJoinLeave, btnEditForum;
+    private SwipeRefreshLayout swipeRefreshLayout;
     private TextView tvNoPosts;
     private RecyclerView rvPosts;
     private PostAdapter postAdapter;
@@ -71,6 +73,12 @@ public class ForumDetailActivity extends AppCompatActivity {
         postAdapter = new PostAdapter();
         rvPosts.setAdapter(postAdapter);
 
+        swipeRefreshLayout = findViewById(R.id.swipe_refresh);
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            loadForumDetail();
+            loadForumPosts();
+        });
+
         forumId = getIntent().getLongExtra("forumId", -1);
         if (forumId == -1) {
             Toast.makeText(this, R.string.invalid_forum_id, Toast.LENGTH_SHORT).show();
@@ -89,6 +97,7 @@ public class ForumDetailActivity extends AppCompatActivity {
         forumApi.getForumDetail(forumId).enqueue(new Callback<ForumDetail>() {
             @Override
             public void onResponse(Call<ForumDetail> call, Response<ForumDetail> response) {
+                swipeRefreshLayout.setRefreshing(false);
                 if (response.isSuccessful() && response.body() != null) {
                     ForumDetail forum = response.body();
                     tvForumName.setText(forum.getForumName());
@@ -114,6 +123,7 @@ public class ForumDetailActivity extends AppCompatActivity {
         forumApi.getForumPosts(forumId).enqueue(new Callback<List<PostListItem>>() {
             @Override
             public void onResponse(Call<List<PostListItem>> call, Response<List<PostListItem>> response) {
+                swipeRefreshLayout.setRefreshing(false);
                 if (response.isSuccessful() && response.body() != null) {
                     postAdapter.setPosts(response.body());
                     boolean empty = response.body().isEmpty();
