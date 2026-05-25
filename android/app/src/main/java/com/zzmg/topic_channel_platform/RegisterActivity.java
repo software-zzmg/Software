@@ -94,9 +94,10 @@ public class RegisterActivity extends AppCompatActivity {
     }
 
     private void sendCode() {
+        String phone = etPhone.getText().toString().trim();
         String email = etEmail.getText().toString().trim();
         UserApi userApi = RetrofitClient.getInstance().create(UserApi.class);
-        userApi.sendRegisterCode(new SendCodeRequest(null, email)).enqueue(new Callback<ApiResponse>() {
+        userApi.sendRegisterCode(new SendCodeRequest(phone, email)).enqueue(new Callback<ApiResponse>() {
             @Override
             public void onResponse(Call<ApiResponse> call, Response<ApiResponse> response) {
                 if (response.isSuccessful() && response.body() != null) {

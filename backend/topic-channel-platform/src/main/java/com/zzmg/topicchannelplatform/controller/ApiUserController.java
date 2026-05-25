@@ -316,7 +316,7 @@ public class ApiUserController {
                     .body(Map.of("success", false, "message", sendError));
         }
         session.setAttribute("resetPhoneNumber", phoneNumber);
-        session.setAttribute("resetEmail", email);
+        session.setAttribute("resetEmailAddr", email);
         return ResponseEntity.ok(Map.of("success", true, "message", "验证码已发送"));
     }
 
@@ -338,9 +338,9 @@ public class ApiUserController {
                     .body(Map.of("success", false, "message", "邮箱格式错误"));
         }
         String storedPhone = (String) session.getAttribute("resetPhoneNumber");
-        String storedEmail = (String) session.getAttribute("resetEmail");
+        String storedEmailAddr = (String) session.getAttribute("resetEmailAddr");
         if (storedPhone == null || !storedPhone.equals(phoneNumber)
-                || storedEmail == null || !storedEmail.equals(email)) {
+                || storedEmailAddr == null || !storedEmailAddr.equals(email)) {
             return ResponseEntity.badRequest()
                     .body(Map.of("success", false, "message", "请重新获取验证码"));
         }
@@ -368,7 +368,7 @@ public class ApiUserController {
         }
         userService.resetPassword(phoneNumber, newPassword);
         session.removeAttribute("resetPhoneNumber");
-        session.removeAttribute("resetEmail");
+        session.removeAttribute("resetEmailAddr");
         return ResponseEntity.ok(Map.of("success", true, "message", "密码重置成功，请重新登录"));
     }
 }

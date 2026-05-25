@@ -20,8 +20,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Component
 public class DataSeedRunner implements CommandLineRunner {
@@ -59,119 +57,125 @@ public class DataSeedRunner implements CommandLineRunner {
             log.info("Seed disabled (seed.enabled=false)");
             return;
         }
-        log.info("=== DataSeedRunner starting ===");
+        log.info("=== DataSeedRunner start ===");
 
-        List<OrdinaryUser> users = seedUsers();
-        List<Forum> forums = seedForums(users);
-        List<ThemePost> posts = seedPosts(forums, users);
-        seedComments(posts, users);
+        OrdinaryUser user = seedUser();
+        Forum forum = seedForum(user);
+        seedMember(user, forum);
+        ThemePost post = seedPost(forum, user);
+        seedComments(post, user);
 
-        log.info("=== DataSeedRunner done: {} users, {} forums, {} posts, {} comments ===",
-                users.size(), forums.size(), posts.size(),
-                commentRepository.findAll().stream()
-                        .filter(c -> "审核通过".equals(c.getAuditState())).count());
+        log.info("=== DataSeedRunner done ===");
     }
 
-    private List<OrdinaryUser> seedUsers() {
-        List<OrdinaryUser> users = new ArrayList<>();
-        for (int i = 1; i <= 5; i++) {
-            String phone = "1380000000" + i;
-            if (userRepository.existsByPhoneNumber(phone)) {
-                users.add(userRepository.findByPhoneNumber(phone).orElseThrow());
-                continue;
-            }
-            OrdinaryUser user = new OrdinaryUser();
-            user.setUserId(String.format("%09d", new java.util.Random().nextInt(1_000_000_000)));
-            user.setPhoneNumber(phone);
-            user.setUserPassword(passwordEncoder.encode("123456"));
-            user.setUserName("测试用户" + i);
-            user.setRegisterTime(LocalDateTime.now());
-            users.add(userRepository.save(user));
+    private OrdinaryUser seedUser() {
+        String phone = "13800000001";
+        if (userRepository.existsByPhoneNumber(phone)) {
+            OrdinaryUser existing = userRepository.findByPhoneNumber(phone).orElseThrow();
+            log.info("复用用户: phone={}", phone);
+            return existing;
         }
-        log.info("Seed users: {} created, {} already existed",
-                5 - (int) users.stream().filter(u -> u.getRegisterTime() == null).count(),
-                (int) users.stream().filter(u -> u.getRegisterTime() == null).count());
-        return users;
+        OrdinaryUser user = new OrdinaryUser();
+        user.setUserId(String.format("%09d", new java.util.Random().nextInt(1_000_000_000)));
+        user.setPhoneNumber(phone);
+        user.setUserPassword(passwordEncoder.encode("123456"));
+        user.setUserName("测试用户");
+        user.setRegisterTime(LocalDateTime.of(2026, 2, 7, 0, 0, 0));
+        user = userRepository.save(user);
+        log.info("创建用户: phone={}, userId={}", phone, user.getUserId());
+        return user;
     }
 
-    private List<Forum> seedForums(List<OrdinaryUser> users) {
-        List<Forum> forums = new ArrayList<>();
-        for (int i = 1; i <= 10; i++) {
-            String name = "测试频道" + i;
-            if (forumRepository.findAll().stream().anyMatch(f -> name.equals(f.getForumName()))) {
-                forums.add(forumRepository.findAll().stream()
-                        .filter(f -> name.equals(f.getForumName())).findFirst().orElseThrow());
-                continue;
-            }
-            Forum forum = new Forum();
-            forum.setForumName(name);
-            forum.setContent("这是" + name + "的简介");
-            forum.setAuditState("审核通过");
-            forum.setCreator(users.get(i % 5));
-            forum.setCreateTime(LocalDateTime.now());
-            forum = forumRepository.save(forum);
-            forums.add(forum);
+    private Forum seedForum(OrdinaryUser creator) {
+        String name = "日期测试频道";
+        return forumRepository.findAll().stream()
+                .filter(f -> name.equals(f.getForumName()))
+                .findFirst()
+                .map(f -> {
+                    log.info("复用频道: {}", name);
+                    return f;
+                })
+                .orElseGet(() -> {
+                    Forum forum = new Forum();
+                    forum.setForumName(name);
+                    forum.setContent("这是用于系统测试的主题频道");
+                    forum.setCreator(creator);
+                    forum.setAuditState("审核通过");
+                    forum.setCreateTime(LocalDateTime.of(2026, 2, 12, 0, 0, 0));
+                    forum = forumRepository.save(forum);
+                    log.info("创建频道: {}", name);
+                    return forum;
+                });
+    }
 
-            // Add all 5 users as members
-            for (OrdinaryUser user : users) {
-                ForumMemberId fmi = new ForumMemberId(user.getUserId(), forum.getForumId());
-                if (!forumMemberRepository.existsById(fmi)) {
-                    ForumMember member = new ForumMember();
-                    member.setId(new ForumMemberId());
-                    member.setUser(user);
-                    member.setForum(forum);
-                    member.setJoinTime(LocalDateTime.now());
-                    forumMemberRepository.save(member);
-                }
-            }
+    private void seedMember(OrdinaryUser user, Forum forum) {
+        ForumMemberId fmi = new ForumMemberId(user.getUserId(), forum.getForumId());
+        if (forumMemberRepository.existsById(fmi)) {
+            log.info("跳过成员: userId={}, forumId={}", user.getUserId(), forum.getForumId());
+            return;
         }
-        log.info("Seed forums: {}", forums.size());
-        return forums;
+        ForumMember member = new ForumMember();
+        member.setId(new ForumMemberId());
+        member.setUser(user);
+        member.setForum(forum);
+        member.setJoinTime(LocalDateTime.of(2026, 2, 12, 0, 0, 0));
+        forumMemberRepository.save(member);
+        log.info("创建成员: userId={}, forumId={}", user.getUserId(), forum.getForumId());
     }
 
-    private List<ThemePost> seedPosts(List<Forum> forums, List<OrdinaryUser> users) {
-        List<ThemePost> posts = new ArrayList<>();
-        for (Forum forum : forums) {
-            for (int j = 1; j <= 10; j++) {
-                String title = forum.getForumName() + "的帖子" + j;
-                boolean exists = postRepository.findAll().stream()
-                        .anyMatch(p -> title.equals(p.getTitle())
-                                && p.getForum().getForumId().equals(forum.getForumId()));
-                if (exists) {
-                    continue;
-                }
-                ThemePost post = new ThemePost();
-                post.setForum(forum);
-                post.setTitle(title);
-                post.setContent("这是" + forum.getForumName() + "下第" + j + "篇测试帖子的正文内容");
-                post.setAuditState("审核通过");
-                post.setAuthor(users.get((j - 1) % 5));
-                post.setPublishTime(LocalDateTime.now());
-                posts.add(postRepository.save(post));
-            }
-        }
-        log.info("Seed posts: {}", posts.size());
-        return posts;
+    private ThemePost seedPost(Forum forum, OrdinaryUser author) {
+        String title = "日期测试帖子";
+        return postRepository.findAll().stream()
+                .filter(p -> title.equals(p.getTitle())
+                        && p.getForum().getForumId().equals(forum.getForumId()))
+                .findFirst()
+                .map(p -> {
+                    log.info("复用帖子: {}", title);
+                    return p;
+                })
+                .orElseGet(() -> {
+                    ThemePost post = new ThemePost();
+                    post.setForum(forum);
+                    post.setTitle(title);
+                    post.setContent("这是测试用户在测试频道中发布的测试帖子");
+                    post.setAuthor(author);
+                    post.setAuditState("审核通过");
+                    post.setPublishTime(LocalDateTime.of(2026, 2, 12, 0, 0, 0));
+                    post = postRepository.save(post);
+                    log.info("创建帖子: {}", title);
+                    return post;
+                });
     }
 
-    private void seedComments(List<ThemePost> posts, List<OrdinaryUser> users) {
-        int count = 0;
-        for (ThemePost post : posts) {
+    private void seedComments(ThemePost post, OrdinaryUser author) {
+        long postId = post.getThemePostId();
+        long existingCount = commentRepository.findAll().stream()
+                .filter(c -> c.getThemePost().getThemePostId().equals(postId))
+                .count();
+        int skipped = (int) existingCount;
+        int created = 0;
+
+        LocalDateTime baseTime = LocalDateTime.of(2026, 2, 13, 0, 0, 0);
+
+        for (int i = 1; i <= 100; i++) {
+            String content = "第" + i + "条测试评论";
+            final int idx = i;
             boolean exists = commentRepository.findAll().stream()
-                    .anyMatch(c -> c.getThemePost().getThemePostId().equals(post.getThemePostId())
-                            && c.getContent().contains(post.getTitle()));
+                    .anyMatch(c -> c.getThemePost().getThemePostId().equals(postId)
+                            && content.equals(c.getContent()));
             if (exists) {
                 continue;
             }
             Comment comment = new Comment();
             comment.setThemePost(post);
-            comment.setContent("这是帖子《" + post.getTitle() + "》的测试评论");
+            comment.setContent(content);
+            comment.setAuthor(author);
             comment.setAuditState("审核通过");
-            comment.setAuthor(users.get(new java.util.Random().nextInt(5)));
-            comment.setPublishTime(LocalDateTime.now());
+            comment.setPublishTime(baseTime.plusDays(idx - 1));
             commentRepository.save(comment);
-            count++;
+            created++;
         }
-        log.info("Seed comments: {}", count);
+
+        log.info("评论: 新增 {} 条, 跳过 {} 条", created, skipped);
     }
 }
