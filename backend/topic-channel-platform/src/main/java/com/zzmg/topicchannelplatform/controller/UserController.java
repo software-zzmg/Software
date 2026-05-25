@@ -265,7 +265,7 @@ public class UserController {
             return "user/userpsd-forget";
         }
         session.setAttribute("resetPhoneNumber", phoneNumber);
-        session.setAttribute("resetEmail", email);
+        session.setAttribute("resetEmailAddr", email);
         model.addAttribute("resetPhone", phoneNumber);
         model.addAttribute("resetEmail", email);
         model.addAttribute("codeSent", true);
@@ -286,9 +286,9 @@ public class UserController {
         model.addAttribute("resetEmail", email);
         model.addAttribute("codeSent", true);
         String storedPhone = (String) session.getAttribute("resetPhoneNumber");
-        String storedEmail = (String) session.getAttribute("resetEmail");
+        String storedEmailAddr = (String) session.getAttribute("resetEmailAddr");
         if (storedPhone == null || !storedPhone.equals(phoneNumber)
-                || storedEmail == null || !storedEmail.equals(email)) {
+                || storedEmailAddr == null || !storedEmailAddr.equals(email)) {
             model.addAttribute("error", "请重新获取验证码");
             return "user/userpsd-forget";
         }
@@ -304,7 +304,7 @@ public class UserController {
         }
         userService.resetPassword(phoneNumber, newPassword);
         session.removeAttribute("resetPhoneNumber");
-        session.removeAttribute("resetEmail");
+        session.removeAttribute("resetEmailAddr");
         return "redirect:/user/login";
     }
 
